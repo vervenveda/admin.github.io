@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ethical Civic Support Portal — 2028</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --card:#ffffff; --ink:#1f2937; --muted:#6b7280;
+    --primary:#1d4ed8; --accent:#10b981; --warn:#b45309; --danger:#b91c1c;
+  }
+  *{box-sizing:border-box}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:24px}
+  h1,h2,h3{margin:.2em 0}
+  p{color:var(--muted)}
+  .wrap{max-width:1100px;margin:auto}
+  .grid{display:grid;gap:16px}
+  @media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
+  .card{background:var(--card);border-radius:14px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.08)}
+  .badge{display:inline-block;padding:4px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{border:0;border-radius:10px;padding:12px 14px;font-weight:600;cursor:pointer}
+  .btn.primary{background:var(--primary);color:#fff}
+  .btn.ghost{background:#eef2ff;color:#3730a3}
+  .btn.warn{background:#fff7ed;color:var(--warn)}
+  .btn.danger{background:#fee2e2;color:var(--danger)}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  input,select,textarea{width:100%;padding:10px;border-radius:10px;border:1px solid #e5e7eb}
+  label{font-weight:600;font-size:14px}
+  .small{font-size:12px;color:var(--muted)}
+  .divider{height:1px;background:#e5e7eb;margin:14px 0}
+  .list{display:grid;gap:10px}
+  .pill{padding:6px 10px;border-radius:999px;background:#f1f5f9;font-size:12px}
+  .feed{max-height:360px;overflow:auto}
+  .feed-item{border-left:4px solid #c7d2fe;padding:10px 12px;background:#f8fafc;border-radius:10px}
+  .count{font-size:28px;font-weight:800}
+  .notice{background:#f0f9ff;border-left:4px solid #38bdf8;padding:12px;border-radius:10px}
+  .legal{background:#fff7ed;border-left:4px solid #fb923c;padding:12px;border-radius:10px}
+  .map{height:360px;border-radius:12px;background:#e5e7eb;display:flex;align-items:center;justify-content:center;color:#374151}
+  footer{margin-top:18px;color:#6b7280;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="card">
+    <span class="badge">Trust‑First Civic Tool</span>
+    <h1>Ethical Civic Support Pledge — 2028</h1>
+    <p><strong>Public Release Version.</strong> This portal allows individuals to voluntarily express political support in a <em>non‑binding, non‑transactional</em> way. It is <strong>not</strong> a ballot‑access petition, a donation mechanism, or a voter‑registration system.</p>
+    <p class="small">No funds are solicited. No voter eligibility is verified. Use of this tool does not replace any legal process required by election authorities.</p>
+  </header>
+
+  <section class="grid">
+    <!-- LEFT COLUMN -->
+    <div class="card">
+      <h2>Make a Support Pledge</h2>
+      <p class="small">Choose how you participate. Anonymous options are available.</p>
+
+      <div class="notice">
+        <strong>Informed Consent & Transparency Notice</strong>
+        <ul class="small">
+          <li>This pledge is symbolic and expressive only.</li>
+          <li>No financial contributions are requested or accepted.</li>
+          <li>Your data is stored locally in your browser unless you export it.</li>
+          <li>You may delete your data at any time using the button below.</li>
+          <li>Aggregate counts may be used for internal planning, never for voter targeting.</li>
+        </ul>
+      </div>
+
+      <div class="divider"></div>
+
+      <label>Participation Mode</label>
+      <select id="mode" onchange="toggleMode()">
+        <option value="anonymous">Anonymous pledge (no personal data)</option>
+        <option value="contact">Contactable supporter (email only)</option>
+        <option value="verified">Verified supporter (name + state)</option>
+      </select>
+
+      <div class="divider"></div>
+
+      <div id="fields-anon">
+        <label>Message (optional)</label>
+        <textarea id="anonMessage" placeholder="Why this matters to you (optional)"></textarea>
+      </div>
+
+      <div id="fields-contact" style="display:none">
+        <label>Email</label>
+        <input id="email" type="email" placeholder="you@example.com" />
+        <label>Message (optional)</label>
+        <textarea id="contactMessage"></textarea>
+      </div>
+
+      <div id="fields-verified" style="display:none">
+        <label>Full Name</label>
+        <input id="name" placeholder="Legal name" />
+        <label>State / Region</label>
+        <input id="region" placeholder="State or country" />
+        <label>Message (optional)</label>
+        <textarea id="verifiedMessage"></textarea>
+      </div>
+
+      <label class="small"><input type="checkbox" id="consent" /> I understand this is a non‑binding, voluntary civic expression and not an official petition.</label>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" onclick="savePledge()">Submit Pledge</button>
+        <button class="btn ghost" onclick="deleteMyData()">Delete My Data</button>
+      </div>
+      <p id="status" class="small"></p>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="card">
+      <h2>Live Community Feed</h2>
+      <p class="small">Entries shown are anonymized summaries from this device.</p>
+      <div class="feed list" id="feed"></div>
+      <div class="divider"></div>
+      <div class="row">
+        <div class="pill">Total pledges (local)</div>
+        <div class="count" id="count">0</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Districts & Representation (Expandable)</h2>
+    <p class="small">This is a placeholder for GeoJSON district maps (GeoBoundaries / CLEA). Data can be loaded locally for sovereign use.</p>
+    <div class="map">Interactive map loads here</div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn ghost">View My District</button>
+      <button class="btn ghost">Contact My Representative</button>
+    </div>
+    <div class="legal small" style="margin-top:10px">
+      For official voting actions, always use your election authority’s website.
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:16px">
+    <h2>🗳️ Civic Knowledge Challenge</h2>
+    <p class="small">Test your voting knowledge! Each quiz is 10 random questions. Miss one? You’ll see the correct answer and why it matters.</p>
+
+    <div id="quiz-box"></div>
+
+    <div class="row" style="margin-top:10px">
+      <button class="btn primary" onclick="startQuiz()">Start New Quiz</button>
+      <button class="btn ghost" onclick="resetQuiz()">Reset</button>
+    </div>
+
+    <p id="quiz-status" class="small"></p>
+  </section>
+
+  <footer>
+    <p>This tool is designed to reduce harm, protect privacy, and encourage informed civic participation.</p>
+  </footer>
+</div>
+
+<script>
+  const KEY = 'ethical_pledges_v1';
+  const pledges = JSON.parse(localStorage.getItem(KEY) || '[]');
+  const feed = document.getElementById('feed');
+  const count = document.getElementById('count');
+  const status = document.getElementById('status');
+
+  function toggleMode(){
+    const m = document.getElementById('mode').value;
+    document.getElementById('fields-anon').style.display = m==='anonymous'?'block':'none';
+    document.getElementById('fields-contact').style.display = m==='contact'?'block':'none';
+    document.getElementById('fields-verified').style.display = m==='verified'?'block':'none';
+  }
+
+  function savePledge(){
+    const consent = document.getElementById('consent').checked;
+    if(!consent){ status.textContent = 'Please acknowledge the consent notice.'; return; }
+
+    const mode = document.getElementById('mode').value;
+    let entry = { mode, ts: new Date().toISOString() };
+
+    if(mode==='anonymous'){
+      entry.message = document.getElementById('anonMessage').value || '';
+    }
+    if(mode==='contact'){
+      const email = document.getElementById('email').value.trim();
+      if(!email){ status.textContent='Email required.'; return; }
+      entry.email = email;
+      entry.message = document.getElementById('contactMessage').value || '';
+    }
+    if(mode==='verified'){
+      const name = document.getElementById('name').value.trim();
+      const region = document.getElementById('region').value.trim();
+      if(!name || !region){ status.textContent='Name and region required.'; return; }
+      entry.name = name; entry.region = region;
+      entry.message = document.getElementById('verifiedMessage').value || '';
+    }
+
+    pledges.push(entry);
+    localStorage.setItem(KEY, JSON.stringify(pledges));
+    status.textContent = 'Saved locally. Thank you for participating.';
+    render();
+
+  /* ==========================
+     Civic Knowledge Quiz Logic
+     ========================== */
+
+  const QUESTION_BANK = [
+    {q:'What is the minimum voting age in most U.S. elections?', a:['16','18','21','25'], c:1, e:'Federal law sets the voting age at 18.'},
+    {q:'Which branch of government makes laws?', a:['Executive','Judicial','Legislative','Administrative'], c:2, e:'Congress (the legislative branch) writes and passes laws.'},
+    {q:'What document outlines the structure of the U.S. government?', a:['Declaration of Independence','Articles of Confederation','The Constitution','The Bill of Rights'], c:2, e:'The Constitution establishes the government and its powers.'},
+    {q:'How many U.S. Senators does each state have?', a:['1','2','Based on population','Varies'], c:1, e:'Every state has two Senators regardless of size.'},
+    {q:'Who is responsible for certifying election results at the state level?', a:['The President','State election officials','The Supreme Court','Congress'], c:1, e:'States administer and certify their own elections.'},
+    {q:'What does the Electoral College do?', a:['Writes election laws','Registers voters','Elects the President','Counts ballots locally'], c:2, e:'The Electoral College formally elects the President.'},
+    {q:'Which amendment gave women the right to vote?', a:['13th','15th','19th','21st'], c:2, e:'The 19th Amendment (1920) guaranteed women’s suffrage.'},
+    {q:'Can you vote without registering in most U.S. states?', a:['Yes','No','Only in federal elections','Only by mail'], c:1, e:'Most states require voter registration, with some exceptions.'},
+    {q:'What is a primary election?', a:['An election to choose party nominees','A general election','A local referendum','A court decision'], c:0, e:'Primaries select party candidates for general elections.'},
+    {q:'Who can change election laws?', a:['The media','Courts only','Legislatures','Private companies'], c:2, e:'Election laws are passed by legislatures.'}
+    // Bank is expandable to 50+
+  ];
+
+  let quizQuestions = [];
+  let currentQ = 0;
+  let score = 0;
+
+  function startQuiz(){
+    quizQuestions = QUESTION_BANK.sort(()=>0.5-Math.random()).slice(0,10);
+    currentQ = 0; score = 0;
+    document.getElementById('quiz-status').textContent = '';
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    const box = document.getElementById('quiz-box');
+    const q = quizQuestions[currentQ];
+    if(!q){
+      box.innerHTML = `<h3>Quiz Complete!</h3><p>Your score: <strong>${score}/10</strong></p><p class='small'>Knowledge is power — keep learning and voting.</p>`;
+      return;
+    }
+    box.innerHTML = `<h3>Question ${currentQ+1} of 10</h3><p><strong>${q.q}</strong></p>` +
+      q.a.map((opt,i)=>`<button class='btn ghost' style='margin:5px 0;width:100%' onclick='answer(${i})'>${opt}</button>`).join('');
+  }
+
+  function answer(i){
+    const q = quizQuestions[currentQ];
+    const status = document.getElementById('quiz-status');
+    if(i===q.c){ score++; status.textContent='✅ Correct!'; }
+    else{ status.textContent=`❌ Incorrect. ${q.e}`; }
+    currentQ++;
+    setTimeout(()=>{ status.textContent=''; renderQuestion(); }, 1200);
+  }
+
+  function resetQuiz(){
+    document.getElementById('quiz-box').innerHTML = '';
+    document.getElementById('quiz-status').textContent = '';
+  }
+  }
+
+  function deleteMyData(){
+    localStorage.removeItem(KEY);
+    pledges.length = 0;
+    render();
+    status.textContent = 'All local data deleted.';
+  }
+
+  function render(){
+    feed.innerHTML = '';
+    pledges.slice().reverse().forEach(p=>{
+      const d = document.createElement('div');
+      d.className='feed-item';
+      d.innerHTML = `<strong>${p.mode.toUpperCase()}</strong> · <span class="small">${new Date(p.ts).toLocaleString()}</span><br><span class="small">${(p.message||'').slice(0,140)}</span>`;
+      feed.appendChild(d);
+    });
+    count.textContent = pledges.length;
+  }
+
+  render();
+</script>
+</body>
+</html>
