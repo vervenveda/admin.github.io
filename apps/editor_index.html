@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>The Verifier — Editor's Desk</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#f9f7f0;
+      --ink:#1a1511;
+      --accent:#223d7a;
+      --accent-soft:#dde3f5;
+      --border:#d1c8b6;
+    }
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
+    body{
+      padding:14px;
+    }
+    .app{
+      max-width:960px;
+      margin:0 auto;
+      background:var(--card);
+      border-radius:14px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.25);
+      padding:18px 18px 24px;
+      box-sizing:border-box;
+    }
+    header h1{
+      font-size:1.7rem;
+      margin:0 0 4px;
+      letter-spacing:0.06em;
+      text-transform:uppercase;
+    }
+    header p{
+      margin:0 0 10px;
+      color:#5b5044;
+      font-size:0.94rem;
+    }
+
+    .tab-row{
+      display:flex;
+      gap:8px;
+      margin-bottom:12px;
+      flex-wrap:wrap;
+    }
+    .tab-btn{
+      border:1px solid var(--accent);
+      background:var(--accent-soft);
+      color:var(--accent);
+      border-radius:999px;
+      padding:6px 14px;
+      font-size:0.88rem;
+      cursor:pointer;
+    }
+    .tab-btn.active{
+      background:var(--accent);
+      color:#ffffff;
+    }
+    .tab-btn:hover{
+      filter:brightness(0.96);
+    }
+
+    .panel{
+      display:block;
+      margin-top:8px;
+    }
+    .hidden{
+      display:none !important;
+    }
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      gap:10px 14px;
+      margin-bottom:12px;
+    }
+    .form-grid label{
+      font-size:0.85rem;
+      font-weight:600;
+      color:#665545;
+      display:block;
+      margin-bottom:3px;
+    }
+    .form-grid input[type="text"],
+    .form-grid input[type="date"],
+    .form-grid input[type="url"],
+    .form-grid select{
+      width:100%;
+      padding:5px 7px;
+      border-radius:7px;
+      border:1px solid var(--border);
+      font-size:0.9rem;
+      box-sizing:border-box;
+      background:#ffffff;
+    }
+    #bodyInput{
+      width:100%;
+      min-height:220px;
+      padding:8px;
+      border-radius:9px;
+      border:1px solid var(--border);
+      font-size:0.93rem;
+      resize:vertical;
+      box-sizing:border-box;
+      background:#ffffff;
+    }
+
+    .editor-buttons{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:10px 0 6px;
+      align-items:center;
+    }
+    .btn{
+      border:none;
+      border-radius:999px;
+      padding:7px 14px;
+      font-size:0.88rem;
+      cursor:pointer;
+    }
+    .btn-primary{
+      background:var(--accent);
+      color:#ffffff;
+    }
+    .btn-secondary{
+      background:#e0d7c7;
+      color:#433527;
+    }
+    .btn-quiet{
+      background:transparent;
+      border:1px dashed #b3a38f;
+      color:#6d5a44;
+    }
+    .btn:hover{
+      filter:brightness(0.96);
+    }
+
+    .layout-split{
+      display:grid;
+      grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);
+      gap:14px;
+      margin-top:8px;
+    }
+    .card{
+      border-radius:10px;
+      border:1px solid #ded4c3;
+      background:#fdfaf5;
+      padding:10px 10px 12px;
+      box-sizing:border-box;
+    }
+    .card h3{
+      margin:0 0 6px;
+      font-size:0.98rem;
+      color:#564737;
+    }
+
+    #articleList{
+      list-style:none;
+      margin:0;
+      padding:0;
+      max-height:220px;
+      overflow-y:auto;
+    }
+    #articleList li{
+      padding:5px 6px;
+      margin-bottom:3px;
+      border-radius:6px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:6px;
+      box-sizing:border-box;
+    }
+    #articleList li:nth-child(odd){ background:#f0e7d8; }
+    #articleList li:nth-child(even){ background:#f6efe2; }
+    #articleList li span.title{
+      font-size:0.88rem;
+      font-weight:600;
+      color:#4a3928;
+    }
+    #articleList li span.meta{
+      font-size:0.75rem;
+      color:#7d6b55;
+    }
+    .article-actions button{
+      border:none;
+      background:transparent;
+      color:#b25a4a;
+      font-size:0.8rem;
+      cursor:pointer;
+    }
+    .article-actions button:hover{
+      text-decoration:underline;
+    }
+
+    #jsonExport{
+      width:100%;
+      min-height:220px;
+      font-family:"SF Mono","Consolas","Menlo",monospace;
+      font-size:0.8rem;
+      padding:8px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      box-sizing:border-box;
+      background:#ffffff;
+      white-space:pre;
+    }
+    .status{
+      font-size:0.78rem;
+      color:#4b6b2a;
+      margin-left:6px;
+    }
+
+    .spell-panel{
+      margin-top:12px;
+    }
+    #spellList{
+      list-style:none;
+      margin:4px 0 0;
+      padding:0;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+    .spell-item{
+      background:#f4d9d5;
+      border-radius:999px;
+      padding:4px 7px;
+      font-size:0.78rem;
+      display:flex;
+      align-items:center;
+      gap:5px;
+    }
+    .spell-word{
+      font-weight:600;
+    }
+    .spell-count{
+      opacity:0.8;
+    }
+    .spell-item button{
+      border:none;
+      background:transparent;
+      cursor:pointer;
+      font-size:0.75rem;
+      color:#6f3b2d;
+    }
+    .spell-empty{
+      font-size:0.85rem;
+      color:#4b6b2a;
+    }
+
+    .panel p.help{
+      font-size:0.85rem;
+      color:#6a5c4a;
+      margin:4px 0 8px;
+    }
+
+    .aureon-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(0,1fr));
+      gap:14px;
+      margin-top:6px;
+    }
+    .aureon-block textarea{
+      width:100%;
+      min-height:150px;
+      padding:8px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      box-sizing:border-box;
+      font-size:0.9rem;
+      resize:vertical;
+      background:#ffffff;
+    }
+
+    #customDictBox{
+      width:100%;
+      min-height:200px;
+      padding:8px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      font-family:"SF Mono","Consolas","Menlo",monospace;
+      font-size:0.8rem;
+      box-sizing:border-box;
+      background:#ffffff;
+    }
+
+    @media (max-width:720px){
+      .app{
+        padding:14px 10px 18px;
+      }
+      .form-grid{
+        grid-template-columns:1fr;
+      }
+      .layout-split{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>The Verifier — Editor's Desk</h1>
+    <p>Offline newsroom console for building JSON snippets for each section of your public widgets.</p>
+  </header>
+
+  <div class="tab-row">
+    <button id="editorTab" class="tab-btn active" type="button" onclick="showVerifierPanel('editor')">Editor</button>
+    <button id="aureonTab" class="tab-btn" type="button" onclick="showVerifierPanel('aureon')">Aureon-lite</button>
+    <button id="adminTab" class="tab-btn" type="button" onclick="showVerifierPanel('admin')">Admin &amp; Dictionary</button>
+  </div>
+
+  <!-- ================== EDITOR PANEL ================== -->
+  <section id="editorPanel" class="panel">
+    <div class="form-grid">
+      <div>
+        <label for="sectionSelect">Section</label>
+        <select id="sectionSelect">
+          <option value="Editor's Choice">Editor's Choice</option>
+          <option value="Environment">Environment</option>
+          <option value="Corruption in the Ranks">Corruption in the Ranks</option>
+          <option value="US Politics">US Politics</option>
+          <option value="Foreign Politics">Foreign Politics</option>
+          <option value="Science & Technology">Science &amp; Technology</option>
+          <option value="Sports">Sports</option>
+          <option value="Health & Lifestyle">Health &amp; Lifestyle</option>
+          <option value="World Wire">World Wire</option>
+          <option value="Local Spotlight">Local Spotlight</option>
+        </select>
+      </div>
+      <div>
+        <label for="dateInput">Date</label>
+        <input id="dateInput" type="date" />
+      </div>
+      <div>
+        <label for="topicInput">Topic</label>
+        <input id="topicInput" type="text"
+               placeholder="Short topic label (e.g. Corruption, Environment)" />
+      </div>
+      <div>
+        <label for="seriesInput">Series</label>
+        <input id="seriesInput" type="text"
+               placeholder="Series name (optional)" />
+      </div>
+      <div style="grid-column:1 / -1;">
+        <label for="titleInput">Headline</label>
+        <input id="titleInput" type="text" spellcheck="true"
+               placeholder="Headline for this article" />
+      </div>
+    </div>
+
+    <div>
+      <label for="bodyInput" style="font-size:0.85rem;font-weight:600;color:#665545;">Body</label>
+      <textarea id="bodyInput" spellcheck="true"
+                placeholder="Write or paste your article here…"></textarea>
+    </div>
+
+    <div style="margin-top:6px;">
+      <label for="linkInput" style="font-size:0.8rem;color:#665545;">Public link (optional)</label>
+      <input id="linkInput" type="url"
+             placeholder="https://… (for the widget’s 'Open full article' button)" />
+    </div>
+
+    <div class="editor-buttons">
+      <button class="btn btn-primary" type="button" onclick="saveVerifierArticle()">Save to section</button>
+      <button class="btn btn-secondary" type="button" onclick="newVerifierArticle()">New / Clear form</button>
+      <button class="btn btn-quiet" type="button" onclick="runVerifierSpellCheck()">Spell check</button>
+      <span id="editorStatus" class="status"></span>
+    </div>
+
+    <div class="layout-split">
+      <div class="card">
+        <h3>Saved in section</h3>
+        <ul id="articleList"></ul>
+      </div>
+      <div class="card">
+        <h3>Section JSON export</h3>
+        <p class="help">Copy this array into your widget code where it defines <code>let comments = […]</code>.</p>
+        <textarea id="jsonExport" readonly></textarea>
+        <div style="margin-top:6px;">
+          <button class="btn btn-secondary" type="button" onclick="copyVerifierJson()">Copy JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="spell-panel hidden" id="spellPanel">
+      <h3 style="font-size:0.95rem;margin:10px 0 2px;">Offline spell-check findings</h3>
+      <p class="help">
+        This helper scans the current article for words not in the built-in list or your custom dictionary.
+        Your browser’s own red underlines still work separately.
+      </p>
+      <ul id="spellList"></ul>
+    </div>
+  </section>
+
+  <!-- ================== AUREON-LITE PANEL ================== -->
+  <section id="aureonPanel" class="panel hidden">
+    <h2>Aureon-lite Tools</h2>
+    <p class="help">
+      Aureon-lite works entirely offline. It reads the current headline + body and offers pattern-based helpers
+      you can tweak by hand.
+    </p>
+    <div class="aureon-grid">
+      <div class="aureon-block card">
+        <h3>Alternative headlines</h3>
+        <p class="help">Click once, then edit whichever line you like.</p>
+        <button class="btn btn-secondary" type="button" onclick="AureonLite.generateAltHeadline()">
+          Generate from current article
+        </button>
+        <textarea id="altHeadlineBox" spellcheck="true"
+                  placeholder="Headline options will appear here…"></textarea>
+      </div>
+      <div class="aureon-block card">
+        <h3>Summary paragraph</h3>
+        <p class="help">Uses the first few sentences and trims to a short paragraph.</p>
+        <button class="btn btn-secondary" type="button" onclick="AureonLite.generateSummary()">
+          Draft summary
+        </button>
+        <textarea id="summaryBox" spellcheck="true"
+                  placeholder="Summary draft will appear here…"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================== ADMIN / DICTIONARY PANEL ================== -->
+  <section id="adminPanel" class="panel hidden">
+    <h2>Admin &amp; Custom Dictionary</h2>
+    <p class="help">
+      Words you add here will be treated as correct by the offline spell checker (names, places, organizations, etc.).
+      One word per line.
+    </p>
+    <textarea id="customDictBox" spellcheck="false"></textarea>
+    <div class="editor-buttons" style="margin-top:8px;">
+      <button class="btn btn-secondary" type="button" onclick="saveCustomDictionaryFromAdmin()">Save dictionary</button>
+      <button class="btn btn-quiet" type="button" onclick="reloadCustomDictionaryIntoAdmin()">Revert</button>
+      <span id="adminStatus" class="status"></span>
+    </div>
+    <p class="help">
+      <label>
+        <input type="checkbox" id="includeBaseDict" checked />
+        Use built-in common-English word list when running spell check
+      </label>
+    </p>
+    <button class="btn btn-quiet" type="button" onclick="clearVerifierData()">Reset all local data</button>
+  </section>
+</div>
+
+<script>
+  // ===========================
+  //  GLOBAL STATE & DICTIONARY
+  // ===========================
+  const VERIFIER_STORAGE_KEY = "verifier_editor_state_v1";
+
+  const VERIFIER_BASE_WORDS = [
+    "a","about","above","across","after","again","against","all","almost","alone","along","already","also","always",
+    "among","an","and","another","any","anyone","anything","are","area","around","as","ask","at","back","be",
+    "because","become","been","before","began","behind","being","below","between","both","but","by","can","cannot",
+    "case","child","children","city","come","company","could","country","day","days","did","different","do","does",
+    "down","during","each","early","end","enough","even","every","example","family","far","few","find","first","for",
+    "form","found","from","get","give","go","good","government","great","group","hand","have","he","health","her",
+    "here","high","him","his","history","home","house","how","however","human","i","if","important","in","including",
+    "into","is","it","its","just","keep","know","known","large","last","later","law","lead","leave","less","life",
+    "like","line","little","long","look","made","make","man","many","may","might","more","most","mother","much","must",
+    "name","national","need","never","new","no","not","now","number","of","off","often","old","on","once","one","only",
+    "open","or","order","other","our","out","over","own","part","people","place","point","political","politics",
+    "possible","power","present","president","problem","public","put","question","rate","real","really","right","room",
+    "run","said","same","school","second","see","seem","seems","service","she","should","show","side","small","so",
+    "social","some","something","sometimes","state","still","story","such","system","take","than","that","the","their",
+    "them","then","there","these","they","thing","think","this","those","though","time","to","today","together","too",
+    "toward","town","true","under","up","us","use","used","very","want","war","was","water","way","we","week","well",
+    "were","what","when","where","whether","which","while","who","whole","why","will","with","within","without","woman",
+    "women","work","world","would","year","years","yes","yet","you","young","your"
+  ];
+  const VERIFIER_BASE_DICT = new Set(VERIFIER_BASE_WORDS.map(function(w){ return w.toLowerCase(); }));
+
+  let verifierState = {
+    sections:{},
+    customDict:[],
+    includeBaseDict:true
+  };
+  let verifierCustomSet = new Set();
+  let verifierStatusTimeout = null;
+
+  document.addEventListener("DOMContentLoaded", initVerifierEditor);
+
+  function initVerifierEditor(){
+    loadVerifierState();
+    rebuildVerifierCustomSet();
+
+    // Default today's date
+    const dateInput = document.getElementById("dateInput");
+    if (dateInput && !dateInput.value){
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2,"0");
+      const dd = String(today.getDate()).padStart(2,"0");
+      dateInput.value = yyyy + "-" + mm + "-" + dd;
+    }
+
+    const sectionSelect = document.getElementById("sectionSelect");
+    if (sectionSelect){
+      sectionSelect.addEventListener("change", function(){
+        renderSectionArticles();
+        updateJsonExport();
+      });
+    }
+
+    // Include-base checkbox
+    const includeBaseCheckbox = document.getElementById("includeBaseDict");
+    if (includeBaseCheckbox){
+      includeBaseCheckbox.checked = verifierState.includeBaseDict !== false;
+      includeBaseCheckbox.addEventListener("change", function(){
+        verifierState.includeBaseDict = !!includeBaseCheckbox.checked;
+        saveVerifierState();
+      });
+    }
+
+    syncCustomDictTextarea();
+    renderSectionArticles();
+    updateJsonExport();
+    showVerifierPanel("editor");
+  }
+
+  function loadVerifierState(){
+    try{
+      const raw = localStorage.getItem(VERIFIER_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object"){
+        if (parsed.sections && typeof parsed.sections === "object"){
+          verifierState.sections = parsed.sections;
+        }
+        if (Array.isArray(parsed.customDict)){
+          verifierState.customDict = parsed.customDict;
+        }
+        if (typeof parsed.includeBaseDict === "boolean"){
+          verifierState.includeBaseDict = parsed.includeBaseDict;
+        }
+      }
+    }catch(e){
+      console.warn("Verifier: could not load saved state", e);
+    }
+  }
+
+  function saveVerifierState(){
+    try{
+      localStorage.setItem(VERIFIER_STORAGE_KEY, JSON.stringify(verifierState));
+    }catch(e){
+      console.warn("Verifier: could not save state", e);
+    }
+  }
+
+  function rebuildVerifierCustomSet(){
+    verifierCustomSet = new Set(
+      (verifierState.customDict || []).map(function(w){ return String(w).toLowerCase(); })
+    );
+  }
+
+  function syncCustomDictTextarea(){
+    const box = document.getElementById("customDictBox");
+    if (!box) return;
+    box.value = (verifierState.customDict || []).join("\n");
+  }
+
+  function getCurrentSectionKey(){
+    const sel = document.getElementById("sectionSelect");
+    return sel && sel.value ? sel.value : "General";
+  }
+
+  function getCurrentSectionArray(){
+    const key = getCurrentSectionKey();
+    if (!verifierState.sections[key]){
+      verifierState.sections[key] = [];
+    }
+    return verifierState.sections[key];
+  }
+
+  // ===========================
+  //  EDITOR: SAVE / LOAD / LIST
+  // ===========================
+  function saveVerifierArticle(){
+    const dateInput   = document.getElementById("dateInput");
+    const topicInput  = document.getElementById("topicInput");
+    const seriesInput = document.getElementById("seriesInput");
+    const titleInput  = document.getElementById("titleInput");
+    const bodyInput   = document.getElementById("bodyInput");
+    const linkInput   = document.getElementById("linkInput");
+
+    const date   = dateInput ? (dateInput.value || "") : "";
+    const topic  = topicInput ? topicInput.value.trim() : "";
+    const series = seriesInput ? seriesInput.value.trim() : "";
+    const title  = titleInput ? titleInput.value.trim() : "";
+    const body   = bodyInput ? bodyInput.value.trim() : "";
+    const link   = linkInput ? linkInput.value.trim() : "";
+
+    if (!title || !body){
+      alert("Please add at least a headline and a body before saving.");
+      return;
+    }
+
+    const article = { date:date, title:title, topic:topic, body:body };
+    if (series) article.series = series;
+    if (link)   article.link   = link;
+
+    const arr = getCurrentSectionArray();
+    const existingIndex = arr.findIndex(function(a){
+      return a && a.title === title;
+    });
+
+    if (existingIndex >= 0){
+      arr[existingIndex] = article;
+    } else {
+      arr.unshift(article); // newest first
+    }
+
+    saveVerifierState();
+    renderSectionArticles();
+    updateJsonExport();
+    showStatus("Saved to section", "editorStatus");
+  }
+
+  function renderSectionArticles(){
+    const listEl = document.getElementById("articleList");
+    if (!listEl) return;
+    const arr = getCurrentSectionArray();
+    listEl.innerHTML = "";
+
+    if (!arr.length){
+      const empty = document.createElement("li");
+      empty.textContent = "No saved articles for this section yet.";
+      empty.style.fontSize = "0.82rem";
+      empty.style.color = "#7a6a55";
+      listEl.appendChild(empty);
+      return;
+    }
+
+    arr.forEach(function(a, index){
+      if (!a) return;
+      const li = document.createElement("li");
+      li.title = "Click to load this article into the editor";
+
+      li.addEventListener("click", function(e){
+        if (e.target && e.target.closest && e.target.closest("button")) return;
+        loadVerifierArticle(index);
+      });
+
+      const textDiv = document.createElement("div");
+      textDiv.style.flex = "1 1 auto";
+
+      const titleSpan = document.createElement("span");
+      titleSpan.className = "title";
+      titleSpan.textContent = a.title || "(Untitled)";
+
+      const metaSpan = document.createElement("span");
+      metaSpan.className = "meta";
+      const pieces = [];
+      if (a.topic)  pieces.push(a.topic);
+      if (a.date)   pieces.push(a.date);
+      if (a.series) pieces.push(a.series);
+      metaSpan.textContent = pieces.join(" • ");
+
+      textDiv.appendChild(titleSpan);
+      textDiv.appendChild(document.createElement("br"));
+      textDiv.appendChild(metaSpan);
+
+      const actionsDiv = document.createElement("div");
+      actionsDiv.className = "article-actions";
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.textContent = "Delete";
+      delBtn.addEventListener("click", function(e){
+        e.stopPropagation();
+        deleteVerifierArticle(index);
+      });
+
+      actionsDiv.appendChild(delBtn);
+      li.appendChild(textDiv);
+      li.appendChild(actionsDiv);
+      listEl.appendChild(li);
+    });
+  }
+
+  function loadVerifierArticle(index){
+    const arr = getCurrentSectionArray();
+    const a = arr[index];
+    if (!a) return;
+
+    const dateInput   = document.getElementById("dateInput");
+    const topicInput  = document.getElementById("topicInput");
+    const seriesInput = document.getElementById("seriesInput");
+    const titleInput  = document.getElementById("titleInput");
+    const bodyInput   = document.getElementById("bodyInput");
+    const linkInput   = document.getElementById("linkInput");
+
+    if (dateInput)   dateInput.value   = a.date   || "";
+    if (topicInput)  topicInput.value  = a.topic  || "";
+    if (seriesInput) seriesInput.value = a.series || "";
+    if (titleInput)  titleInput.value  = a.title  || "";
+    if (bodyInput)   bodyInput.value   = a.body   || "";
+    if (linkInput)   linkInput.value   = a.link   || "";
+
+    showStatus("Loaded article", "editorStatus");
+  }
+
+  function deleteVerifierArticle(index){
+    const arr = getCurrentSectionArray();
+    const a = arr[index];
+    if (!a) return;
+    const confirmed = confirm("Delete this article from the current section?\n\n" + (a.title || ""));
+    if (!confirmed) return;
+    arr.splice(index, 1);
+    saveVerifierState();
+    renderSectionArticles();
+    updateJsonExport();
+  }
+
+  function newVerifierArticle(){
+    const topicInput  = document.getElementById("topicInput");
+    const seriesInput = document.getElementById("seriesInput");
+    const titleInput  = document.getElementById("titleInput");
+    const bodyInput   = document.getElementById("bodyInput");
+    const linkInput   = document.getElementById("linkInput");
+
+    if (topicInput)  topicInput.value  = "";
+    if (seriesInput) seriesInput.value = "";
+    if (titleInput)  titleInput.value  = "";
+    if (bodyInput)   bodyInput.value   = "";
+    if (linkInput)   linkInput.value   = "";
+
+    showStatus("Cleared form", "editorStatus");
+  }
+
+  // ===========================
+  //  SPELL CHECK (OFFLINE)
+  // ===========================
+  function runVerifierSpellCheck(){
+    const titleInput  = document.getElementById("titleInput");
+    const topicInput  = document.getElementById("topicInput");
+    const seriesInput = document.getElementById("seriesInput");
+    const bodyInput   = document.getElementById("bodyInput");
+
+    const title  = titleInput  ? titleInput.value  : "";
+    const topic  = topicInput  ? topicInput.value  : "";
+    const series = seriesInput ? seriesInput.value : "";
+    const body   = bodyInput   ? bodyInput.value   : "";
+
+    const combined = [title, topic, series, body].join(" \n ");
+    const words = combined.split(/[^A-Za-z0-9']+/).filter(function(w){ return w; });
+
+    const counts = Object.create(null);
+    words.forEach(function(word){
+      if (!word) return;
+      if (isVerifierKnownWord(word)) return;
+      const key = word.toLowerCase();
+      counts[key] = (counts[key] || 0) + 1;
+    });
+
+    const listEl = document.getElementById("spellList");
+    const panel = document.getElementById("spellPanel");
+    if (!listEl || !panel) return;
+
+    panel.classList.remove("hidden");
+    listEl.innerHTML = "";
+
+    const entries = Object.entries(counts);
+    if (!entries.length){
+      const msg = document.createElement("div");
+      msg.className = "spell-empty";
+      msg.textContent = "No suspicious words found by the offline checker.";
+      listEl.appendChild(msg);
+      return;
+    }
+
+    entries.sort(function(a,b){
+      return b[1] - a[1] || a[0].localeCompare(b[0]);
+    });
+
+    entries.forEach(function(entry){
+      const word = entry[0];
+      const count = entry[1];
+
+      const li = document.createElement("li");
+      li.className = "spell-item";
+
+      const wordSpan = document.createElement("span");
+      wordSpan.className = "spell-word";
+      wordSpan.textContent = word;
+
+      const countSpan = document.createElement("span");
+      countSpan.className = "spell-count";
+      countSpan.textContent = "×" + count;
+
+      const addBtn = document.createElement("button");
+      addBtn.type = "button";
+      addBtn.textContent = "Add";
+      addBtn.addEventListener("click", function(){
+        addWordToVerifierDictionary(word);
+      });
+
+      const ignoreBtn = document.createElement("button");
+      ignoreBtn.type = "button";
+      ignoreBtn.textContent = "Hide";
+      ignoreBtn.addEventListener("click", function(){
+        li.remove();
+      });
+
+      li.appendChild(wordSpan);
+      li.appendChild(countSpan);
+      li.appendChild(addBtn);
+      li.appendChild(ignoreBtn);
+      listEl.appendChild(li);
+    });
+  }
+
+  function isVerifierKnownWord(word){
+    if (!word) return true;
+    if (/^\d+([.%])?$/.test(word)) return true;           // numbers, percentages
+    if (word.indexOf("@") >= 0 || word.indexOf("://") >= 0) return true; // emails, URLs
+    if (word.indexOf("'") >= 0) return true;              // skip contractions
+    if (/^[A-Z][a-z]+$/.test(word)) return true;          // assume proper name (capitalized)
+    const w = word.toLowerCase();
+    if (w.length <= 2) return true;
+    if (verifierState.includeBaseDict !== false && VERIFIER_BASE_DICT.has(w)) return true;
+    if (verifierCustomSet.has(w)) return true;
+    return false;
+  }
+
+  function addWordToVerifierDictionary(word){
+    const w = String(word || "").toLowerCase();
+    if (!w) return;
+    if (!verifierState.customDict.includes(w)){
+      verifierState.customDict.push(w);
+      verifierState.customDict.sort();
+      rebuildVerifierCustomSet();
+      saveVerifierState();
+      syncCustomDictTextarea();
+    }
+    runVerifierSpellCheck();
+  }
+
+  // ===========================
+  //  ADMIN / DICTIONARY
+  // ===========================
+  function saveCustomDictionaryFromAdmin(){
+    const box = document.getElementById("customDictBox");
+    if (!box) return;
+    const text = box.value || "";
+    const words = text.split(/\r?\n/).map(function(w){
+      return w.trim().toLowerCase();
+    }).filter(function(w){ return w; });
+
+    verifierState.customDict = Array.from(new Set(words)).sort();
+    rebuildVerifierCustomSet();
+    saveVerifierState();
+    showStatus("Dictionary saved", "adminStatus");
+  }
+
+  function reloadCustomDictionaryIntoAdmin(){
+    syncCustomDictTextarea();
+    showStatus("Dictionary reloaded", "adminStatus");
+  }
+
+  function clearVerifierData(){
+    if (!confirm("This will clear all saved articles and dictionary data for this editor.\n\nThis cannot be undone. Continue?")){
+      return;
+    }
+    try{
+      localStorage.removeItem(VERIFIER_STORAGE_KEY);
+    }catch(e){
+      console.warn("Verifier: error clearing storage", e);
+    }
+    verifierState = { sections:{}, customDict:[], includeBaseDict:true };
+    rebuildVerifierCustomSet();
+    syncCustomDictTextarea();
+    renderSectionArticles();
+    updateJsonExport();
+    showStatus("All local data cleared", "adminStatus");
+  }
+
+  // ===========================
+  //  JSON EXPORT
+  // ===========================
+  function updateJsonExport(){
+    const box = document.getElementById("jsonExport");
+    if (!box) return;
+    const arr = getCurrentSectionArray();
+    box.value = JSON.stringify(arr, null, 2);
+  }
+
+  function copyVerifierJson(){
+    const box = document.getElementById("jsonExport");
+    if (!box) return;
+    box.focus();
+    box.select();
+    box.setSelectionRange(0, 999999);
+    let ok = false;
+    try{
+      ok = document.execCommand("copy");
+    }catch(e){
+      ok = false;
+    }
+    if (ok){
+      showStatus("JSON copied to clipboard", "editorStatus");
+    }else{
+      showStatus("Select + copy manually (browser blocked auto-copy)", "editorStatus");
+    }
+  }
+
+  // ===========================
+  //  UI HELPERS
+  // ===========================
+  function showVerifierPanel(name){
+    const ids = ["editor","aureon","admin"];
+    ids.forEach(function(n){
+      const panel = document.getElementById(n + "Panel");
+      const tab = document.getElementById(n + "Tab");
+      const active = (n === name);
+      if (panel){
+        if (active) panel.classList.remove("hidden");
+        else panel.classList.add("hidden");
+      }
+      if (tab){
+        if (active) tab.classList.add("active");
+        else tab.classList.remove("active");
+      }
+    });
+  }
+
+  function showStatus(msg, id){
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    if (verifierStatusTimeout){
+      clearTimeout(verifierStatusTimeout);
+    }
+    verifierStatusTimeout = setTimeout(function(){
+      el.textContent = "";
+    }, 3000);
+  }
+
+  // ===========================
+  //  AUREON-LITE HELPERS
+  // ===========================
+  const AureonLite = {
+    generateAltHeadline:function(){
+      const titleEl = document.getElementById("titleInput");
+      const bodyEl  = document.getElementById("bodyInput");
+      const outEl   = document.getElementById("altHeadlineBox");
+
+      if (!outEl) return;
+
+      const title = titleEl ? titleEl.value.trim() : "";
+      const body  = bodyEl  ? bodyEl.value.trim()  : "";
+
+      let base = title;
+      if (!base && body){
+        const firstSentence = body.split(/[.!?]\s+/)[0] || "";
+        base = firstSentence.slice(0, 90);
+      }
+      if (!base){
+        outEl.value = "Add a title or body text first.";
+        return;
+      }
+
+      const variants = buildHeadlineVariants(base);
+      outEl.value = variants.join("\n");
+    },
+
+    generateSummary:function(){
+      const bodyEl = document.getElementById("bodyInput");
+      const outEl  = document.getElementById("summaryBox");
+      if (!outEl) return;
+
+      const body = bodyEl ? bodyEl.value.trim() : "";
+      if (!body){
+        outEl.value = "Add article body text first.";
+        return;
+      }
+
+      const sentences = body.split(/(?<=[.!?])\s+/);
+      const selected = sentences.slice(0, 3);
+      let summary = selected.join(" ");
+      if (summary.length > 480){
+        summary = summary.slice(0, 460);
+        const lastSpace = summary.lastIndexOf(" ");
+        if (lastSpace > 0){
+          summary = summary.slice(0, lastSpace);
+        }
+        summary += "…";
+      }
+      outEl.value = summary;
+    }
+  };
+
+  function buildHeadlineVariants(base){
+    const cleaned = base.replace(/\s+/g, " ").trim();
+    const noPunct = cleaned.replace(/[.?!]$/, "");
+    const lower = noPunct.toLowerCase();
+
+    const stopWords = ["the","a","an","of","and","to","for","in","on","with","from","that","this","is","are","was","were","be","been","by"];
+    const coreTokens = lower.split(" ").filter(function(w){
+      return w && stopWords.indexOf(w) === -1;
+    });
+    const core = coreTokens.map(function(w){
+      return w.charAt(0).toUpperCase() + w.slice(1);
+    }).join(" ");
+
+    const baseCore = core || noPunct;
+
+    const variant1 = baseCore;
+    const variant2 = "Inside " + baseCore;
+    const variant3 = baseCore + ": What You Need to Know";
+    const variant4 = "Who Pays the Price for " + baseCore + "?";
+
+    const out = [];
+    [variant1, variant2, variant3, variant4].forEach(function(v){
+      if (v && out.indexOf(v) === -1){
+        out.push(v);
+      }
+    });
+    return out;
+  }
+</script>
+</body>
+</html>
