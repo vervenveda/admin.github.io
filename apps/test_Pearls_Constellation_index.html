@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pearls Constellation — Sovereign Studio</title>
+<style>
+  /* ==========================================================
+     PEARLS CONSTELLATION — Sovereign Studio (Single‑File)
+     All-local, no dependencies. Wix‑friendly embed.
+     ========================================================== */
+  :root{
+    /* Palette */
+    --midnight:#0a1022; --midnight-2:#0f1730; --ink:#1a1f2b;
+    --parchment:#f7f3ea; --parchment-2:#efe7d7; --paper:#fffdf7;
+    --gold:#d9b878; --gold-deep:#b89252; --accent:#7aa9ff; --mint:#6ed3a6; --rose:#ff8bab;
+    --shadow:0 12px 32px rgba(0,0,0,.16);
+    /* Sacred sizing */
+    --r-7:7px; --r-9:9px; --r-11:11px; --r-21:21px; --r-33:33px;
+    --pad:22px; --gap:22px; --gap-sm:11px; --gap-lg:33px;
+    --maxw:1100px; --colw:960px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:radial-gradient(1200px 700px at 10% 0%,var(--midnight),#050912);
+    color:#e9edf6; font: 18px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    display:flex; justify-content:center; min-height:100vh;
+  }
+  .app{ width:100%; max-width:var(--maxw); padding:22px; }
+  /* Top chrome */
+  .topbar{
+    display:flex; gap:var(--gap); align-items:center; justify-content:space-between;
+    background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+    border:1px solid rgba(217,184,120,.25); border-radius:var(--r-11);
+    padding:14px 18px; box-shadow: var(--shadow);
+  }
+  .brand{ display:flex; align-items:center; gap:14px; }
+  .badge{ width:56px; height:56px; border-radius:999px; background:
+    radial-gradient(circle at 30% 20%, #fff2c2, var(--gold) 60%, #7a5a28);
+    box-shadow:0 0 28px rgba(255,222,140,.45); flex:0 0 56px; }
+  .title{ margin:0; font-size:27px; letter-spacing:.12em; text-transform:uppercase; color:#f8f6ef; }
+  .tabs{ display:flex; flex-wrap:wrap; gap:10px; }
+  .tab{ background:#142042; color:#e9edf6; border:1px solid rgba(217,184,120,.22);
+        padding:9px 14px; border-radius:9px; cursor:pointer; font-size:14px; }
+  .tab.active{ background:#e8d5a4; color:#0e1429; border-color:var(--gold-deep); }
+
+  /* CTA Row */
+  .cta-row{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:var(--gap); margin:var(--gap) 0; }
+  .cta{ background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
+        border:1px solid rgba(217,184,120,.32); border-radius:var(--r-21);
+        padding:18px; text-align:center; box-shadow: var(--shadow);
+        min-height:96px; display:flex; align-items:center; justify-content:center; gap:12px; font-weight:700; cursor:pointer; }
+  .cta:hover{ filter:brightness(1.05); }
+  @media (max-width:900px){ .cta-row{ grid-template-columns:1fr; } }
+
+  /* Views */
+  .view{ display:none; margin-top:var(--gap); background:var(--paper); color:var(--ink);
+         border-radius:var(--r-21); padding:var(--pad); box-shadow: var(--shadow);
+         border:1px solid rgba(217,184,120,.45); }
+  .view.active{ display:block; }
+  .view h2{ margin:0 0 11px 0; font-size:27px; letter-spacing:.06em; }
+  .muted{ color:#57607a }
+
+  /* Buttons + inputs */
+  .btn{ background:linear-gradient(135deg,var(--gold),#f0e2b7); color:#09101a; border:1px solid var(--gold-deep);
+        border-radius:11px; padding:10px 16px; cursor:pointer; font-weight:600; }
+  .btn.secondary{ background:#f2ecdb; border-color:#e0d4b3; }
+  .btn.ghost{ background:#fff; border-color:#d8dbe6; }
+  .btn.danger{ background:#cc3d3d; border-color:#942d2d; color:#fff; }
+  .row{ display:flex; gap:var(--gap); flex-wrap:wrap; align-items:center; }
+  .col{ display:flex; flex-direction:column; gap:var(--gap-sm); }
+  input[type="text"], input[type="color"], textarea, select{
+    font: inherit; padding:10px 12px; border-radius:9px; border:1px solid #d9dce7; background:#fff; color:#1c2337;
+  }
+  textarea{ min-height:144px; }
+
+  /* Writer */
+  .toolbar{ display:flex; flex-wrap:wrap; gap:8px; background:#fbf8ef; padding:8px; border:1px solid #e8dcc0; border-radius:11px; }
+  .tool{ padding:8px 10px; border-radius:8px; border:1px solid #e3e3ea; background:#fff; cursor:pointer; font-size:14px; }
+  .editor{ border:1px solid #e2e6f0; border-radius:11px; padding:16px; background:#fffef8; min-height:222px; }
+
+  /* Lunar */
+  .moon-wrap{ display:flex; gap:22px; flex-wrap:wrap; align-items:center; }
+  #moonCanvas{ width:220px; height:220px; border-radius:50%; box-shadow:0 0 35px rgba(0,0,0,.18); }
+
+  /* Mandala */
+  .mandala-grid{ display:grid; grid-template-columns: 280px 1fr; gap:22px; }
+  @media (max-width:880px){ .mandala-grid{ grid-template-columns:1fr; } }
+  .mandala-box{ display:flex; align-items:center; justify-content:center; background:#fff; border:1px solid #e2e6f0; border-radius:11px; min-height:320px; }
+
+  /* Counsel */
+  .note{ background:#fff8e8; border:1px solid #ead9ad; padding:12px 14px; border-radius:9px; color:#6c5829; }
+
+  /* Learn */
+  .alpha-card{ display:grid; grid-template-rows: 1fr auto; align-items:center; justify-items:center; gap:9px;
+               background:linear-gradient(180deg,#ffffff,#f7fbff); border:1px solid #e2e6f0; border-radius:18px; padding:18px; min-height:260px; }
+  .alpha-letter{ font-size:120px; line-height:1; font-weight:900; }
+  .alpha-emoji{ font-size:72px; cursor:pointer; }
+
+  /* Sandbox */
+  .sandbox-grid{ display:grid; grid-template-columns: 1fr; gap:11px; }
+  .sandbox-iframe{ width:100%; height:360px; border:1px solid #e2e6f0; border-radius:11px; background:#fff; }
+
+  /* Cloud */
+  table{ width:100%; border-collapse:collapse; }
+  th,td{ padding:10px 12px; border-bottom:1px solid #e8ecf4; text-align:left; }
+  tr:hover td{ background:#fafbfd; }
+
+  /* Footer */
+  .foot{ text-align:center; color:#aeb6c9; margin:22px 0 11px; font-size:14px; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="badge" aria-hidden="true"></div>
+        <h1 class="title">Pearls Constellation — Sovereign Studio</h1>
+      </div>
+      <div class="tabs" id="tabs"></div>
+    </div>
+
+    <!-- Primary CTAs (first-row focus) -->
+    <div class="cta-row">
+      <div class="cta" data-open="writer">➕ New Document</div>
+      <div class="cta" data-open="cloud">☁️ My Cloud</div>
+      <div class="cta" data-open="counsel">🌍 Legal Aid</div>
+    </div>
+
+    <!-- Views -->
+    <section class="view active" id="view-dashboard">
+      <h2>Dashboard</h2>
+      <p class="muted">Welcome to your sovereign, all‑in‑one studio. Everything you make is stored locally (in your browser) and can be exported as a single backup file.</p>
+      <div class="row" style="margin-top:11px">
+        <button class="btn" data-open="writer">Open Writer</button>
+        <button class="btn secondary" data-open="inspire">Inspiration Game</button>
+        <button class="btn secondary" data-open="lunar">Lunar Reflections</button>
+        <button class="btn secondary" data-open="mandala">Mandala Builder</button>
+        <button class="btn secondary" data-open="learn">Alphabet Mini</button>
+        <button class="btn secondary" data-open="sandbox">Embed Sandbox</button>
+        <button class="btn" data-open="cloud">Open Cloud</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-writer">
+      <h2>PROSE Mini — Writer</h2>
+      <div class="toolbar" aria-label="Formatting">
+        <button class="tool" data-cmd="bold"><b>B</b></button>
+        <button class="tool" data-cmd="italic"><i>I</i></button>
+        <button class="tool" data-cmd="underline"><u>U</u></button>
+        <button class="tool" data-cmd="insertUnorderedList">• List</button>
+        <button class="tool" id="h1Btn">H1</button>
+        <label class="tool" style="display:inline-flex;align-items:center;gap:6px;">
+          🎨
+          <input type="color" id="colorPick" value="#1a1f2b" />
+        </label>
+        <span class="muted" style="margin-left:auto">All local • No servers</span>
+      </div>
+      <div id="writerArea" class="editor" contenteditable="true">Start writing…</div>
+      <div class="row" style="margin-top:11px">
+        <input id="docName" type="text" placeholder="Document title" style="flex:1" />
+        <button class="btn" id="saveDoc">Save to Cloud</button>
+        <button class="btn ghost" id="clearDoc">Clear</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-inspire">
+      <h2>Inspiration Game</h2>
+      <p class="muted">Gentle prompts to warm up your creative mind.</p>
+      <div id="quizArea">
+        <div id="qText" style="font-weight:700;margin-bottom:8px"></div>
+        <div id="inputArea"></div>
+        <div class="row" style="margin-top:11px">
+          <button class="btn" id="nextQ">Next</button>
+          <div id="encourage" class="muted"></div>
+        </div>
+      </div>
+      <div id="inspireDone" style="display:none">
+        <div style="background:#fff8ef;border:1px solid #f0e2b7;border-radius:11px;padding:14px">
+          <b>Saved!</b> Your answers live in the Cloud as <i>Inspiration Session</i>.
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-lunar">
+      <h2>Lunar Reflections</h2>
+      <div class="moon-wrap">
+        <canvas id="moonCanvas" width="260" height="260" title="Tap to tone"></canvas>
+        <div>
+          <div id="moonInfo" class="muted">—</div>
+          <textarea id="lunarNote" placeholder="Tonight I notice…"></textarea>
+          <div class="row">
+            <button class="btn" id="saveLunar">Record Insight</button>
+            <button class="btn ghost" id="playTone">Play Tone</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:11px">
+        <details>
+          <summary><b>Chronicle</b></summary>
+          <ul id="lunarLog"></ul>
+        </details>
+      </div>
+    </section>
+
+    <section class="view" id="view-mandala">
+      <h2>Mandala Builder</h2>
+      <div class="mandala-grid">
+        <div class="col">
+          <label>Theme
+            <select id="mTheme">
+              <option>Healing</option><option>Courage</option><option>Focus</option>
+              <option>Love</option><option>Clarity</option>
+            </select>
+          </label>
+          <label>Shape
+            <select id="mShape">
+              <option>Circle</option><option>Triangle</option><option>Hexagon</option>
+              <option>Star</option><option>Lotus</option><option>Spiral</option>
+            </select>
+          </label>
+          <label>Color <input type="color" id="mColor" value="#d9b878" /></label>
+          <div class="row">
+            <button class="btn" id="addLayer">Add Layer</button>
+            <button class="btn secondary" id="exportSVG">Export SVG</button>
+            <button class="btn ghost" id="clearMandala">Clear</button>
+          </div>
+          <div id="mDesc" class="note">Add layers to grow your geometry.</div>
+        </div>
+        <div class="mandala-box"><div id="mandalaHost"></div></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-counsel">
+      <h2>Firmament — Draftlets</h2>
+      <p class="note"><b>Not legal advice.</b> These are educational outlines to take to counsel.</p>
+      <div class="row">
+        <button class="btn" data-tpl="will">Living Will Outline</button>
+        <button class="btn" data-tpl="lease">Simple Lease Outline</button>
+        <button class="btn" data-tpl="nda">NDA Outline</button>
+      </div>
+      <textarea id="counselText" placeholder="Choose a template or write your own…"></textarea>
+      <div class="row">
+        <button class="btn" id="saveCounsel">Save to Cloud</button>
+        <button class="btn secondary" id="downloadCounsel">Download .txt</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-learn">
+      <h2>Alphabet Mini</h2>
+      <div class="row" style="align-items:stretch">
+        <div class="col" style="flex:1">
+          <div id="alphaCard" class="alpha-card">
+            <div>
+              <div id="alphaLetter" class="alpha-letter">A</div>
+              <div id="alphaEmoji" class="alpha-emoji" title="Say word">🍎</div>
+              <div id="alphaWord" style="font-weight:700;color:#324">Apple</div>
+            </div>
+            <div style="opacity:.8">Tap emoji to say the word • ◀ ▶ to navigate</div>
+          </div>
+        </div>
+        <div class="col" style="width:260px">
+          <div class="row">
+            <button id="prevAlpha" class="btn secondary">◀ Back</button>
+            <button id="nextAlpha" class="btn">Next ▶</button>
+          </div>
+          <div class="row">
+            <button id="readAlpha" class="btn ghost">🔊 Read Along: Off</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-sandbox">
+      <h2>Embed Sandbox</h2>
+      <p class="muted">Paste any mini‑app HTML and run it isolated below. Use at your own risk.</p>
+      <textarea id="sandboxSrc" placeholder="&lt;!doctype html&gt; …"></textarea>
+      <div class="row">
+        <label><input type="checkbox" id="sbScripts" checked> allow-scripts</label>
+        <label><input type="checkbox" id="sbSame" > allow-same-origin</label>
+        <button class="btn" id="runSandbox">Run</button>
+      </div>
+      <iframe id="sandboxFrame" class="sandbox-iframe" sandbox="allow-scripts"></iframe>
+    </section>
+
+    <section class="view" id="view-cloud">
+      <h2>My Cloud (Local)</h2>
+      <div class="row">
+        <button class="btn" id="exportCloud">Export Backup (.json)</button>
+        <label class="btn secondary" style="position:relative;overflow:hidden">
+          Import Backup<input id="importCloud" type="file" accept="application/json" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+        </label>
+      </div>
+      <table id="cloudTable" style="margin-top:11px">
+        <thead><tr><th>Name</th><th>Type</th><th>Updated</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <div class="foot">All data lives in your browser • Export often for safety • © Pearls Gamut / PLERA</div>
+  </div>
+
+<script>
+/* ==========================================================
+   Utilities & Local Cloud
+   ==========================================================
+*/
+const $=sel=>document.querySelector(sel);
+const $$=sel=>Array.from(document.querySelectorAll(sel));
+const now=()=>new Date().toISOString();
+function safeJSON(key, fallback){ try{ return JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback)); }catch(e){ return fallback; } }
+function setJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+const CLOUD_KEY = "constellation.cloud.v1";
+let cloud = safeJSON(CLOUD_KEY, []); // [{id,name,type,content,updated}]
+function saveCloud(){ setJSON(CLOUD_KEY, cloud); renderCloud(); }
+function upsertDoc(doc){
+  const idx = cloud.findIndex(d=>d.id===doc.id);
+  if(idx>=0){ cloud[idx]=doc; } else { cloud.unshift(doc); }
+  saveCloud();
+}
+function removeDoc(id){ cloud = cloud.filter(d=>d.id!==id); saveCloud(); }
+function renderCloud(){
+  const tb = $("#cloudTable tbody"); tb.innerHTML="";
+  cloud.forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${d.name}</td><td>${d.type}</td><td>${new Date(d.updated).toLocaleString()}</td>
+                  <td style='text-align:right'>
+                    <button class='btn ghost' data-open-doc='${d.id}'>Open</button>
+                    <button class='btn danger' data-del='${d.id}'>Delete</button>
+                  </td>`;
+    tb.appendChild(tr);
+  });
+}
+
+/* ==========================================================
+   Navigation
+   ==========================================================
+*/
+const views = [
+  {id:'dashboard', label:'Dashboard'},
+  {id:'writer', label:'Writer'},
+  {id:'inspire', label:'Inspiration'},
+  {id:'lunar', label:'Lunar'},
+  {id:'mandala', label:'Mandala'},
+  {id:'counsel', label:'Counsel'},
+  {id:'learn', label:'Alphabet'},
+  {id:'sandbox', label:'Sandbox'},
+  {id:'cloud', label:'Cloud'}
+];
+const tabsEl = $("#tabs");
+views.forEach(v=>{
+  const b=document.createElement('button'); b.className='tab'; b.textContent=v.label; b.dataset.view=v.id;
+  tabsEl.appendChild(b);
+});
+function openView(id){
+  $$(".tab").forEach(t=>t.classList.toggle('active', t.dataset.view===id));
+  $$(".view").forEach(v=>v.classList.remove('active'));
+  $("#view-"+id).classList.add('active');
+}
+$$(".tab").forEach(b=> b.addEventListener('click', ()=>openView(b.dataset.view)));
+$$(".cta").forEach(c=> c.addEventListener('click', ()=>openView(c.dataset.open)));
+$$("[data-open]").forEach(b=> b.addEventListener('click', ()=>openView(b.dataset.open)));
+
+/* Cloud open/delete */
+$("#cloudTable").addEventListener('click', (e)=>{
+  const id = e.target.getAttribute('data-del');
+  const openId = e.target.getAttribute('data-open-doc');
+  if(id){ if(confirm('Delete this item?')) removeDoc(id); }
+  if(openId){ const doc = cloud.find(d=>d.id===openId); if(!doc) return;
+    if(doc.type==='writer'){ openView('writer'); $("#docName").value=doc.name; $("#writerArea").innerHTML=doc.content; }
+    if(doc.type==='inspire'){ openView('inspire'); alert('Loaded saved Inspiration Session (appends at end when you finish).'); }
+    if(doc.type==='counsel'){ openView('counsel'); $("#counselText").value=doc.content; }
+    if(doc.type==='lunar'){ openView('lunar'); $("#lunarNote").value=doc.content; }
+  }
+});
+
+/* Export / Import */
+$("#exportCloud").addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(cloud,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob); const a=document.createElement('a');
+  a.href=url; a.download='pearls-constellation-backup.json'; a.click(); URL.revokeObjectURL(url);
+});
+$("#importCloud").addEventListener('change', (e)=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader(); rd.onload=()=>{ try{ const data=JSON.parse(rd.result); if(Array.isArray(data)){ cloud=data; saveCloud(); alert('Imported '+data.length+' items.'); } }catch{} };
+  rd.readAsText(f);
+});
+
+/* ==========================================================
+   Writer (execCommand fallback kept for compatibility)
+   ==========================================================
+*/
+$$(".tool[data-cmd]").forEach(b=> b.addEventListener('click', ()=>{
+  document.execCommand(b.dataset.cmd, false, null);
+  $("#writerArea").focus();
+}));
+$("#colorPick").addEventListener('input', (e)=>{
+  document.execCommand('foreColor', false, e.target.value);
+});
+$("#h1Btn").addEventListener('click', ()=>{
+  document.execCommand('formatBlock', false, 'h1');
+});
+$("#saveDoc").addEventListener('click', ()=>{
+  const name = $("#docName").value.trim()||'Untitled';
+  const content = $("#writerArea").innerHTML;
+  upsertDoc({id:'writer:'+Date.now(), name, type:'writer', content, updated:now()});
+  alert('Saved to Cloud.');
+});
+$("#clearDoc").addEventListener('click', ()=> $("#writerArea").innerHTML='');
+
+/* ==========================================================
+   Inspiration Game (integrated, compact)
+   ==========================================================
+*/
+const questions = [
+  'What place makes you feel most at peace?',
+  'What book changed your perspective?',
+  'What colors make you feel energized?',
+  'Who inspires you lately?',
+  'What dream would you chase if you knew you could not fail?'
+];
+const encouragements = [
+  'Beautiful. Your answer is a spark.', 'Thank you for sharing.', 'Your creativity matters.',
+  'New sunrise unlocked.', 'Lovely insight.'
+];
+let qi=0; let inspAnswers=[];
+function loadQ(){
+  $("#encourage").textContent='';
+  $("#qText").textContent = questions[qi];
+  const area=$("#inputArea"); area.innerHTML='';
+  if(questions[qi].toLowerCase().includes('color')){
+    area.innerHTML = '<input id="inspInput" type="color" style="width:44px;height:44px;padding:0;border:none">';
+  } else if(questions[qi].length>64){
+    area.innerHTML = '<textarea id="inspInput" rows="3"></textarea>';
+  } else {
+    area.innerHTML = '<input id="inspInput" type="text" />';
+  }
+  $("#inspInput").focus();
+}
+$("#nextQ").addEventListener('click', ()=>{
+  const val = ( $("#inspInput")?.value || '' ); inspAnswers.push(val);
+  $("#encourage").textContent = encouragements[Math.floor(Math.random()*encouragements.length)];
+  setTimeout(()=>{
+    qi++; if(qi<questions.length){ loadQ(); } else {
+      // Save session
+      upsertDoc({ id:'inspire:'+Date.now(), name:'Inspiration Session', type:'inspire', content:JSON.stringify(inspAnswers), updated:now() });
+      $("#quizArea").style.display='none'; $("#inspireDone").style.display='block';
+    }
+  }, 900);
+});
+loadQ();
+
+/* ==========================================================
+   Lunar Reflections (simple phase + tone)
+   ==========================================================
+*/
+const moon = $("#moonCanvas"); const mctx = moon.getContext('2d');
+function phaseFraction(date){
+  const y=date.getUTCFullYear(), m=date.getUTCMonth()+1, d=date.getUTCDate();
+  const n=Math.floor(12.37*(y-1900+(m-0.5)/12));
+  const RAD=Math.PI/180; const t=n/1236.85, t2=t*t;
+  const as=359.2242+29.105356*n; const am=306.0253+385.816918*n+0.010730*t2;
+  const x1=as*RAD, x2=am*RAD;
+  const c1=(0.1734-0.000393*t)*Math.sin(x1)+0.0021*Math.sin(2*x1)-0.4068*Math.sin(x2)+0.0161*Math.sin(2*x2)-0.0004*Math.sin(3*x2);
+  const jd=2415020+29.53058868*n+c1;
+  const days=(Date.UTC(y,m-1,d)/86400000+2440587.5)-jd;
+  let f=(days%29.53058868)/29.53058868; if(f<0) f+=1; return f;
+}
+function drawMoon(f){
+  const w=moon.width, h=moon.height, r=w/2-2; mctx.clearRect(0,0,w,h);
+  mctx.save(); mctx.translate(w/2,h/2);
+  // disk
+  mctx.beginPath(); mctx.arc(0,0,r,0,Math.PI*2); mctx.fillStyle='#f6f6e8'; mctx.fill();
+  // shadow ellipse via two arcs trick (approximate terminator)
+  const off=Math.cos(f*2*Math.PI)*r; mctx.globalCompositeOperation='destination-out';
+  mctx.beginPath(); mctx.arc(-off,0,r,0,Math.PI*2); mctx.arc(off,0,r,0,Math.PI*2,true); mctx.fill();
+  mctx.globalCompositeOperation='source-over'; mctx.restore();
+}
+function moonInfo(){
+  const d=new Date(); const f=phaseFraction(d); drawMoon(f);
+  const names=['New Moon','Waxing Crescent','First Quarter','Waxing Gibbous','Full Moon','Waning Gibbous','Last Quarter','Waning Crescent'];
+  const idx=Math.floor(f*8+0.5)%8; const illum=Math.round(Math.sin(f*Math.PI)*100);
+  $("#moonInfo").innerHTML = `${d.toLocaleString()} — <b>${names[idx]}</b> • Illumination ${illum}%`;
+  return names[idx];
+}
+const tones={"New Moon":396,"Waxing Crescent":417,"First Quarter":528,"Waxing Gibbous":639,"Full Moon":741,"Waning Gibbous":852,"Last Quarter":285,"Waning Crescent":174};
+function playToneFor(name){ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); const g=a.createGain();
+  o.type='sine'; o.frequency.value= tones[name]||432; o.connect(g); g.connect(a.destination);
+  const t=a.currentTime; g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.25,t+0.4); g.gain.linearRampToValueAtTime(0,t+2.5);
+  o.start(); o.stop(t+2.5);
+}
+$("#playTone").addEventListener('click', ()=> playToneFor(moonInfo()));
+moon.addEventListener('click', ()=> playToneFor(moonInfo()));
+function saveLunar(){ const txt=$("#lunarNote").value.trim(); if(!txt) return;
+  upsertDoc({ id:'lunar:'+Date.now(), name:'Lunar Insight', type:'lunar', content:txt, updated:now() });
+  const li=document.createElement('li'); li.textContent=new Date().toLocaleString()+': '+txt; $("#lunarLog").appendChild(li); $("#lunarNote").value='';
+}
+$("#saveLunar").addEventListener('click', saveLunar);
+moonInfo();
+
+/* ==========================================================
+   Mandala (SVG, simple pulse)
+   ==========================================================
+*/
+const layers = []; let th=0; let animId=null;
+function shapePath(type, cx, cy, r){
+  const p=[]; const to=(x,y)=>p.push(`${x},${y}`);
+  if(type==='Circle'){ return { tag:'circle', attrs:{cx,cy,r} }; }
+  if(type==='Triangle'){ const h=r*Math.sqrt(3); return { tag:'polygon', attrs:{ points:`${cx},${cy-r} ${cx-r},${cy+h/2} ${cx+r},${cy+h/2}` } }; }
+  if(type==='Hexagon'){ for(let i=0;i<6;i++){ const a=Math.PI/3*i; to(cx+r*Math.cos(a), cy+r*Math.sin(a)); } return { tag:'polygon', attrs:{ points:p.join(' ') } }; }
+  if(type==='Star'){ for(let i=0;i<10;i++){ const a=i*Math.PI/5; const rr=i%2? r/2 : r; to(cx+rr*Math.cos(a), cy+rr*Math.sin(a)); } return { tag:'polygon', attrs:{ points:p.join(' ') } }; }
+  if(type==='Lotus'){ for(let i=0;i<8;i++){ const a=i*Math.PI/4; const rr=i%2? r/2 : r; to(cx+rr*Math.cos(a), cy+rr*Math.sin(a)); } return { tag:'polygon', attrs:{ points:p.join(' ') } }; }
+  if(type==='Spiral'){ let d=`M ${cx} ${cy}`; for(let t=0;t<6;t++){ const a=t*0.5; const rr=r*t*0.6; d+=` L ${cx+rr*Math.cos(a)} ${cy+rr*Math.sin(a)}`; } return { tag:'path', attrs:{ d } }; }
+}
+function renderMandala(){
+  const host=$("#mandalaHost"); host.innerHTML=''; const ns='http://www.w3.org/2000/svg';
+  const S=320; const svg=document.createElementNS(ns,'svg'); svg.setAttribute('width',S); svg.setAttribute('height',S); svg.setAttribute('viewBox',`0 0 ${S} ${S}`);
+  layers.forEach((L,i)=>{
+    const scale=1+0.05*Math.sin(th+i); const rot= 8*Math.sin(th/2+i);
+    const base=28 + i*16; const r=base*scale; const def=shapePath(L.shape, S/2, S/2, r);
+    const el=document.createElementNS(ns, def.tag);
+    for(const k in def.attrs){ el.setAttribute(k, def.attrs[k]); }
+    el.setAttribute('fill', L.color); el.setAttribute('stroke', '#1b2032'); el.setAttribute('stroke-width', '2');
+    el.setAttribute('transform', `rotate(${rot},${S/2},${S/2})`);
+    svg.appendChild(el);
+  });
+  host.appendChild(svg);
+}
+function tick(){ th+=0.05; renderMandala(); animId=requestAnimationFrame(tick); }
+animId=requestAnimationFrame(tick);
+
+$("#addLayer").addEventListener('click', ()=>{
+  const L = { theme:$("#mTheme").value, shape:$("#mShape").value, color:$("#mColor").value };
+  layers.push(L); $("#mDesc").textContent=`Added ${L.shape} for ${L.theme}. Layers: ${layers.length}`; renderMandala();
+});
+$("#clearMandala").addEventListener('click', ()=>{ layers.length=0; renderMandala(); $("#mDesc").textContent='Cleared.'; });
+$("#exportSVG").addEventListener('click', ()=>{
+  const svg = $("#mandalaHost svg"); if(!svg) return alert('No geometry yet.');
+  const src=new XMLSerializer().serializeToString(svg);
+  const blob=new Blob([src],{type:'image/svg+xml'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='mandala.svg'; a.click(); URL.revokeObjectURL(url);
+});
+
+/* ==========================================================
+   Counsel (templates)
+   ==========================================================
+*/
+const TPL = {
+  will:`LIVING WILL — Outline\n\n1) Identity & Intent\n2) Healthcare agent & alternates\n3) Preferences (life support, pain mgmt)\n4) Signatures & witnesses\n\nNotes: Bring this to a lawyer licensed in your state.`,
+  lease:`LEASE OUTLINE — Simple\n\n1) Parties & premises\n2) Term & rent\n3) Utilities & maintenance\n4) House rules\n5) Deposit & exit terms\n\nNotes: Local laws vary. Review with counsel.`,
+  nda:`NDA OUTLINE — Mutual\n\n1) Parties & definitions\n2) Confidential scope\n3) Use limits\n4) Term & return\n5) Remedies\n\nNotes: Tailor to your jurisdiction.`
+};
+$$("#view-counsel .btn[data-tpl]").forEach(b=> b.addEventListener('click', ()=>{
+  $("#counselText").value = TPL[b.dataset.tpl] || '';
+}));
+$("#saveCounsel").addEventListener('click', ()=>{
+  const txt=$("#counselText").value; if(!txt) return; upsertDoc({id:'counsel:'+Date.now(), name:'Counsel Draft', type:'counsel', content:txt, updated:now()}); alert('Saved to Cloud.');
+});
+$("#downloadCounsel").addEventListener('click', ()=>{
+  const blob=new Blob([ $("#counselText").value || '' ], {type:'text/plain'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='counsel-draft.txt'; a.click();
+});
+
+/* ==========================================================
+   Alphabet Mini (smart scale + TTS)
+   ==========================================================
+*/
+const ALPHA = [ ['A','Apple','🍎'], ['B','Ball','🔵'], ['C','Cat','🐱'], ['D','Dog','🐶'], ['E','Elephant','🐘'], ['F','Flower','🌸'] ];
+let ai=0; let readOn=false;
+function renderAlpha(){
+  const [L,W,E]=ALPHA[ai];
+  $("#alphaLetter").textContent=L; $("#alphaEmoji").textContent=E; $("#alphaWord").textContent=W;
+}
+function sayAlpha(){ if(!readOn) return; const [L,W]=ALPHA[ai]; const u=new SpeechSynthesisUtterance(`${L}. ${L} is for ${W}.`); u.rate=0.95; speechSynthesis.cancel(); speechSynthesis.speak(u); }
+$("#alphaEmoji").addEventListener('click', sayAlpha);
+$("#prevAlpha").addEventListener('click', ()=>{ ai=Math.max(0,ai-1); renderAlpha(); sayAlpha(); });
+$("#nextAlpha").addEventListener('click', ()=>{ ai=Math.min(ALPHA.length-1,ai+1); renderAlpha(); sayAlpha(); });
+$("#readAlpha").addEventListener('click', ()=>{ readOn=!readOn; $("#readAlpha").textContent = readOn? '🔈 Read Along: On':'🔊 Read Along: Off'; sayAlpha(); });
+renderAlpha();
+
+/* ==========================================================
+   Sandbox (srcdoc + sandbox flags)
+   ==========================================================
+*/
+$("#runSandbox").addEventListener('click', ()=>{
+  const src = $("#sandboxSrc").value;
+  const f = $("#sandboxFrame"); f.src = 'about:blank';
+  let flags = [];
+  if($("#sbScripts").checked) flags.push('allow-scripts');
+  if($("#sbSame").checked) flags.push('allow-same-origin');
+  f.setAttribute('sandbox', flags.join(' '));
+  // Use srcdoc where supported
+  if('srcdoc' in f){ f.srcdoc = src; } else {
+    const blob = new Blob([src], {type:'text/html'}); f.src = URL.createObjectURL(blob);
+  }
+});
+
+/* ==========================================================
+   Init cloud table
+   ==========================================================
+*/
+renderCloud();
+
+</script>
+</body>
+</html>
