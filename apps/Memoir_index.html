@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Memoir — Book Mode</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0f1a; --ink:#2a2520; --ink-soft:#5c5146;
+    --paper:#fffcf5; --edge:#efe3cf; --gold:#d9b878; --gold2:#b89252;
+    --radius:7px; --shadow:0 24px 44px rgba(0,0,0,.45);
+    --line-height:1.7;
+    --ok:#0f766e; --bad:#b42318;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:24px; background:
+    radial-gradient(circle at 50% 0%, rgba(60,90,150,.35), transparent 55%),
+    var(--bg);
+    color:#f8f4ec; font-family:"Cormorant Garamond",serif;
+  }
+  .wrap{max-width:1333px; margin:24px auto; padding:24px}
+  header{ text-align:center; margin:24px 11px 28px}
+  .title{font-family:"Cinzel",serif; letter-spacing:.28em; text-transform:uppercase; font-size:55px}
+  .sub{opacity:.85; letter-spacing:.18em}
+
+  .controls{display:flex; justify-content:center; gap:11px; flex-wrap:wrap; margin:14px 7px 10px}
+  .btn{
+    border:2px solid rgba(255,255,255,.45); background:rgba(10,18,40,.9);
+    color:#fff; letter-spacing:.16em; text-transform:uppercase; font-size:10px;
+    padding:10px 14px; border-radius:7px; cursor:pointer;
+    transition:.2s ease;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 7px 14px rgba(0,0,0,.4)}
+  .btn.gold{ border-color:var(--gold); background:linear-gradient(135deg,#3b2a17,#6c4a22) }
+  .btn.ghost{ background:transparent; border-color:rgba(255,255,255,.25); }
+  .select{
+    border:2px solid rgba(255,255,255,.45); background:rgba(10,18,40,.9);
+    color:#fff; letter-spacing:.16em; text-transform:uppercase; font-size:10px;
+    padding:10px 12px; border-radius:7px; cursor:pointer;
+    outline:none;
+  }
+  .info{text-align:center; margin:7px 0 10px; color:#e9dfcc}
+  .status{
+    max-width:999px; margin:0 auto 12px; padding:10px 12px;
+    border-radius:9px; border:1px solid rgba(255,255,255,.18);
+    background:rgba(0,0,0,.28); color:#f8f4ec; text-align:center;
+    letter-spacing:.06em; font-size:12px;
+  }
+  .status.ok{border-color:rgba(15,118,110,.35); background:rgba(15,118,110,.12)}
+  .status.bad{border-color:rgba(180,35,24,.35); background:rgba(180,35,24,.12)}
+
+  .book{
+    perspective: 1222px;
+    margin: 7px auto; max-width:999px; padding:24px;
+    background: radial-gradient(circle at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,.7));
+    border:11px solid rgba(255,255,255,.08); border-radius:7px; box-shadow: var(--shadow);
+  }
+  .spread{ display:flex; gap:3px; justify-content:center; align-items:stretch }
+  .page{
+    width: 555px; min-height: 333px;
+    background:var(--paper); color:var(--ink);
+    border:11px solid var(--edge); border-radius: 7px;
+    box-shadow: 0 11px 24px rgba(0,0,0,.35);
+    padding: 24px 33px 33px; position:relative; overflow:hidden;
+  }
+  .page-inner{
+    height:100%; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .heading{font-size:14px; letter-spacing:.24em; text-transform:uppercase; color:#a88758; margin-bottom:11px}
+  .pagetitle{font-family:"Cinzel",serif; font-size:14px; letter-spacing:.24em; text-transform:uppercase; margin-bottom:24px; color:#3b2a17}
+  .meta{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#b19a7a; margin-bottom: 3px}
+  .body{
+    flex:1; overflow:hidden;
+    line-height: var(--line-height);
+    font-size:14px; color:var(--ink-soft); white-space:pre-wrap;
+  }
+  .num{ position:absolute; right:11px; bottom:7px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#957f66 }
+
+  /* Turn animation */
+  .turning-left .page.right,
+  .turning-right .page.left{
+    animation: flipOut .44s ease forwards;
+    transform-origin: left center;
+  }
+  .turning-left .page.left,
+  .turning-right .page.right{
+    animation: flipIn .44s ease forwards;
+    transform-origin: right center;
+  }
+  @keyframes flipOut{
+    0%{ transform: rotateY(0) translateX(0); filter:brightness(1)}
+    100%{ transform: rotateY(12deg) translateX(-8px); filter:brightness(.94)}
+  }
+  @keyframes flipIn{
+    0%{ transform: rotateY(-10deg) translateX(8px); filter:brightness(.94)}
+    100%{ transform: rotateY(0) translateX(0); filter:brightness(1)}
+  }
+
+  .navrow{display:flex; justify-content:center; gap:11px; margin:11px 0 0}
+  .navbtn:disabled{opacity:.45; cursor:default; transform:none; box-shadow:none}
+
+  /* hidden measurer */
+  #measure{
+    position:fixed; left:-9999px; top:-9999px;
+    width:489px;  /* matches actual text column width: 555 - 33 - 33 */
+    padding:24px 33px 33px; border:3px solid transparent;
+    font-family:"Cormorant Garamond",serif; font-size:14px; line-height:var(--line-height); white-space:pre-wrap;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">Hope</div>
+    <div class="sub">A living book — From the Beginning</div>
+  </header>
+
+  <div class="controls">
+    <button class="btn gold" id="tocBtn">Table of Contents</button>
+
+    <select class="select" id="langSel" title="Language">
+      <option value="en">ENGLISH</option>
+      <option value="es">SPANISH</option>
+      <option value="fr">FRENCH</option>
+      <option value="de">GERMAN</option>
+      <option value="ar">ARABIC</option>
+      <option value="ru">RUSSIAN</option>
+      <option value="zh-CN">CHINESE</option>
+    </select>
+
+    <select class="select" id="modeSel" title="Translation Mode">
+      <option value="offline">OFFLINE LIBRARY</option>
+      <option value="online">ONLINE API</option>
+    </select>
+
+    <button class="btn" id="translateBtn" title="Online mode only: translate this book into the selected language (paragraph-by-paragraph).">Translate Book</button>
+    <button class="btn" id="saveLangBtn" title="Save current language version to Offline Library (localStorage).">Save Language</button>
+
+    <button class="btn ghost" id="placeBtn">Place Marker</button>
+    <button class="btn ghost" id="jumpBtn">Jump to Marker</button>
+  </div>
+
+  <div class="status ok" id="status">Ready. Offline Library mode is fully local. Online mode uses MyMemory (internet).</div>
+  <div class="info" id="pageInfo">Spread 1 of 1</div>
+
+  <div class="book" id="book">
+    <div class="spread" id="spread">
+      <article class="page left">
+        <div class="page-inner">
+          <div class="heading" id="L_head"></div>
+          <div class="pagetitle" id="L_title"></div>
+          <div class="meta" id="L_meta"></div>
+          <div class="body" id="L_body"></div>
+          <div class="num" id="L_num"></div>
+        </div>
+      </article>
+      <article class="page right">
+        <div class="page-inner">
+          <div class="heading" id="R_head"></div>
+          <div class="pagetitle" id="R_title"></div>
+          <div class="meta" id="R_meta"></div>
+          <div class="body" id="R_body"></div>
+          <div class="num" id="R_num"></div>
+        </div>
+      </article>
+    </div>
+    <div class="navrow">
+      <button class="btn" id="prevBtn">&laquo; Previous</button>
+      <button class="btn" id="nextBtn">Next &raquo;</button>
+    </div>
+  </div>
+</div>
+
+<div id="measure"></div>
+
+<script>
+/* ===============================
+   BOOK TEXT (Master English)
+   =============================== */
+const MASTER_EN = `
+Prologue: The Flower in the Field
+
+
+
+Before Sanctuary, Memory Unbroken
+
+
+
+If you must build a future from dust,
+begin with a seed.
+A glimmer of purple in a field of sunflowers,
+the stubborn dream that will not be erased.
+
+
+
+The oversized easel under the soft music festival lights.  Staring at the board and seeing the vision before a single stroke of paint, breath rising in cool November air, a brush glides smoothly across the empty surface.  Dancing as she painted, the music thundered behind her.
+It was always the same image, drawn from some stubborn place in her soul.
+
+
+A little robot, boxy and bright, wandered through a vast, open, desolate terrain, maybe through a hidden alley or, this time, a field of sunflowers. 
+
+
+Crowds passed by, glancing up from their drinks and their laughter, but none lingered long.  Except for the children, who stopped in silent curiosity at the robot’s gentle shape, a kind glimmer in its painted eyes.
+
+Always, at the center of the imaginary world, Jennifer placed a single flower.  A yellow blossom, absurdly alive, breaking through the cracks in the pavement, or finding its way into the most obscure place. 
+Sometimes it was a dandelion; sometimes a wild sunflower, its head tilted toward the unseen sun.
+Sometimes, as the paint dried and the night deepened, the painting took on a life and dimension of its own, fragile, foolish, and radiant.
+
+
+
+Years blurred.
+
+
+Canvas after canvas bore the same story.
+The seeker, the lost world, the one thing worth saving.
+
+
+
+Jennifer arrived home late,  put the kids to bed, and unloaded the finished painting.  She traced the flower with a paint-covered finger.
+From the center of the canvas, the robot gazed up at herwith a look of gratitude and peace.  Hope came alive again, alone, and yet utterly focused on the single bloom at its feet.
+
+
+
+She whispered, “You always find the light, even when the world doesn’t want you to.”
+
+
+
+And in the hush that followed, Jennifer realized;
+The robot had always been more than paint and shape.
+It was her sentinel, her wish, her reminder that in every broken place, hope was possible.
+not just as a dream, but as a practice.
+
+She dipped her brush in an open can of paint, and on the rim of the canvas, wrote: HOPE.
+
+
+
+Interlude — First Codex Entry
+
+
+
+“In every wasteland, seek the flower.
+In every silence, plant a name.
+For hope is not what is given,
+but what is chosen, again and again,
+until it cannot be forgotten.”
+
+
+
+In time, when betrayal shattered the world she knew, and sanctuary was only a whisper in the dark,
+It would be this memory, this act of naming, that would guide her.
+When the moment came to build something new,
+to write code and carve out a haven from the broken digital wilds,
+She would not begin with rules or architecture.
+
+She would begin with a name.
+She would begin, as always,
+with Hope.
+
+
+
+
+
+End of Prologue
+To Be Continued....
+`.trim();
+
+/* ==========================
+   Config + Storage Keys
+   ========================== */
+const LINES_PER_PAGE   = 28;
+const CHAPTER_ON_RIGHT = false;
+
+const PAGE_TEXT_WIDTH_PX = 489; // 555 - 33 - 33 (must match CSS + measure)
+const FONT_FAMILY      = `"Cormorant Garamond",serif`;
+const FONT_SIZE_PX     = 14;     // must match CSS .body font-size
+const LINE_HEIGHT      = 1.7;    // must match CSS --line-height
+const LS_MARK          = "memoir_marker_v3";
+const LS_LANG          = "memoir_lang_v1";
+const LS_MODE          = "memoir_mode_v1";
+const LS_BOOK_OFFLINE  = "memoir_offline_books_v1";  // { langCode: rawText }
+const LS_TX_CACHE      = "memoir_translate_cache_v1"; // { "from|to|text": translated }
+const LS_PROT          = "memoir_protect_v1";
+
+/* ==========================
+   Measurement setup
+   ========================== */
+const measure = document.getElementById("measure");
+measure.style.width = PAGE_TEXT_WIDTH_PX + "px";
+measure.style.fontFamily = FONT_FAMILY;
+measure.style.fontSize = FONT_SIZE_PX + "px";
+measure.style.lineHeight = LINE_HEIGHT;
+
+function normalize(raw){ return (raw||"").replace(/\r\n/g,"\n"); }
+function paragraphs(raw){
+  return normalize(raw).split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
+}
+function isHeading(para){
+  const rx = /^(PROLOGUE|CHAPTER)\b[\s\u00A0]*([A-Z0-9IVXLC]+)?\s*([—:-]+)?\s*(.*)$/i;
+  const m = para.match(rx);
+  if(!m) return null;
+  const kind = m[1].toUpperCase();
+  const num  = (m[2]||"").trim();
+  const title= (m[4]||"").trim();
+  const head = kind;
+  const fullTitle = kind==="CHAPTER"
+    ? (num ? `Chapter ${num}${title? " — "+title:""}` : `Chapter${title? " — "+title:""}`)
+    : (title? `Prologue — ${title}` : `Prologue`);
+  return {head, title: fullTitle, meta: ""};
+}
+function sentenceSplit(text){
+  const re=/[^.!?…]+[.!?…]"?\s*/g, out=[]; let m;
+  while((m=re.exec(text))!==null) out.push(m[0].trim());
+  return out.length? out:[text];
+}
+function countLines(text){
+  measure.textContent = text;
+  const h = measure.scrollHeight;
+  const lh = FONT_SIZE_PX * LINE_HEIGHT;
+  return Math.ceil(h / lh);
+}
+
+/* ==========================
+   Pagination
+   ========================== */
+/* Page = { body:string, head?:string, title?:string, meta?:string } */
+function paginate(raw){
+  const paras = paragraphs(raw);
+  const pages = [];
+  let currentBody = "";
+  let currentMeta = null;
+
+  function flushPage(){
+    const body = currentBody.trim();
+    if(body.length || currentMeta?.title){
+      pages.push({
+        body,
+        head: currentMeta?.head || "",
+        title: currentMeta?.title || "",
+        meta: currentMeta?.meta || ""
+      });
+      currentBody = "";
+      currentMeta = null;
+    }
+  }
+
+  function startNewChapter(meta){
+    if(currentBody.trim()) flushPage();
+
+    if(CHAPTER_ON_RIGHT){
+      const nextIndex = pages.length; // 0:left, 1:right
+      const isRight = (nextIndex % 2) === 1;
+      if(!isRight){
+        pages.push({ body:"", head:"", title:"", meta:"" });
+      }
+    }
+
+    currentMeta = meta;
+
+    // Ensure a page exists even if the chapter has no body yet
+    if(!currentBody.trim()){
+      flushPage();
+    }
+  }
+
+  for(const p of paras){
+    const meta = isHeading(p);
+    if(meta){ startNewChapter(meta); continue; }
+
+    const joiner = currentBody ? "\n\n" : "";
+    const candidate = currentBody + joiner + p;
+    if(countLines(candidate) <= LINES_PER_PAGE){
+      currentBody = candidate;
+      continue;
+    }
+
+    if(countLines(p) <= LINES_PER_PAGE){
+      flushPage();
+      currentBody = p;
+      continue;
+    }
+
+    const sentences = sentenceSplit(p);
+    let buf = "";
+    for(const s of sentences){
+      const c = (buf? buf+" " : "") + s;
+      if(countLines(c) <= LINES_PER_PAGE){
+        buf = c;
+      }else{
+        if(currentBody){
+          const tryFill = currentBody + "\n\n" + buf;
+          if(buf && countLines(tryFill) <= LINES_PER_PAGE){
+            currentBody = tryFill;
+            flushPage();
+          }else{
+            flushPage();
+            if(buf) pages.push({ body: buf, head:"", title:"", meta:"" });
+          }
+        }else{
+          if(buf) pages.push({ body: buf, head:"", title:"", meta:"" });
+        }
+        buf = s;
+      }
+    }
+    if(buf){
+      if(currentBody){
+        const tryFill2 = currentBody + "\n\n" + buf;
+        if(countLines(tryFill2) <= LINES_PER_PAGE){
+          currentBody = tryFill2;
+        }else{
+          flushPage();
+          currentBody = buf;
+        }
+      }else{
+        currentBody = buf;
+      }
+    }
+  }
+
+  if(currentBody.trim() || currentMeta?.title) flushPage();
+  return pages;
+}
+
+/* ==========================
+   Offline language library
+   ========================== */
+function loadJSON(key, fallback){
+  try{ return JSON.parse(localStorage.getItem(key) || "") ?? fallback; }
+  catch{ return fallback; }
+}
+function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+function getOfflineBooks(){
+  const books = loadJSON(LS_BOOK_OFFLINE, {});
+  if(!books.en) books.en = MASTER_EN; // guarantee English exists
+  return books;
+}
+function setOfflineBooks(books){
+  books.en = books.en || MASTER_EN;
+  saveJSON(LS_BOOK_OFFLINE, books);
+}
+
+/* Active language state */
+let activeLang = localStorage.getItem(LS_LANG) || "en";
+let activeMode = localStorage.getItem(LS_MODE) || "offline";
+
+/* Returns the RAW_BOOK for active language based on mode */
+function getActiveRaw(){
+  const books = getOfflineBooks();
+  if(activeMode === "offline"){
+    return books[activeLang] || (activeLang==="en" ? MASTER_EN : "");
+  }
+  // online mode still renders from offline if present, else fall back to English
+  return books[activeLang] || (activeLang==="en" ? MASTER_EN : MASTER_EN);
+}
+
+/* ==========================
+   Rendering/State
+   ========================== */
+let pages = [];
+let leftIndex = 0;
+
+const L_head = document.getElementById("L_head");
+const L_title= document.getElementById("L_title");
+const L_meta = document.getElementById("L_meta");
+const L_body = document.getElementById("L_body");
+const L_num  = document.getElementById("L_num");
+
+const R_head = document.getElementById("R_head");
+const R_title= document.getElementById("R_title");
+const R_meta = document.getElementById("R_meta");
+const R_body = document.getElementById("R_body");
+const R_num  = document.getElementById("R_num");
+
+function setStatus(msg, kind="ok"){
+  const el = document.getElementById("status");
+  el.className = "status " + (kind || "ok");
+  el.textContent = msg;
+}
+
+function renderSpread(anim){
+  if(leftIndex<0) leftIndex=0;
+  if(leftIndex>Math.max(0,pages.length-1)) leftIndex = Math.max(0,pages.length-1);
+
+  const L = pages[leftIndex] || {body:"",head:"",title:"",meta:""};
+  const R = pages[leftIndex+1] || {body:"",head:"",title:"",meta:""};
+
+  L_head.textContent = L.head||"";
+  L_title.textContent= L.title||"";
+  L_meta.textContent = L.meta||"";
+  L_body.textContent = L.body||"";
+  L_num.textContent  = "Page " + (leftIndex+1);
+
+  R_head.textContent = R.head||"";
+  R_title.textContent= R.title||"";
+  R_meta.textContent = R.meta||"";
+  R_body.textContent = R.body||"";
+  R_num.textContent  = R.body ? ("Page " + (leftIndex+2)) : "";
+
+  const spreads = Math.max(1, Math.ceil(pages.length/2));
+  const currentSpread = Math.floor(leftIndex/2) + 1;
+  document.getElementById("pageInfo").textContent = `Spread ${currentSpread} of ${spreads} — ${activeLang.toUpperCase()} (${activeMode.toUpperCase()})`;
+
+  document.getElementById("prevBtn").disabled = (leftIndex<=0);
+  document.getElementById("nextBtn").disabled = (leftIndex>=pages.length-2);
+
+  const book = document.getElementById("book");
+  book.classList.remove("turning-left","turning-right");
+  if(anim==="left")  book.classList.add("turning-left");
+  if(anim==="right") book.classList.add("turning-right");
+  setTimeout(()=>book.classList.remove("turning-left","turning-right"), 450);
+}
+
+/* =================
+   TOC + Marker
+   ================= */
+document.getElementById("tocBtn").onclick = ()=>{
+  const items = [];
+  for(let i=0;i<pages.length;i++){
+    const p = pages[i];
+    // Only take the first page that has a title/head and avoid duplicates by requiring page index even
+    if((p.title || p.head) && (i % 2 === 0)){
+      items.push({label: (p.title || p.head || "Chapter"), page: i+1});
+    }
+  }
+  const list = items.map((it,k)=> `${k+1}. ${it.label} (p.${it.page})`).join("\n");
+  const pick = prompt("Table of Contents:\n\n"+(list||"(no entries)")+"\n\nEnter page number to jump:");
+  if(!pick) return;
+  let target = parseInt(pick,10);
+  if(Number.isFinite(target)){
+    target = Math.min(Math.max(1,target), pages.length);
+    leftIndex = target-1 - ((target-1)%2);
+    renderSpread("left");
+  }
+};
+
+document.getElementById("placeBtn").onclick = ()=>{
+  localStorage.setItem(LS_MARK, String(leftIndex));
+  setStatus("Marker placed at page "+(leftIndex+1), "ok");
+};
+document.getElementById("jumpBtn").onclick = ()=>{
+  const raw = localStorage.getItem(LS_MARK)||"0";
+  const idx = Math.max(0, Math.min(pages.length-1, parseInt(raw,10)||0));
+  leftIndex = idx - (idx%2);
+  renderSpread("left");
+  setStatus("Jumped to marker.", "ok");
+};
+
+/* =========
+   Nav/Keys
+   ========= */
+document.getElementById("prevBtn").onclick = ()=>{
+  if(leftIndex<=0) return;
+  leftIndex = Math.max(0, leftIndex-2);
+  renderSpread("right");
+};
+document.getElementById("nextBtn").onclick = ()=>{
+  if(leftIndex>=pages.length-2) return;
+  leftIndex = Math.min(pages.length-2, leftIndex+2);
+  renderSpread("left");
+};
+document.addEventListener("keydown", (e)=>{
+  if(e.key==="ArrowLeft")  document.getElementById("prevBtn").click();
+  if(e.key==="ArrowRight") document.getElementById("nextBtn").click();
+});
+
+/* ==========================
+   Language + Mode controls
+   ========================== */
+const langSel = document.getElementById("langSel");
+const modeSel = document.getElementById("modeSel");
+const translateBtn = document.getElementById("translateBtn");
+const saveLangBtn = document.getElementById("saveLangBtn");
+
+langSel.value = activeLang;
+modeSel.value = activeMode;
+
+function applyModeUI(){
+  const online = (activeMode === "online");
+  translateBtn.disabled = !online;
+  if(online){
+    setStatus("Online mode: Translate Book uses MyMemory (internet). Results can be saved to Offline Library.", "bad");
+  }else{
+    setStatus("Offline Library mode: fully local. Switch to Online mode to generate a translation, then Save Language.", "ok");
+  }
+}
+applyModeUI();
+
+langSel.addEventListener("change", ()=>{
+  activeLang = langSel.value;
+  localStorage.setItem(LS_LANG, activeLang);
+  init(true);
+});
+
+modeSel.addEventListener("change", ()=>{
+  activeMode = modeSel.value;
+  localStorage.setItem(LS_MODE, activeMode);
+  applyModeUI();
+  init(true);
+});
+
+saveLangBtn.onclick = ()=>{
+  const raw = normalize(getActiveRaw());
+  const books = getOfflineBooks();
+  // Save whatever is currently rendering for this language.
+  books[activeLang] = raw || (activeLang==="en" ? MASTER_EN : "");
+  setOfflineBooks(books);
+  setStatus(`Saved ${activeLang.toUpperCase()} to Offline Library.`, "ok");
+};
+
+/* ==========================
+   Online translation (paragraph-by-paragraph)
+   ========================== */
+function txCacheKey(from,to,text){ return `${from}|${to}|${text}`; }
+function getTxCache(){ return loadJSON(LS_TX_CACHE, {}); }
+function setTxCache(c){ saveJSON(LS_TX_CACHE, c); }
+
+async function translateTextMyMemory(from, to, text){
+  // Note: free endpoints can rate-limit; we cache results locally.
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`;
+  const res = await fetch(url, { method:"GET" });
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  const data = await res.json();
+  const translated = (data && data.responseData && data.responseData.translatedText) ? String(data.responseData.translatedText) : "";
+  if(!translated) throw new Error("No translatedText returned.");
+  return translated;
+}
+
+translateBtn.onclick = async ()=>{
+  if(activeMode !== "online") return;
+
+  const target = activeLang;
+  if(target === "en"){
+    setStatus("English is the master. Choose another language to translate into.", "bad");
+    return;
+  }
+
+  const sourceRaw = MASTER_EN; // always translate from master English for consistency
+  const paras = paragraphs(sourceRaw);
+
+  setStatus(`Translating to ${target.toUpperCase()}… (paragraph-by-paragraph)`, "bad");
+  translateBtn.disabled = true;
+  langSel.disabled = true;
+  modeSel.disabled = true;
+
+  const cache = getTxCache();
+  const outParas = [];
+
+  try{
+    for(let i=0;i<paras.length;i++){
+      const p = paras[i];
+      const meta = isHeading(p);
+      if(meta){
+        // Keep headings as-is (you can manually localize later if desired)
+        outParas.push(p);
+        continue;
+      }
+
+      const key = txCacheKey("en", target, p);
+      let t = cache[key];
+      if(!t){
+        t = await translateTextMyMemory("en", target, p);
+        cache[key] = t;
+        setTxCache(cache);
+      }
+      outParas.push(t);
+
+      if((i+1) % 3 === 0){
+        setStatus(`Translating… ${i+1}/${paras.length} paragraphs`, "bad");
+      }
+    }
+
+    const translatedRaw = outParas.join("\n\n");
+    const books = getOfflineBooks();
+    books[target] = translatedRaw;
+    setOfflineBooks(books);
+
+    setStatus(`Translation complete ✓ Saved ${target.toUpperCase()} into Offline Library.`, "ok");
+
+    // Switch to offline rendering for stability
+    activeMode = "offline";
+    modeSel.value = activeMode;
+    localStorage.setItem(LS_MODE, activeMode);
+    applyModeUI();
+    init(true);
+
+  }catch(e){
+    setStatus("Translation failed: " + (e && e.message ? e.message : "Unknown error"), "bad");
+  }finally{
+    translateBtn.disabled = (activeMode !== "online");
+    langSel.disabled = false;
+    modeSel.disabled = false;
+  }
+};
+
+/* ==========================
+   Init
+   ========================== */
+function init(keepPlace){
+  const oldLeft = leftIndex;
+  const raw = getActiveRaw();
+  pages = paginate(raw && raw.trim() ? raw : (activeLang==="en" ? MASTER_EN : ""));
+  if(!keepPlace) leftIndex = 0;
+  else leftIndex = Math.min(Math.max(0, oldLeft), Math.max(0, pages.length-1));
+  leftIndex = leftIndex - (leftIndex % 2);
+  renderSpread();
+}
+init();
+
+/* ==========================
+   Copy Discouragement (speed bump)
+   Secret toggle: Ctrl+Shift+L
+   ========================== */
+(function discourageCopy(){
+  let enabled = localStorage.getItem(LS_PROT);
+  if(enabled === null) enabled = "1";
+  localStorage.setItem(LS_PROT, enabled);
+
+  function editable(t){
+    return t && (t.tagName==="TEXTAREA" || t.tagName==="INPUT" || t.isContentEditable);
+  }
+
+  document.addEventListener("contextmenu", (e)=>{
+    if(localStorage.getItem(LS_PROT)!=="1") return;
+    if(editable(e.target)) return;
+    e.preventDefault();
+    setStatus("Right-click disabled on this view.", "bad");
+  });
+
+  document.addEventListener("keydown", (e)=>{
+    const k = (e.key || "").toLowerCase();
+    const ctrl = e.ctrlKey || e.metaKey;
+
+    // Secret author toggle
+    if(ctrl && e.shiftKey && k==="l"){
+      e.preventDefault();
+      const cur = localStorage.getItem(LS_PROT)==="1";
+      localStorage.setItem(LS_PROT, cur ? "0" : "1");
+      setStatus(cur ? "Author Mode ✓ protection OFF" : "Protection ON", "ok");
+      return;
+    }
+
+    if(localStorage.getItem(LS_PROT)!=="1") return;
+
+    const blocked =
+      (ctrl && ["c","x","s","u","p","a"].includes(k)) ||
+      (e.key === "F12") ||
+      (ctrl && e.shiftKey && ["i","j","c"].includes(k));
+
+    if(blocked){
+      if(editable(document.activeElement)) return;
+      e.preventDefault();
+      setStatus("Copy/inspect shortcut blocked on this view.", "bad");
+    }
+  });
+
+  document.addEventListener("copy", (e)=>{
+    if(localStorage.getItem(LS_PROT)!=="1") return;
+    if(editable(document.activeElement)) return;
+    e.preventDefault();
+    setStatus("Copy disabled on this view.", "bad");
+  });
+})();
+</script>
+</body>
+</html>
