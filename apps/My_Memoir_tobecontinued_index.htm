@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Memoir — Book Mode</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0f1a; --ink:#2a2520; --ink-soft:#5c5146;
+    --paper:#fffcf5; --edge:#efe3cf; --gold:#d9b878; --gold2:#b89252;
+    --radius:7px; --shadow:0 24px 44px rgba(0,0,0,.45);
+    --line-height:1.7;
+    --ok:#0f766e; --bad:#b42318;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:24px; background:
+    radial-gradient(circle at 50% 0%, rgba(60,90,150,.35), transparent 55%),
+    var(--bg);
+    color:#f8f4ec; font-family:"Cormorant Garamond",serif;
+  }
+  .wrap{max-width:1333px; margin:24px auto; padding:24px}
+  header{ text-align:center; margin:24px 11px 28px}
+  .title{font-family:"Cinzel",serif; letter-spacing:.28em; text-transform:uppercase; font-size:55px}
+  .sub{opacity:.85; letter-spacing:.18em}
+
+  .controls{display:flex; justify-content:center; gap:11px; flex-wrap:wrap; margin:14px 7px 10px}
+  .btn{
+    border:2px solid rgba(255,255,255,.45); background:rgba(10,18,40,.9);
+    color:#fff; letter-spacing:.16em; text-transform:uppercase; font-size:10px;
+    padding:10px 14px; border-radius:7px; cursor:pointer;
+    transition:.2s ease;
+  }
+  .btn:hover{transform:translateY(-1px); box-shadow:0 7px 14px rgba(0,0,0,.4)}
+  .btn.gold{ border-color:var(--gold); background:linear-gradient(135deg,#3b2a17,#6c4a22) }
+  .btn.ghost{ background:transparent; border-color:rgba(255,255,255,.25); }
+  .select{
+    border:2px solid rgba(255,255,255,.45); background:rgba(10,18,40,.9);
+    color:#fff; letter-spacing:.16em; text-transform:uppercase; font-size:10px;
+    padding:10px 12px; border-radius:7px; cursor:pointer;
+    outline:none;
+  }
+  .info{text-align:center; margin:7px 0 10px; color:#e9dfcc}
+  .status{
+    max-width:999px; margin:0 auto 12px; padding:10px 12px;
+    border-radius:9px; border:1px solid rgba(255,255,255,.18);
+    background:rgba(0,0,0,.28); color:#f8f4ec; text-align:center;
+    letter-spacing:.06em; font-size:12px;
+  }
+  .status.ok{border-color:rgba(15,118,110,.35); background:rgba(15,118,110,.12)}
+  .status.bad{border-color:rgba(180,35,24,.35); background:rgba(180,35,24,.12)}
+
+  .book{
+    perspective: 1222px;
+    margin: 7px auto; max-width:999px; padding:24px;
+    background: radial-gradient(circle at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,.7));
+    border:11px solid rgba(255,255,255,.08); border-radius:7px; box-shadow: var(--shadow);
+  }
+  .spread{ display:flex; gap:3px; justify-content:center; align-items:stretch }
+  .page{
+    width: 555px; min-height: 333px;
+    background:var(--paper); color:var(--ink);
+    border:11px solid var(--edge); border-radius: 7px;
+    box-shadow: 0 11px 24px rgba(0,0,0,.35);
+    padding: 24px 33px 33px; position:relative; overflow:hidden;
+  }
+  .page-inner{
+    height:100%; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .heading{font-size:14px; letter-spacing:.24em; text-transform:uppercase; color:#a88758; margin-bottom:11px}
+  .pagetitle{font-family:"Cinzel",serif; font-size:14px; letter-spacing:.24em; text-transform:uppercase; margin-bottom:24px; color:#3b2a17}
+  .meta{font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#b19a7a; margin-bottom: 3px}
+  .body{
+    flex:1; overflow:hidden;
+    line-height: var(--line-height);
+    font-size:14px; color:var(--ink-soft); white-space:pre-wrap;
+  }
+  .num{ position:absolute; right:11px; bottom:7px; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:#957f66 }
+
+  /* Turn animation */
+  .turning-left .page.right,
+  .turning-right .page.left{
+    animation: flipOut .44s ease forwards;
+    transform-origin: left center;
+  }
+  .turning-left .page.left,
+  .turning-right .page.right{
+    animation: flipIn .44s ease forwards;
+    transform-origin: right center;
+  }
+  @keyframes flipOut{
+    0%{ transform: rotateY(0) translateX(0); filter:brightness(1)}
+    100%{ transform: rotateY(12deg) translateX(-8px); filter:brightness(.94)}
+  }
+  @keyframes flipIn{
+    0%{ transform: rotateY(-10deg) translateX(8px); filter:brightness(.94)}
+    100%{ transform: rotateY(0) translateX(0); filter:brightness(1)}
+  }
+
+  .navrow{display:flex; justify-content:center; gap:11px; margin:11px 0 0}
+  .navbtn:disabled{opacity:.45; cursor:default; transform:none; box-shadow:none}
+
+  /* hidden measurer */
+  #measure{
+    position:fixed; left:-9999px; top:-9999px;
+    width:489px;  /* matches actual text column width: 555 - 33 - 33 */
+    padding:24px 33px 33px; border:3px solid transparent;
+    font-family:"Cormorant Garamond",serif; font-size:14px; line-height:var(--line-height); white-space:pre-wrap;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">Memoir</div>
+    <div class="sub">A living book — Prologue + Chapters</div>
+  </header>
+
+  <div class="controls">
+    <button class="btn gold" id="tocBtn">Table of Contents</button>
+
+    <select class="select" id="langSel" title="Language">
+      <option value="en">ENGLISH</option>
+      <option value="es">SPANISH</option>
+      <option value="fr">FRENCH</option>
+      <option value="de">GERMAN</option>
+      <option value="ar">ARABIC</option>
+      <option value="ru">RUSSIAN</option>
+      <option value="zh-CN">CHINESE</option>
+    </select>
+
+    <select class="select" id="modeSel" title="Translation Mode">
+      <option value="offline">OFFLINE LIBRARY</option>
+      <option value="online">ONLINE API</option>
+    </select>
+
+    <button class="btn" id="translateBtn" title="Online mode only: translate this book into the selected language (paragraph-by-paragraph).">Translate Book</button>
+    <button class="btn" id="saveLangBtn" title="Save current language version to Offline Library (localStorage).">Save Language</button>
+
+    <button class="btn ghost" id="placeBtn">Place Marker</button>
+    <button class="btn ghost" id="jumpBtn">Jump to Marker</button>
+  </div>
+
+  <div class="status ok" id="status">Ready. Offline Library mode is fully local. Online mode uses MyMemory (internet).</div>
+  <div class="info" id="pageInfo">Spread 1 of 1</div>
+
+  <div class="book" id="book">
+    <div class="spread" id="spread">
+      <article class="page left">
+        <div class="page-inner">
+          <div class="heading" id="L_head"></div>
+          <div class="pagetitle" id="L_title"></div>
+          <div class="meta" id="L_meta"></div>
+          <div class="body" id="L_body"></div>
+          <div class="num" id="L_num"></div>
+        </div>
+      </article>
+      <article class="page right">
+        <div class="page-inner">
+          <div class="heading" id="R_head"></div>
+          <div class="pagetitle" id="R_title"></div>
+          <div class="meta" id="R_meta"></div>
+          <div class="body" id="R_body"></div>
+          <div class="num" id="R_num"></div>
+        </div>
+      </article>
+    </div>
+    <div class="navrow">
+      <button class="btn" id="prevBtn">&laquo; Previous</button>
+      <button class="btn" id="nextBtn">Next &raquo;</button>
+    </div>
+  </div>
+</div>
+
+<div id="measure"></div>
+
+<script>
+/* ===============================
+   BOOK TEXT (Master English)
+   =============================== */
+const MASTER_EN = `
+Prologue Poem: Before the Telling
+
+
+Before the telling, there is silence,
+a hush, like morning light
+slipping softly across old wounds,
+promising that nothing is too broken
+to become beautiful in the telling.
+
+Here is the threshold:
+A door between memory and now.
+Step gently.
+
+What you find within these pages
+is both the child’s song and the survivor’s anthem,
+the ache of longing, the marvel of hope,the mosaic of a life
+built from shadow and sunlight.
+
+
+Come as you are, with your own burdens.
+
+May you find solace in the honesty,
+companionship in the pain,
+and, in the quiet glow of these words, the spark of your own resilience awakening.
+
+For every scar is a seed, and
+each story a lantern.
+Together, we are braver
+for letting the light in.
+
+
+
+Prologue
+
+Memory is a strange thing. 
+Some moments are sharp, like shards of glass you can never fully remove.
+
+Others are soft, like sunlight filtering through the trees, fleeting yet impossible to forget. 
+
+My life has been a tangle of both: Peace and chaos, love and loss, freedom and confinement. Sometimes all at once, sometimes in long, hard stretches.
+
+I was raised in a family that could feel like both a sanctuary and a battlefield. There were times the walls felt too close, the air too heavy, and the people who should have protected me became the source of my deepest fear.
+
+This is a story of both the ordinary, beautiful moments that made me who I am, and the extraordinary challenges that threatened to break me. It is about resilience.  About finding light in the shadows, and the complicated, imperfect people who shaped my world.
+
+Some of the events you will read are difficult to believe: some will anger you, some will sadden you, and some may inspire. They are all true, every laugh, every scar, every quiet moment of hope.
+
+This is not just a story of survival. It is a story of remembering who I was before the world tried to tell me who I should be and of carrying that person forward.  
+
+Even when the weight of life threatened to bury her.
+
+Welcome to my world.
+
+
+
+
+
+Chapter:  Bellville, Ohio
+
+
+Our two-story olive green, ranch-style home was positioned on a hillside overlooking the sprawling Ohio country horizon. We could see for miles from our front window.  A landscape of pastures filled with horses and cows, farm houses, and an occasional vehicle driving leisurely by.  
+
+Honey Creek Road was our haven, our little universe where joy was ordinary, where love was possible, and life felt like it could last forever
+
+Laughter echoed through our home.  Atari games beeped from the basement family room.  We rode our bikes down the big hill on the other side of Renie Road.  Our neighbors the Sheltons' had kids our age and we were always playing at each others houses, climbing trees, and having a blast together.  My brother spent hours hitting rocks across the road with his baseball bat.  I fed carrots to the horses, and we explored the woods, cornfields, and creeks together. We built snowmen in the winters, and we played outside for endless hours in the summertime.
+
+
+
+Chapter: The Black Widow Spider
+
+I still remember the black widow spider that spun her webs inside our mailbox every year. She would appear as if by magic, tucked into the darkest corner of the black mailbox.  
+I always knew to check for her each spring. 
+
+I remember the first time we discovered her. My parents panicked, their voices rising with fear at how poisonous she was. No matter what they did, no matter how often they cleaned or sprayed, she always returned the next spring. Or maybe it was one of her offspring. Either way, she persisted.
+
+Watching her, I learned something without even realizing it. She was small, fragile looking, yet incredibly determined. She adapted, rebuilt, and survived year after year despite everything working against her. There was a quiet kind of power in her persistence.
+
+That spider left a mark on me that lasted far beyond the mailbox. I began to notice the world in the same way, watching for patterns, respecting dangers, and understanding that resilience often looks like something very small and seemingly insignificant. 
+Life, I realized, would always throw obstacles in my path. But like the black widow, I could find a way to endure, rebuild, and continue, even in spaces that felt dark or impossible.
+
+Sometimes, the things we fear the most have the most to teach us, if we’re willing to observe and learn from them.  Maybe she was a warning. Maybe she was a prophecy of what was to happen.
+
+
+
+
+Chapter:  Dusting
+
+Writing this has unlocked a reservoir of feelings and memories I hadn’t thought about in years, memories tucked away like treasures in a dusty chest.
+
+Reminiscing about playing together, exploring , learning about life, growing up there in that place, was amazing.
+
+Outside was a world of endless exploration, a place where every corner held a secret and every afternoon promised an adventure.
+
+
+And then there was the aroma of my dad’s cooking. The rich, spicy scent of his homemade chili, the warm, comforting smell of hamburger and noodles, the creamy embrace of his potato soup, or the sweet, buttery caramel popcorn drifting through the house. It was a scent that beckoned us from the yard, calling us to gather at the table, to sit together and be nourished, not just in body but in heart. Those smells weren’t just food, they were home, they were love, they were belonging.
+
+
+
+Chapter: Life in a Small Town
+
+
+Mornings meant catching the school bus at the end of our country driveway on Honey Creek Road, or watching hours of Bugs Bunny and the Road Runner together on weekends. The sun always warmed our faces in the summer; snow blanketed our coats in the winter.
+
+Afternoons were filled with softball games at the Bellville elementary school, ice cream cones at the local stand, and afternoons of swimming at Gatton Rocks. 
+
+Life felt wide open, special, and safe.
+
+In those moments, I believed the world was simple, and I believed we were protected. 
+Honey Creek Road was a special place to grow up, and for a child, that was everything.  A place where love was possible, and life felt like it could last forever.
+
+Holidays were the best. We’d pile into the family car filled with presents for everyone, heading to grandparents’ houses. On both sides of the family, cousins, aunts, and uncles meant the noise of our laughter multiplied.  
+
+The smell of home-cooked meals filled every room.  The living rooms seemed to stretch just to fit us all. Our family was huge, chaotic, but loving. These visits stitched a sense of belonging into my bones, a web of connections and traditions that felt unbreakable.
+
+My grandparents' house in Bellville was a place where hands cultivated the garden, with lemonade sweating in the summer sun, and cookies crowded the kitchen table. 
+
+I found a secret place under the kitchen table, where I spent many hours at my parents' feet, while they played cards together.  
+
+Every window remembers my face; every floorboard knows my barefoot run. 
+
+The house of my grandparents was recently sold. No one told me it was for sale until the house had already closed, but that house will live inside me long after the "For Sale" sign is taken down. It will always be Grandma's house, and her garden. The fort in the woods will always be a place that I can dream about.  The holiday spread and the Christmas' there, I will carry it all, wherever I go. 
+
+For a little while, Bellville was all the world we needed, and in those moments, we believed childhood could last forever.
+
+The hills, the woods, the laughter, the light, they were ours. Honey Creek Road was the horizon of my childhood, a world that felt eternal, even if forever was only for a season.
+
+
+
+
+Chapter:  Harkey's
+
+
+Life in Bellville was full of the kind of childhood adventures that feel almost magical in memory, but there was another side to our lives that came with growing up in a family-owned business. My parents owned a local bar called Harkey’s.  Like any bar, the lifestyle demanded long hours, late nights, and a constant commitment to keep the doors open. It was a family business in every sense of the word.
+
+Some of my fondest memories are tied to the smells and sounds of the bar. My grandmother cooked several days a week, filling the space with amazing aromas. I can still remember her barbecue beef ribs and the giant metal container of dill pickle slices that sat on the counter. I couldn’t resist sneaking a few every chance I got.  
+
+I like to think she left it there for me, just within reach. 
+
+We drank Shirley Temples, played pool, and my mom would read tarot cards to the locals in the first booth. Across the street, the Clearfork River ran right through town.  Right past the bar, going into town, is the old arched Bellville bridge. We kids played for hours under the bridge and in the river itself.  In the spring, it sometimes flooded, creeping all the way to the top of the bar’s front stairs, though thankfully never making it inside.
+
+We actually had a stuffed Buffalo head that my mom brought home from one of her trips.  I think I cried when I saw it.  I used to look deep into its eyes while petting its thick fur.  I had many conversations with that buffalo in my childhood. 
+
+But childhood in a bar wasn’t all fun and games. Countless nights were spent in the basement while my parents worked. We had lawn chairs, blankets, and some toys stashed there, creating our little hideaway.
+
+I would even play house in one of the abandoned, broken-down walk-in fridges. Every night, after the bar closed, my dad would carry me to the car and then to bed. Those nights were a huge part of my childhood that balanced out the chaos of running a family business.
+
+Harkey’s was more than just a bar; it was a backdrop for my early life, full of smells, sounds, and moments that shaped who I became. I miss that place dearly, even as I remember the long hours and the work that went into keeping it running. It was a childhood like no other.
+
+
+
+
+
+Chapter: Peace, With Conditions
+
+
+Even in those peaceful days, small shadows sometimes slipped through. 
+
+A raised voice from the kitchen, the slam of a door, or the sudden peace when our mother left on one of her many work trips.  
+
+Sometimes we forgot that she was gone, because the days slipped by so smoothly, so naturally, so peacefully. Her arrival was always a big deal. We missed her, and we loved her.
+
+She was our mother, and that connection,  however complicated, however strained, was something we craved more than we could ever say. Her absence taught us how to make joy from the little things, but it also left a quiet ache, a reminder of what we wanted most and could not always hold.
+
+My dad made sure we received the love we needed.   He was the calm center of our world, the one who laughed with us, who teased us, who made ordinary days feel magical. He cooked nearly every meal, worked hard to support his family, and provided a safe and happy childhood. Even when storms of anger would eventually return, we carried those peaceful hours with us, tucked like secret treasures in the corners of our memory.
+
+Those moments were brief, sometimes ending the instant we realized Mom had returned early from one of her trips. For a child, they were enough to remind us that peace existed, but it was fragile.
+
+My dad tried to shield us, as always. He would laugh off a sudden argument, pull us close during tense moments, or distract us with a new story.  He would take us to his softball tournaments, the drive-in theater, or lay a bunch of blankets in the yard so we could all lie together under the star-filled sky. For a while, that worked. The world could be simple again, if only for an hour, a day, or a week.
+
+We learned, without being told, to measure our words and actions. One wrong comment, one careless movement, and the spatula or hairbrush would come swinging. The screaming from Mom would fill the countryside. The house could tilt from laughter to tension in a heartbeat. 
+
+Yet even in that early caution, we found resilience. The ability to cling to joy, to treasure small victories, and to make our own rules within the universe my dad created.
+
+
+
+
+Chapter: When She Came Home
+
+
+Her absence was quiet, but her return had weight.
+
+We always knew when she was coming back. The air changed. First, subtle but unmistakable. The house grew more careful, as if even the walls were bracing themselves. Laughter softened. Movements slowed. We didn’t stop being children, but we learned how to shrink a little, how to make ourselves smaller without being asked.
+
+We missed her when she was gone. We loved her fiercely, instinctively, because she was our mother. Her absence left a hollow place we didn’t have words for, and when she returned, hope rushed in ahead of her. Maybe this time would be different. Maybe she would stay longer. Maybe she would see us. Maybe she wouldn't scream at us again.
+
+Her arrivals were events. Suitcases appeared. Doors closed louder than before. Little gifts and tokens,evidence that she had actually gone off to do something worthy would appear.  The house reorganized itself around her presence.  The smell of cigarettes drifted through the house, trailing from wherever she hid to smoke them. We never knew what was acceptable, what was too loud, what might provoke irritation. The peace we lived in didn’t vanish all at once; it retreated, room by room.
+
+She was strong, driven, and restless. She left to work jobs that sounded adventurous to a child. Gold mining in Arizona, sales work that took her far away. I told people my mom did big things. I was proud of her independence, even as I longed for something simpler: her hands in my hair, her voice steady instead of sharp, her staying.
+
+When she was home, love felt conditional. It existed, but it moved quickly, like something that might disappear if you reached for it too directly. Praise was rare. Attention came unpredictably. Anger arrived without warning. The snide insults came quietly.
+
+‘You'd better find something else to do with your life. You don’t have a good voice,’ she would say whenever she heard me sing.
+
+And yet, we wanted her approval more than anything.
+
+My father tried to soften the edges.  He filled the space she left behind and tried to cushion the space she occupied when she returned. But there was a tension even he couldn’t dissolve, an undercurrent that taught us early how to read moods, how to listen for footsteps, how to sense when it was safer to be quiet or play outside all day. 
+
+Looking back now, I understand that this was where I first learned vigilance. Not fear exactly, but awareness. The kind that sharpens a child too early. The kind that teaches you to scan a room before you enter it, to measure yourself against someone else’s emotional weather.
+
+I learned how to take care of my little sisters when my dad needed help.
+
+At the time, I didn’t know that any of this had a name.
+
+I only knew that there were two versions of our life on Honey Creek Road. One where the house breathed easily, and one where it held its breath. We loved her in both versions. We waited for her in both versions.
+
+And somewhere between missing her and bracing for her, I began to learn that love could be complicated. Something you could want deeply and still feel unsure about.
+
+That lesson would follow me for years.
+
+
+
+
+
+Chapter: Discipline
+
+
+I learned early that rules were not always spoken.
+
+Some rules appeared suddenly, without explanation, and disappeared just as quickly. What was allowed one day could be punished the next. What was harmless laughter could turn into disrespect without warning. Getting into trouble wasn't something we took lightly. 
+
+Discipline in our house was swift, angry, and emotional. It wasn’t meant to teach so much as to correct, to stop something immediately. A raised voice came first, sharp and loud, followed by whatever object was closest, a spatula, a hairbrush, an open hand. My mom broke many objects over our behinds. 
+
+The punishment itself mattered less than the anger behind it. That was the part that stayed with me.
+
+I learned to watch closely. To listen for changes in tone. To notice footsteps. I learned that safety depended on anticipation, not innocence.
+
+Sometimes punishment meant being sent away: into my room, into a closet in the downstairs hallway; away from life, away from voices, away from comfort, away from being seen. Time behaved strangely there. Minutes stretched and folded in on themselves. 
+
+I didn’t know how long I was meant to stay, only that I was alone and trying very hard not to make things worse.
+
+Isolation teaches a child something powerful: that their presence is disruptive, that quiet is safer than expression, and that love can be withdrawn without warning.
+
+I became very content with my time alone, not because I preferred it, but because I learned how.  I learned to create worlds using anything at my fingertips.  I created entire communities and spent hours playing by myself. 
+
+My father tried to soften this world. He would intervene when he could, redirect attention, smooth the sharp edges. With him, discipline came with explanation, with humor, with reassurance. With him, mistakes didn’t feel permanent.
+
+But even his steadiness couldn’t erase the lesson I was absorbing: that love had conditions, that anger could arrive without warning, and that survival depended on reading the room correctly.
+
+I didn’t have language for any of this then.
+
+I only knew how to comply.
+
+How to disappear when necessary.
+
+How to be good enough to avoid the worst of it.
+
+Those were the skills I carried forward.
+
+
+Chapter: The Catholic Church
+
+
+Something that happened when I was very young, around five or six years old,  quietly shaped how I experienced the world long before I had language for it.
+
+My family was attending church, a large Catholic church in Lexington. I remember how massive it felt:  tall, heavy, imposing. At some point, I went to the bathroom with my brother to keep an eye on me.  My brother was waiting for me, but instead of leading me back to our parents, he guided me toward a side exit. He held the door open and let me step outside.
+
+The moment I crossed the threshold, he shut the door behind me.
+
+I was locked out.
+
+The windows were dark, and the building felt endless. I couldn’t see inside. I couldn’t hear anything. I started running along the side of the church, searching for another door, another way in, but everything looked the same. The building went on and on. I was a little girl alone outside a place where I believed safety lived.
+
+Eventually, I stopped running and sat down where I was. I cried.
+
+I don’t know how long I sat there before my father finally came around the corner of the building and found me. I don’t remember what was said afterward. I don’t remember going back inside. In fact, I don’t remember much else about that church at all.
+
+
+What I do remember is the feeling: being shut out, unseen, and powerless, locked outside something sacred and enormous, without any understanding of why.
+
+
+Chapter:  My Faith Didn’t Stop There.
+
+Within the next couple of years, I felt an unexpected pull to attend church again.  Not because anyone told me to, but because something inside me wanted to go. Every Sunday morning, a short, old-style school bus from a local Baptist church would drive past our house on Honey Creek Road. I could always hear it before I saw it, children laughing, yelling, full of life and noise. It sounded like joy.
+
+One morning, I asked my father about the bus. He told me the church picked people up every Sunday. I remember telling him that I wanted to go. I couldn’t explain why, only that I felt called to catch that bus the next Sunday.
+
+My father knew everyone in town. He knew the church, the pastor, and even the bus driver. The following Sunday, he stood beside me at the end of our driveway as the bus pulled up. I climbed aboard, not knowing that moment would quietly change the course of my life.
+
+The bus was packed with kids of all ages. To me, it felt like we were embarking on an adventure. We went to Sunday school, opened our Bibles, and learned from the felt board; Moses, Abraham, and the stories brought to life in colored cutouts.  After class, we were brought into the chapel to hear the pastor speak.
+
+When we entered, the stage stopped me in my tracks.
+
+There were canvases everywhere, thirty, maybe fifty, in all different sizes, displayed across the entire stage on easels. After praying and speaking for a few moments, the pastor introduced the artist. He talked about his vision and his technique, and then invited us to come closer.
+
+Every painting was beautiful. Images of Jesus. Peaceful landscapes with baby lambs on hilltops. Streams of light poured down from heaven. Each one felt sacred. Each one felt alive.
+
+I stood there completely captivated.
+
+In that moment, as a very young girl, I knew something with certainty:
+I wanted to paint like that.
+
+
+That was the day I first understood that art could be devotion, and that creating beauty could be a calling.
+
+
+
+Chapter: Adventure in Faith
+
+
+I had an insatiable yearning to know God from a very young age. Despite the incident at the Catholic church, my childhood was filled with genuine and meaningful experiences of faith.
+
+My Aunt Debbie was a Seventh-Day Adventist, and for years my brother and I went to church with her and my Uncle Dave almost every Saturday. We were involved in the youth groups, and those were good times: full of friendship, learning, and a sense of belonging. Faith, in those spaces, felt safe and joyful.
+
+For three consecutive summers, I attended the church’s youth summer camp, even though my family truly couldn’t afford the hundreds of dollars it cost each year. Somehow, they always found a way to send me. Looking back, I understand what a sacrifice that must have been, and how deeply loved I was.
+
+That camp felt like a fantasy world to me.
+
+I learned horseback riding and canoeing. We swam, hiked, and spent long days outdoors. We stayed in old cabins that felt like something out of a storybook. We made crafts, explored the woods, and ate hot dogs made out of vegetables.  Which, at the time, felt both strange and wonderful. There was always something to do, always something new to discover.
+
+Those summers were some of the happiest memories of my childhood.
+
+
+They nurtured my spirit in ways I didn’t yet have words for. They reinforced the idea that faith could be expansive rather than restrictive, rooted in community, curiosity, and joy. Long before I understood theology or doctrine, I understood this: being close to God felt like being fully alive.
+
+
+
+Around that same period in my life, after my parents had lost the bar, my father began making ceramic molds with my Uncle Dave. We spent nearly half of our childhood at Aunt Debbie and Uncle Dave’s house. It felt like a second home.
+
+They were vegetarians, and somehow I learned to love the bacon they ate, a small indulgence that felt special in that household. My uncle had his ceramics shop in the basement of their large ranch-style home. It was filled with molds, tools, shelves of drying pieces, and the quiet hum of creative work. That basement fascinated me. It smelled like clay and possibility.
+
+My cousin Heath and my brother played together constantly. They invented their own games and worlds, disappearing into them for hours. I always wanted to join in, but I was rarely invited. More often than not, I played alone, observing, imagining, creating my own inner worlds.
+
+One day, my uncle decided to teach the boys how to play chess. I wanted to learn more than anything. I watched closely, absorbing every move, every rule. But they didn’t have the patience to teach me, so my uncle handed me the instruction booklet instead.
+
+I took it and walked away.
+
+I read the entire book from beginning to end. When I came back into the room, I calmly asked if I could play the winner.
+
+At first, I wasn’t very good. My uncle played several games with me, gently teaching me strategy, movement, and patience. Then, that same afternoon, he challenged one of the boys to play against me. They underestimated me completely, assuming I didn’t really understand the game.
+
+They lost.
+
+
+That moment stayed with me. It wasn’t just about chess. It was the first time I realized that being quiet, observant, and self-directed could be a strength, that learning on my own terms could take me places others didn’t expect.
+
+
+Chapter:  Big Lyons Falls
+
+
+As with most things in life, everything eventually changed. People evolved. Debbie and Dave divorced, remarried, and divorced again, at least three times that I’m aware of. As a child, it destabilized me more than I knew how to articulate. Their house had been a place of laughter, creativity, and refuge, and suddenly that foundation felt like it had cracked beneath my feet.
+
+They never really let us see what they were going through. Only later did I understand more of the truth: my uncle was unfaithful, controlling, and a compulsive gambler. My aunt was a tireless, hard-working nurse who did everything she could to shield the children from the turbulence of their marriage. At the time, all I felt was the loss of something that had once felt safe and magical.
+
+That world had been such a large part of my childhood.
+
+We used to go camping and hiking at Mohican State Park, trips that felt like grand adventures. I remember one hike in particular, the trail out to Lyons Falls. There were at least ten of us that day, moving together through the woods. The hike was about five miles, and when we reached the falls, we played in the shallow, trickling water for over an hour, laughing, resting, soaking our feet.
+
+When it was time to head back, my uncle made a challenge: five dollars to whoever got back to the car first.
+
+Everyone took off running. So did I.
+
+I was barefoot, light on my feet, and I paced myself. One by one, I passed the other kids as they slowed down, doubled over with cramps, breathing hard, exhausted. I didn’t stop. When I reached the end of the trail, the parking area was empty. No one else had made it yet.
+
+I panicked.
+
+Instead of waiting there and claiming my win, I ran back down the trail toward the group. I remember feeling scared, being alone at the end of the woods, unsure, suddenly very aware of how quiet everything was. When I found my uncle, still only halfway back with the adults, I told him I had already reached the car.
+
+No one believed me.
+
+The other kids argued that it couldn’t be true. In the end, no one got the five dollars. I should have waited. I know that now. But at the time, winning mattered less than not being alone.
+
+That moment stayed with me. It wasn’t just about the race. It was about how often I would push myself forward, reach the finish line quietly, and then retreat, not for recognition, but for reassurance. About how fear and independence have always lived side by side in me.
+
+
+
+Chapter:  The Babysitters
+
+
+There were times when my mother was gone for weeks at a time. During those stretches, babysitters were hired to stay with us. These weren’t girls who came for an evening and left before bedtime. They lived in our house. They slept there. They became part of our daily lives.
+
+To a child, their age alone gave them authority. They were responsible, confident, patient, and playful in ways that made me feel comfortable. They were supposed to be safe.
+
+At first, their presence felt lighter than when my mother was home. The tension eased. But something else entered the house, something I didn’t yet understand.
+
+One afternoon, I came inside to use the bathroom and found the door locked. I heard voices. I hid behind my brother’s bedroom door and watched.  As my father exited the bathroom, followed shortly by our sixteen-year-old babysitter, Catherine, with wet hair and rumpled clothes, I froze.
+
+I knew something was wrong, but I snuck back outside, and I said nothing. 
+
+Later, I learned Catherine was also involved with my brother, who was younger than she was. After that, her older sister babysat us. One day, I saw her lying on top of my father on the living room couch. They were fully dressed, but even then, I understood it crossed a serious line.
+
+The moment that broke everything came when my youngest sister, only three years old, told me she had seen Daddy touching Catherine inappropriately.
+
+That was too much.
+
+When my mother returned, I told her and my aunt what my sister had said. They left immediately. When they came back, we were taken to a family friend’s house for several days. When we returned, we were told my father had been hospitalized with a heart attack.  No explanation. No conversation or information to help me deal with what I had told my mom.  A heaviness that seemed to settle over our entire lives. 
+
+It wasn't until I was in my early twenties that she told me what really happened.  My Aunt Ave and her went to the house and found my dad and Cathrine there together.  She snuck into the bedroom to retrieve the gun they owned.  When she came out to the area where they were lying together, she pointed the gun towards them, which caused my dad to have a heart attack. My mom beat Cathrine up so badly that she nearly killed her.  
+
+Catherine's family sent her off to another state after that, and I never saw her again. 
+
+That was the moment my childhood sense of safety fractured.
+
+Boundaries had been crossed.
+
+Trust had been broken.
+
+And nothing ever felt the same again.
+
+
+
+
+Chapter:  Stolen Innocence
+
+
+We can be happiest just before we learn the world can change again. There are two incidents I remember clearly.
+
+Neither involved physical violence. There were no visible injuries. That made them harder to understand, and harder to name.
+
+The first happened at a babysitter’s house on a dairy farm when I was about 6 years old. My siblings and I were sleeping upstairs on a mattress when the babysitter’s older son touched me inappropriately and threatened me before leaving.
+
+I stayed awake until my mother came. When she found me, I told her what happened. She confronted the sitter, who denied it, defended her son, and called me a liar.  In the middle of that confrontation, I stepped on a nail embedded in the floor. It went straight into my foot.  I don't remember going back to that house again.
+
+This experience was something that I blocked out for many years, and the memory returned to me when I drove by the house and property later in life.  It was like a flood of memories swept over me instantly, and I had to pull over to the side of the road.  I completely broke down there and finally understood why I felt so violated as a child. 
+
+Pain layered on pain. Confusion, fear, anger, and aching became a common part of my life at a young age.  
+
+The second incident happened at a campground we frequented as a family. I was around the same age.  While my parents visited another campsite, a teenage boy was left to watch us. He and my brother convinced me to come into the camper. What followed confused and frightened me. When my parents returned, I was shoved into the bathroom and left there.
+
+I never told anyone.
+
+Years later, I tried to speak to my brother about it. He denied it and became angry. The conversation ended.
+
+At the time, I didn’t understand that what happened actually had a name. I didn’t know I was allowed to question it or speak it aloud.  I felt like I was bad for allowing them to do that to me. By hiding me in the bathroom, I learned that it was wrong and that we would be in trouble for it. So, I never told anyone.  
+
+Life continued as if nothing had changed. I went to school. I played. I laughed. But inside, something shifted. I became cautious. More aware. Less trusting.
+
+My childhood didn’t end.
+
+It changed shape.
+
+I learned how to be quiet.
+
+How to behave.
+
+How not to cause trouble.
+
+And how to carry things alone.
+
+
+
+
+
+Chapter:  The Edge of Childhood
+
+
+That Christmas, my parents gave me something I had hoped and prayed for all my young life. It was the greatest present I ever received. When my mom told us to sit in the living room to tell us they were getting a divorce, the greatest gift of my childhood was overshadowed by the worst news of my childhood.  
+
+I had loved horses for as long as I could remember. For over a year, my parents took me every week to Howard Johnson’s house to groom his pony, Tony. I brushed him endlessly, pulling burrs from his mane and tail strand by strand. I rode him whenever I was allowed. I fell off him more times than I can count.
+
+Tony threw me constantly. He had a trick; he would gallop fast, faster than I expected, and just when I felt invincible, he would drop his head, dig his front hooves into the ground, and stop dead. I flew over his head every time. He would trot casually back to the barn while I walked the long driveway alone.
+
+I always got back on and tried again. Howard would let me go out into different pastures of land that he owned, but he always told me, "Now make sure you close this gate behind you so when Tony throws you off, he can't run all the way back to the barn."  Then he just let me ride.  
+
+It was a dream come true. I used to pretend we were out on the wide open range.  My favorite time to ride was when it was snowing out, and the fields were coated with snow.  It made me feel like I was in one of the many paperback horse stories that I read, and I read all of them.   When I figured Tony out a bit more, our rides became more relaxed. I didn't try to run with him and learned that riding was more about the experience than the speed. 
+
+When I was 10 years old, on Christmas morning, there was a red ribbon under the tree with my name on it. I followed it down the stairs, heart pounding, wondering, hoping, believing, it could be true, I would get the one thing I ever asked for. My dad opened the door, and Howard stood there beside the horse trailer with Tony, a giant red bow tied around his neck.
+
+For every Christmas I could remember, I had asked for a horse. And every year before that one, I was given plastic, wooden, and ceramic statues. Even a plastic horse with real horse hair on it, one year. Horse statues were small reminders of a dream that one day would come true.
+
+It did.
+
+It was the best Christmas of my life.
+
+After everything with my father and the babysitters, my parents waited until this Christmas to tell us they were getting a divorce.
+
+They didn’t sit us down right away. They let the holiday come first, as if wrapping the truth in tinsel might soften it. As if joy could delay grief.
+
+They asked us to choose.
+
+Mom or Dad.
+
+I didn’t understand the weight of that day yet. I only knew where I felt safe. Where laughter lived. Where love felt steady. Where I could breathe. I knew it was all falling apart, and I felt like I was to blame. I was the one who told. I felt like I caused the divorce. I was too young to know the difference. 
+
+That day marked the end of something precious. Childhood didn’t disappear all at once; it cracked. The magic of Christmas and the gravity of loss collided in a single afternoon. Joy and grief stood side by side, and neither won.
+
+I had a pony.
+
+I had a choice I should never have been asked to make.
+
+And somewhere between the ribbon and the decision, I stepped quietly to the edge of childhood, without knowing how far the fall would be.
+
+
+
+
+
+Chapter:  The Difference No One Explained
+
+
+The town of Bellville was supposed to be quiet. Safe. Ordinary.
+
+But it never felt that way to me.
+
+From as early as I can remember, I knew I looked different from my own siblings. While they were light-skinned and blond, I had darker skin, brown hair, and features that didn’t mirror the other kids. I didn’t have language for it as a child. I only had the feeling of standing slightly outside the frame.  The literal black sheep of the family. 
+
+In a town that was overwhelmingly homogenous, conservative, and racist.
+
+I was called slurs and dehumanizing names as a child. The difference was not treated gently. I was called names long before I understood what they meant. Zebra, racist slurs, and words meant to mark me as something foreign, something less. This started in elementary school and followed me into middle school. It wasn’t teasing. It was racialized cruelty, delivered to a child who had no explanation for why she was being targeted.
+
+I didn’t understand why I was treated this way. No one explained it to me. No adult intervened with clarity or protection. I learned early that questions about identity were uncomfortable, and that discomfort was something I was expected to carry alone.
+
+As an adult, still searching for answers, I tried to understand my ancestry through DNA testing. What I found did not bring clarity so much as more questions. The results did not reflect the family names I grew up knowing. They pointed instead toward regions like the Middle East, Greece, and North Africa. When I asked my mother if she would consider taking a DNA test with me, not as an accusation, but as a shared search for understanding, she dismissed the idea outright and told me I was crazy.
+
+That response hurt more than the uncertainty itself.
+
+Because what I was asking for wasn’t a revelation. It was context. It was permission to understand myself without shame.
+
+Growing up visibly different in a family and a town that had no language for difference teaches a quiet lesson: that belonging is conditional, and curiosity about who you are is dangerous. That lesson doesn’t disappear with age. It echoes.
+
+This chapter isn’t about proving where I come from. It’s about what happens to a child when difference is noticed, punished, and never explained. It’s about how identity fractures when questions are met with denial instead of care.
+
+It's about how cruel people can be when they carry bigotry, fear, and misunderstanding in their hearts.  I am positive that the children themselves were not to blame for the racism they expressed towards me, but their parents, who sat around the dinner table, teaching them what to think and how to behave.
+
+And it’s about naming something that took me years to understand:
+
+Being told you’re “crazy” for asking who you are is its own kind of cruelty.
+
+
+
+
+
+
+Chapter:  Instability and Chaos
+
+
+Sometimes instability doesn’t look like chaos.
+
+Sometimes it looks like comfort that can disappear overnight.
+
+The Illusion of Stability
+
+I never felt like we were poor.
+
+That’s the strange part. I heard the word constantly: poor, struggling, barely getting by, but it never matched what my life actually looked like. The lights were always on. There was food on the table every night. We had new clothes for school. Christmas mornings were full, loud, and generous. My parents made sure of that. Whatever stress existed around money, it never reached us directly. We were protected from it.
+
+Still, there were signs.
+
+Neighbors quietly, kindly, brought boxes of food: canned goods, casseroles, staples. My father lost the family bar to debt and taxes. Adult conversations happened behind closed doors. Money problems hovered in the air as a threat we weren’t meant to know about. And yet, inside our home, life felt steady,  comfortable, and normal.  I felt rich.
+
+My mother experienced it differently.
+
+She talked about money constantly, not just as a problem, but as a destiny she felt denied. She was never really happy in Bellville, and she let us know it constantly.  She always thought it was a dead-end place.  She couldn't wait to leave. Her dream was never modest security. She wanted to be a multimillionaire. She said it openly and often. Wealth wasn’t just a goal; it was a measure of worth, freedom, and escape. Stability wasn’t enough. It never was.
+
+That tension, the difference between being safe and being satisfied -  defined everything that came next.
+
+After the divorce, things moved fast. Faster than I understood at the time. Almost immediately, my mother bought a condo in Columbus, Ohio, with her longtime business associate, Lee Tomlinson. Within months, we were being invited to spend weekends there.
+
+I remember the shock more than the excitement.
+
+I felt deceived. Not because my father was blameless, but because the story I had been given didn’t align with what I was suddenly seeing. The narrative had been one of struggle, sacrifice,  and endurance. Yet here was a new relationship, a three-story, five-bedroom condo in a luxury community with a golf course, pool, and clubhouses. The kind of place that felt carefully curated, prepared, even strategically and previously existing.
+
+Life is split into two.
+
+Weekends rotated between my father’s house and my mother’s condo. At her place, we ate at the best restaurants, shopped at expensive stores, and wore the best clothes. The holidays were extravagant and over the top. My mom and Lee had a poster behind each of their office desks that had a woman in one and a man in the other leaning against Rolls-Royce Phantoms with a tag line that simply said,  "Poverty Sucks." 
+
+Everything shimmered with excess and performance. It was exciting, but it was also disorienting. I didn’t know which version of our life was real, the one where we quietly got by, or the one where abundance appeared almost overnight.
+
+No one explained it. No one reconciled the contradiction.
+
+Then came Florida.
+
+The following year, my mother and Lee took us to Disney World. We were floating in a massive resort pool, sunburned, overstimulated, suspended on bright blue rafts in that surreal Disney way where reality feels temporarily paused. And that’s when the question came, casually, almost playfully:
+
+“How would you kids like to move to Florida?”
+
+I remember the moment vividly, not because of excitement, but because of confusion. I didn’t yet understand that this question wasn’t really a question. It was an announcement wrapped in a fantasy. A turning point disguised as a vacation memory.
+
+Looking back, that pool was the threshold.
+
+On one side was the life I understood; imperfect, grounded, familiar. On the other hand, something shiny and exciting, new and wild, moving, driven by ambition, image, and reinvention. And like so many transitions in my life, it happened without preparation, without consent, and without a clear explanation of what we were leaving behind or what it would cost.
+
+Children don’t need luxury.
+
+They need continuity.
+
+They need to know which ground will still be there when they step forward.
+
+
+
+
+
+
+Chapter:  Tony My Pony
+
+
+Sometimes a new place offers a new beginning, but old stories still echo beneath the surface.
+
+The next two years unfolded in subtle, quiet, and deliberate steps.
+
+After Christmas morning, when Tony arrived with a red bow around his neck, nothing ever felt quite as pure again.
+
+I finished seventh grade in Bellville, Ohio, and then just as suddenly as the idea had been floated in that Disney pool, we moved to Florida for eighth grade. 
+
+Palm Harbor, on the west coast.  It felt like a fresh page.  Life shifted quickly, and I didn’t understand most of it. All I knew was that my dad couldn’t afford to keep Tony anymore. He had been paying Howard to board him, and that was no longer possible.
+
+My Aunt Sue and Uncle Bill offered to take him in. They lived in an old farmhouse with land, and it seemed like a solution. I went with my dad to see the barn and spent an entire day cleaning out a stall for Tony, sweeping, scrubbing, preparing a space that felt like a promise. But because we only visited Ohio on vacations after the move, the truth was simple and painful: I didn’t really have a pony anymore.
+
+One day, my dad called me and told me they had to sell Tony.
+
+The explanation was practical. My aunt and uncle couldn’t properly take care of him. One afternoon, my uncle tied Tony to a wooden fence post in the yard so he could graze. When he came back outside, Tony had panicked. He had circled the post over and over, wrapping the lead tight, trapping himself. When my uncle tried to free him, Tony kicked and broke his leg.
+
+After that, Tony was given to a local Amish family.
+
+I was told it was a good home. And I believe that it was. Knowing he would be worked, cared for, and respected did bring me some comfort. But it didn’t ease the loss. I had waited my entire childhood for a horse. Every Christmas before that one had been a tease; statues, toys, reminders of a dream that always stayed just out of reach.
+
+And when the dream finally came true, it was taken from my life almost immediately.
+
+Tony wasn’t just a pony. He was free. He was responsible. He was the first thing that felt truly mine, my first dream come true. Losing him felt like losing a future I had barely been allowed to imagine.
+
+I never had a horse again.
+
+Not because I didn’t want one, but because life never gave me the space, the stability, or the ability. In many ways, Tony was the last moment of uncomplicated joy before adulthood began asking for things I didn’t yet know how to give.
+
+And I still think about him.
+
+About the snow-covered fields.
+
+About the sound of hooves on frozen ground.
+
+The smell of horse hair and the falls.
+
+About how it felt to believe, just for a moment, that something beautiful could happen, and if you never give up, you get what you want. 
+
+
+
+
+
+Chapter:  Florida Before the Cracks
+
+
+We lived in a beautiful four-bedroom home in a solid, family-oriented neighborhood. The schools were good. The streets were safe. There were parks, restaurants, and places to go that didn’t feel heavy. The beach was close enough to make the ocean feel like a promise rather than a destination. For the first time in a long time, life felt spacious.
+
+I went on to attend Tarpon Springs High School, and those years remain some of the brightest memories I carry.
+
+High school was where I found my people.
+
+I had three best friends, Jen and Jennifer, and together we became “the three Jens.” Everyone called me Jenny. And, my friend Karla, we were inseparable, spending nearly every day together. Like most high school friendships, we eventually drifted apart after graduation, but at the time, we felt permanent. Safe. Known.
+
+I had so many incredible friends, people who will always hold a special place in my heart.  The memories are still with me, and I cherish them.  It was a fun and exciting time in my life.  I was social, involved, and elected Junior Class President. That role gave me the chance to help organize the prom that year, which turned out to be pure joy. Planning, coordinating, and creating something meaningful for others, it suited me. It felt natural. Looking back, it was an early expression of who I would become.
+
+My senior year carried a different energy.
+
+I skipped a lot of school. I smoked a lot of pot. I drank a lot of tequila with my friends. It wasn’t reckless so much as it was carefree. A little wild. A little loud. And honestly, it was fun. I wasn’t running from anything then. I was just being young.
+
+But consequences still showed up.
+
+My art teacher, Mr White, failed me in my senior year. I needed his elective credit to graduate, and without it, I couldn’t walk at graduation. 
+
+So instead of a clean finish, I landed in summer school. I signed up for weightlifting to make up the credit, not expecting much from it.
+
+That class changed my life.
+
+Weightlifting gave me structure, discipline, and a connection to my body that I had never fully experienced before. It grounded me. It set me on a path toward a healthier lifestyle, physically, mentally, and emotionally. For the first time, strength felt intentional and earned.
+
+It’s strange how often the things that feel like detours end up being pivots.
+
+Those high school years were good to me. I was happy. I was surrounded by friends. I felt visible in a way I hadn’t before. If you looked at my life from the outside, it might have seemed like everything had finally settled.
+
+But stability, I would later learn, is not the same as permanence.
+
+Happiness can be real and temporary at the same time. Sometimes the calm is just a chapter, not the end of the book.
+
+Every new chapter starts with hope,
+
+But old stories follow us, just out of sight.
+
+
+
+
+
+Chapter:  Becoming
+
+
+I graduated that summer with all of my credits intact. It felt important, not just that I finished, but that I finished cleanly. I wasn’t escaping something; I was stepping forward.
+
+I became deeply health-conscious. I moved from the school gym to my own gym membership, a small but meaningful shift that felt like claiming responsibility for myself. My body felt strong. My mind was clear. I was learning how to take care of myself without anyone telling me how.
+
+I got a job at a local fish and seafood restaurant called Molly Goodheads, named after the James Bond movie Octopussy. I stayed there for three years. It was steady work, real work, and I was good at it. I learned how to move quickly, communicate effectively, and hold my own. I learned how to earn.
+
+At the same time, I started taking acting workshops in Tampa. Film felt possible to me, not as a fantasy, but as a craft. I treated it seriously. I showed up. I studied. I listened. I believed in work, not luck.
+
+I picked up a second job as a waitress on Clearwater Beach because I was saving to move to California. That dream felt close enough to touch if I just kept going. I had professional headshots done. I kept taking my classes. I enrolled at St. Petersburg College, working toward my Fine Arts AA.
+
+I was dating my high school sweetheart. My days were full, sometimes exhausting, but they were mine. I was busy building something. I felt like the future was in front of me, wide open, and for the first time, I trusted myself to walk into it.
+
+Becoming isn’t a moment.
+
+It’s the quiet work of building yourself,
+
+one choice at a time.
+
+
+
+Chapter:  Life Is a Merry-Go-Round
+
+
+Life, I learned, can fracture in an instant.
+
+One minute you're up, and the very next you are down.
+
+At the time, I was riding high. I was making great money waitressing at two strong establishments. School was going well, and I genuinely loved college. The humanities became my favorite classes. I studied music, art, culture, and in the process, I learned more about myself than I ever had before. I felt expanded, curious, alive.
+
+I eventually left Molly’s and kept my Clearwater Beach job, but something new entered my life when I started working at a Fred Astaire Dance Studio. I wanted to learn ballroom dancing, and it seemed like the perfect way to do it. I loved it immediately. I learned fast, faster than I expected, and I was good. Really good.
+
+One of the professional dancers invited me to enter a competition with him. We trained hard. We designed costumes, built routines, and practiced relentlessly. Everything felt aligned. I was strong, focused, and excited.
+
+Then, one ordinary day during practice, the owner asked me for a favor.
+
+She wanted me to take a bank deposit.
+
+It felt unusual, like a test. The bag was packed, filled to the brim with cash. It wasn’t locked, and she had never trusted me with something like that before. Still, I agreed. I took it straight to the bank, made the deposit, and kept the receipt.
+
+Instead of heading straight back, I decided to take myself to lunch. I parked in downtown Clearwater and started walking toward a health food restaurant I’d always wanted to try.
+
+I was mid-block. I looked both ways. The light was red. I saw a landscaping van approaching, pulling a long trailer. I stopped and waited, about a hundred yards from the light, expecting them to pass.
+
+Instead, they stopped in the middle of the road.
+
+They waved me on.
+
+I shook my head no and waved them forward. They insisted. As I hesitated, I noticed the traffic light change. Cars began moving toward me. I made a split-second decision and stepped in front of the landscaping van.
+
+As I crossed the far side of their front bumper, another car, accelerating for the green light, hit me.
+
+She was going about forty miles per hour.
+
+I remember impact. I remember flying. I remember hitting the side bar of her windshield, my head slamming into the glass. When she braked, my body was thrown forty-eight feet.
+
+I suffered a concussion, a broken arm, and fractured ribs. I was battered, disoriented, broken open.  I only remember short moments after the impact; I was in and out of consciousness.  I was airlifted to Tampa General Medical Center.  Lee and my brother Shannon were there when I came to.  I was held for three days and then released, because I had no insurance.
+
+Everything unraveled at once.
+
+At the time of the accident, Lee and my mother were in the middle of breaking up. My mom was visiting my sisters at my father’s house. My younger sisters went to live with him, though I never fully understood why. Growing up, my mother had always told me she believed my father was dangerous, someone who couldn’t be trusted around young girls. She wouldn’t let me live with him. Yet now, suddenly, they were there.
+
+I was discharged from the hospital. A few days later, my mother returned home.
+
+And then my father died.
+
+They said his heart literally exploded. He had just eaten dinner with my sisters. They were watching television when he began coughing up blood. The ambulance came, and that was it.
+
+I am not spreading rumors. I am not claiming answers I don’t have. But the timing, so close to my accident, so sudden, so final, has always stayed with me. It lodged itself in my mind in that way trauma does, unresolved and echoing.
+
+The merry-go-round didn’t slow down.
+
+It dropped.
+
+The carousel of life spins fast.
+
+Sometimes you’re holding on,
+
+Sometimes you’re just holding out for the ride to slow down.
+
+
+
+
+
+Chapter:  After the Fall
+
+
+In the span of days, everything changed.
+
+My body was broken.
+
+My family fractured.
+
+And the life I had worked so hard to build vanished almost overnight.
+
+My mother moved back up to Ohio immediately. Lee was already in the process of relocating. And suddenly, I was still in Florida, but no longer anchored to anything that had once felt permanent.
+
+I was alone.
+
+My boyfriend, Mike, and I spent a great deal of time together during that period. We were both trying to make sense of the upheaval, trying to stabilize something, anything, that still felt within our control. The house I had grown up in was in foreclosure. There was no home to return to, no childhood place left to land.
+
+So we made a decision.
+
+Mike and I rented a condo in Shadow Woods, in Cryatal Beach. It was a three-story treehouse in the woods, and it was ours. It felt like an attempt at normalcy, a declaration that we could still choose forward movement even when everything behind us had collapsed. We told ourselves we were making it work. We wanted to believe that commitment could substitute for certainty.
+
+And then I became pregnant.
+
+Years earlier, when I was eighteen, Mike and I had faced the same reality. We were young, unprepared, and terrified. The decision we made then, to have an abortion, was painful and heavy, and it stayed with me. It wasn’t casual. It wasn’t easy. It was a choice shaped by fear, circumstance, and immaturity.
+
+This time was different.
+
+This time, there was no question.
+
+I would have the baby. No matter what.
+
+It wasn’t framed as bravery or resolve at the time. It simply felt inevitable. Something in me had shifted. After everything I had lost, my father, my sense of safety, my physical strength, my family structure, I could not endure another loss like that. I needed something to hold onto that wasn’t disappearing.
+
+Even if I didn’t yet understand the cost.
+
+The sense of stability I had worked so hard to build was gone. What replaced it wasn’t security, it was responsibility. Adult responsibility, arriving without warning, without preparation, without a safety net.
+
+I was no longer just recovering from an accident.
+
+I was stepping into motherhood in the middle of grief, instability, and isolation, still injured, still processing loss, and still trying to understand how my life had changed so completely in such a short span of time.
+
+The ground beneath me hadn’t just shifted.
+
+It had fallen away.
+
+And I was learning, for the first time, how to stand without it.
+
+When the ground falls away,
+sometimes you find your strength in the falling,
+sometimes in the landing,
+sometimes in the choosing to stand again at all.
+
+
+
+
+Chapter:  Before the Ground Shifted
+
+
+When I found out I was pregnant, practicality took over.
+
+The condo Mike and I were living in was suddenly too expensive for the life we were stepping into, so we found a small, modest house we could afford. It wasn’t glamorous, but it felt like a beginning, a place where we could try to build something steady.
+
+Around that same time, I started working for a family friend, Carolyn, a nutritionist and massage therapist. That job became a pivotal turning point in my life. I worked as her office manager for a little over a year, and during that time, my understanding of health changed completely. I learned about nutrition, juicing, and caring for my body in ways I never had before. I became more conscious, more intentional, more grounded.
+
+Justin came to work with me every day.
+
+Carolyn was patient and kind in ways I will always be grateful for. She understood that I was learning how to be everything all at once: an adult, a mother, and a partner, without much guidance. Her quiet support gave me space to grow without judgment. For the first time in a long while, I felt capable.
+
+From the outside, life looked like it was moving in the right direction.
+
+From the day he asked me out on my eighteenth birthday, through six years of shared life, we stayed together. It felt long. It felt serious. It felt permanent in the way only young love can.
+
+But underneath the surface, tension was building.
+
+I had always been aware that Mike could be cruel. Even before we were together, I saw how he treated his mother: verbally abusive, sometimes physically aggressive. I noticed it. I absorbed it. And somehow, I rationalized it away.
+
+Mike had been a fixture in my life long before we became a couple. He was the high school calendar guy; I was the girl down the street. When we moved to Florida, we lived catty-corner to his house. His best friend, Greg, lived directly across from him. His mother became our nanny for years. Our lives were woven tightly together, geographically and emotionally.
+
+I had a crush on Mike from the time I was twelve years old.
+
+When he finally asked me out, during my senior year of high school, I was ecstatic. Being chosen by him felt like validation. Like a long-held wish finally granted. And in that happiness, I overlooked what I should not have. I ignored the red flags not because I didn’t see them, but because I didn’t yet understand what they meant.
+
+At that time, life still felt hopeful.
+
+Sometimes, what we mistake for stability is just a brief rest before the earth moves again beneath our feet.
+
+
+
+
+Chapter:  What Was Taken, What Was Given
+
+
+After graduation,  the car accident, and the baby, I was working. I was learning. I was taking care of my son. I was trying to be responsible, to grow up, to do the right things. The future didn’t feel dangerous yet. It just felt heavy in ways I couldn’t fully explain.
+
+There was love.
+There was effort.
+
+And there was a pressure building beneath it all; quiet, persistent, waiting.
+
+I had lost so much by then that I didn’t recognize myself anymore.
+
+My body had been broken. My family had scattered. My future, at least the one I had imagined, felt like it had collapsed before it ever really began. I was young, grieving, exhausted, a mother, unwed, and quietly furious at how much had been taken from me without my consent.  How nothing was as I had imagined it would be. 
+
+Justin was the most amazing part of my life.  
+
+The most beautiful thing I had ever seen.
+
+I was so young. Too young to understand how unprepared I was. I didn’t know what I was doing, not really. But the moment I held him, something in me shifted. For the first time in a long time, life gave me more than it took. He didn’t fix everything. But he anchored me. He gave my pain a purpose. He gave my days meaning when I had none left to spare.
+
+Mike and I were already unstable. Our relationship was volatile, confusing, and deeply unhealthy. He was cheating, first with his boss, then with others. There was a strange, painful triangle unfolding right in front of me that I couldn’t fully prove at first, but I could feel it. The signs were everywhere. Meanwhile, he accused me of cheating relentlessly, even though I never did. The accusations felt like projections, weapons meant to keep me off balance and ashamed.
+
+He was violent. Verbally abusive. Constantly diminishing me. He put me down until I barely recognized my own voice. He continued living his life as if nothing had changed, while I stayed home caring for Justin alone. My world shrank. My dreams felt stolen. My freedom disappeared quietly, without a ceremony, without a warning.
+
+I became angry. Depressed. Trapped.
+
+Friends slipped out of my life, not because I didn’t love them, but because isolation happens gradually. You cancel plans enough times, and people stop asking. You stop having a life that belongs to you.
+
+Mike had a habit of sabotaging anything that mattered to me.
+
+If I mentioned wanting to go somewhere, he would suddenly leave before I could get ready, forcing me to stay home. If I cared about something, he found a way to destroy it. These weren’t accidents or isolated moments of anger; they were patterns. Quiet, calculated, and repeated.
+
+I had worked for six months to buy my own juicer from Carolyn. I saved every spare dollar. It wasn’t just an appliance; it was how I nourished myself and how I fed Justin. It represented health, independence, and something that was mine.
+
+One day, in a fit of rage, Mike was sitting at the kitchen counter. Without warning, he wrapped his arm around the juicer and swept it off the counter. It crashed onto the floor. I remember standing there, stunned, looking at the broken pieces, feeling something inside me collapse with it.
+
+It didn’t stop there.
+
+He threw a remote control at my brand-new television. He hurled soda bottles at me. The violence was unpredictable and humiliating, and it happened again and again. What hurt most wasn’t just the objects being broken, but the message behind it: that nothing I loved was safe, and neither was I.
+
+That was when my dear friend Karla called me. And together, we devised a small, desperate plan.
+
+When Mike came home that day, I told him I was going to the store.
+
+Instead, I went to meet Karla and a few friends for a drink.
+
+For a few hours, I remembered who I was. I laughed. I spoke freely. I existed outside of survival mode. Unfortunately, I came home intoxicated. And with Mike, that meant punishment.
+
+He wouldn’t let it go. He followed me into the bedroom, rocking the waterbed with his feet, keeping me awake, badgering me, refusing to stop. Something in me finally snapped. I got up, went straight to the phone, and called Greg, his friend, and Christine, the woman he was cheating with. Greg and Christine were a couple, and she was cheating on him, too. I believed he deserved to know.
+
+I didn’t even finish the sentence.
+
+The next thing I knew, I was on the floor.
+
+I had been knocked unconscious.
+
+Mike had swept my feet out from under me. My head hit the floor. When I came to, he was over me, crying, begging me to wake up, panicked by what he had done. I stood up and locked myself in the bathroom. I sat there until my breathing slowed enough to think.
+
+That’s when I realized my hand was broken.
+
+I wrapped it in masking tape. I didn’t go to the hospital. I didn’t tell anyone. I went to bed.
+
+Because that’s what survival looked like then.
+
+And still this is the truth, I won’t soften.  Justin was the greatest gift of my life. Even in the middle of violence, fear, and loss, he was light. He was innocent. He was the proof that something good could come from a life that felt like it had been dismantled piece by piece.
+
+I didn’t yet know how to protect myself.
+
+But I knew how to protect him.
+
+And that knowledge, fragile as it was, would eventually save us both.
+
+The next morning, I woke up with a broken hand and a lump on the back of my head. I gathered my things and got ready for work as if nothing had happened. By then, I was moving on instinct, not feeling.
+
+Mike was remorseful. He apologized, told me he loved me, swore it would never happen again. We went out to breakfast together. I nodded, smiled, and went through the motions. Inside, I had already detached.
+
+After breakfast, I took Justin with me to work.
+
+When Carolyn saw me, she was livid. She didn’t hesitate or soften her reaction. She took one look at my hand and my face and completely lost her composure. She sent me straight to the hospital to have my hand examined and made me call my mother immediately to tell her what had happened.
+
+Everything changed within twenty-four hours.
+
+A plan was made quickly and quietly. My mother was in Florida within sixteen hours. My friend Karen helped me secure a U-Haul. Carolyn, Karen, my mother, and her boyfriend arrived at the house together, and in less than five hours, we had packed my life and Justin’s into that truck.
+
+Mike was still at work.
+
+He didn’t realize we were gone for three days.
+
+The escape was chaotic, fast, and absolute. And as the miles stretched out behind us, I crossed into another epoch of my life, one shaped not by fear, but by survival.
+
+Survival has no script—sometimes it looks like silence, sometimes it looks like leaving, sometimes it looks like loving someone more than yourself until you can finally love yourself again.
+
+
+
+
+
+Chapter: The Family House
+
+
+The House was supposed to be home, but never was again.
+
+After my father died, things moved quickly. Too quickly.
+
+My mother and Lee had already broken up, and their home had gone into foreclosure just before my dad’s death. She had been visiting him the week he passed. When he was gone, she took ownership of his house and moved in with my sisters, Crickett and Amber.
+
+What followed felt less like caretaking and more like erasure.
+
+She began redecorating almost immediately. She went through all of my dad’s things. His clothes, his belongings, the small personal markers of his life were sorted, discarded, or absorbed into a new version of the house that no longer felt like his. Or ours.
+
+Years earlier, when I was an older teenager visiting my dad in Ohio, he had told me something that stayed with me. He said he had a will. He said that no matter what happened, he wanted his kids to always have that house to come home to. A permanent place. Somewhere solid. Somewhere safe.
+
+That Will never surfaced.
+
+Despite being divorced from my father for eleven years, my mother assumed full control of the house. When I asked about it, carefully, quietly, her response was immediate and hostile. There was no conversation to be had.
+
+She said my dad was a failure and a deadbeat. That he never paid for anything. That he never paid child support. That she paid for the house. Period.
+
+There was no discussion. No explanation. No room for questions or clarity. Just finality and anger.
+
+Over time, something even more painful became clear: no one was allowed to live there.
+
+Not me. Not my siblings. Not any of us.
+
+For more than fifteen years, the house has stood empty, not preserved, not cherished, just used as storage. Slowly decaying, falling apart, rotting in place. A home that was meant to be a refuge instead became a locked container of unresolved grief.
+
+When I later asked if I could live there while trying to rebuild my life in Ohio, the answer was no. I was told that even if I were allowed, there were thousands of dollars in unpaid electric and water bills that would have to be paid before anyone could move in.
+
+A house my father wanted his children to always have became something none of us could touch.
+
+That loss was not just about property. It was about being cut off from continuity. From roots. From a promise made quietly between a father and a daughter that never had the chance to be honored.
+
+Some losses don’t come with funerals.
+
+Some happen when a door is locked and never opened again.
+
+Being back in that house stirred something in me. Despite everything, I loved it there. It still held echoes of safety, familiarity, and a version of life that once felt whole. For a while, it felt grounding to return.
+
+But my mother and I had never truly gotten along, and eventually the tension resurfaced. I moved into my own apartment in Lexington, carving out space where I could breathe.
+
+While my hand healed, I worked for my family, helping care for my grandmother alongside my Aunt Sue. Every day, I sat with Grandma, drawing, watching Jeopardy!, old movies flickering across the screen, sharing Mexican pizzas with Aunt Sue. It was simple. Gentle. And it was one of the most meaningful seasons of my life.
+
+Now that they are both gone, I cherish that time deeply. I wish I had spent more of my life there, more of my days with them. That regret lingers quietly, one of the truest of my life.
+
+Eventually, Justin and I moved into a small rental house in downtown Bellville. We had our husky, Ranger, who quickly became part of our rhythm. I used to tie Ranger’s leash to a red Radio Flyer wagon, and he would proudly pull Justin around town, tail high, like it was his job.
+
+I found work at the Olive Garden in Ontario, starting as a hostess and later waitressing. I stayed there a little more than a year. It wasn’t glamorous, but it was steady. It was money.
+
+And for the first time in a long while, life felt like it was beginning again.
+
+After work one evening, a few of us decided to go out for a drink at a bar in downtown Mansfield. I went along, intending to relax for a moment before heading home. While I was there, a man came over and started talking to me. He bought me a shot, and I had a beer.
+
+Not long after, I began to feel nauseated and off. At first, I assumed it was from not eating enough or from being tired after a long day at work. I said goodbye to my coworkers and left on my own.
+
+The moment I got into my car, I knew something was very wrong.
+
+I felt completely disoriented, far beyond what one shot and a beer could explain. It felt as if I had consumed five or six drinks. My head was spinning, my perception was distorted, and all I wanted was to get home safely. Acting on instinct rather than clarity, I started driving.
+
+I made a wrong turn onto a one-way street, and there was a police officer sitting right there. She pulled me over immediately and had me perform a field sobriety test, which I failed badly. I tried to explain what had happened, how suddenly the disorientation had come on, how something didn’t feel right. I believe she listened. I believe she believed me, at least in part.
+
+Still, I was taken in and booked.
+
+Within a few hours, I was released into my brother’s custody. But that was only the beginning. What followed felt like a cruel game of fallout: $3,000 in fines, a DUI on my record, and a suspended license. My life, which had finally begun to stabilize, flipped upside down yet again.
+
+I lived twenty miles from work. Instantly, basic survival became a logistical nightmare. I continued driving because I had no real choice. I had to hire an attorney: another $3,000 on top of everything else, and I still had to work, I had rent to pay, a child to care for, and wasn't receiving any child support from Mike.  Driving back and forth from Bellville to Mansfield every day on a suspended license was terrifying. Every mile felt like a risk that could cost me everything.
+
+Once again, I was trapped in the space between doing what was legal and doing what was necessary to survive.
+
+The next part of my life was a whirlwind of anarchy. I had fallen between the cracks in Ohio. I lost my footing completely and realized that, for the first time in my life, survival was going to require extreme choices.
+
+I owed thousands of dollars to the Ohio courts. My license was suspended, which meant I couldn’t legally get to work without risking jail time. Bellville wasn’t the kind of town where you could call a cab or rely on public transportation. Every path forward seemed blocked. I was trapped in a system where the punishment made it impossible to recover.
+
+So I did what I had to do.
+
+Not all doors close with a sound. Some remain locked, holding memories that echo through every place you try to build next.
+
+
+
+
+
+Chapter: Survival of the Fittest
+
+
+What some people might see as a last resort became, at least temporarily, my lifeline. I went to a strip club in Mansfield and tried dancing. It wasn’t a nude club - just topless - and on my very first night, I made seven hundred dollars. I had never made that much money in a single night in my life.
+
+At that age, it felt surreal. I talked to lonely men, endured their attention, kept my boundaries, and moved my body for money. It wasn’t glamorous, but it worked. It allowed me to breathe again. What mattered was that I could pay my fines, take care of my child, and keep my life from completely collapsing.
+
+I worked there for several months, long enough to dig myself out of immediate crisis. I saved enough money to take a leap I never would have imagined, opening a juice bar in Brooklyn, New York, at the St. George Hotel. That chapter is its own story.
+
+What matters here is that I survived.
+
+I made it through a maze of corruption, desperation, and impossible choices. I don’t romanticize that time, but I don’t shame myself for it either. I did what I needed to do to stay afloat. And I pray that anyone who finds themselves trapped in that industry finds a way out, and a way forward, just as I eventually did.
+
+I also understand that my working in that line of business was difficult for my family, especially in a small town like Bellville, where nothing stays private for long. I don’t dismiss that. I know how gossip travels, how assumptions replace truth, and how women are judged far more harshly than men who quietly participate in the very spaces they later condemn.
+
+What’s rarely acknowledged is that men from Bellville came into that club regularly. And I can say this plainly: they behaved far more embarrassingly there than I ever did. The hypocrisy was impossible to ignore. The same people who treated women with shocking disrespect behind closed doors were often the ones most eager to pass judgment afterward. Anyone who participated in that environment and later claimed moral superiority needs a serious reality check.
+
+I witnessed deeply disturbing behavior, not from the women working there, but from some of the men who felt entitled to us. One incident in particular still haunts me. A man I knew from Bellville asked if I could help organize a bachelor party. I agreed and arranged for several dancers to attend as a group, believing safety would come from numbers. What I heard afterward made my stomach turn. The women told me stories of being assaulted, violated, and treated with cruelty that crossed every line. It was horrifying.
+
+Even though I wasn’t involved in what happened, and in truth spent most of that evening sitting in the back of a pickup truck, drinking a beer with a friend, I became the target of lies and a vicious review. The men involved rewrote the story to protect themselves. The women came to me afterward, shaken and disgusted by what they had endured, but their voices didn’t matter in a town already primed to blame the woman they could point to.
+
+By then, I was already hearing rumors about myself that were completely untrue. I knew better than to speak out. I had learned how quickly the truth could be twisted and how easily a woman’s reputation could be destroyed. More than anything, I couldn’t wait to leave. I needed distance, not just geographically, but from a culture that punished survival while excusing abuse.
+
+This is where things start getting interesting, and also where the pace of my life changed again. To understand it, I have to go back to the dancing.
+
+I was ambitious. There’s no other honest way to say it. I was exhausted from working in the dive bar I’d been at, and I kept hearing the other girls talk about a club in Cleveland that was “high class.” At the time, I didn’t fully understand what that meant. I thought it simply meant nicer, more professional, and more money. What it really meant was that the expectations were higher in every way.
+
+I went anyway. I auditioned, I was hired, and on my very first night, I made twelve hundred dollars. That was more money than I had ever made in a month before. I went back, and before I knew it, I was working two nights a week and earning more than I ever had in my life. For the first time in a long time, I felt like I could breathe. I was paying off debts, stabilizing my life, and imagining a future that didn’t feel constantly on the brink of collapse.
+
+It didn’t last long.
+
+After work on the eighth night, I stopped at a nearby Denny’s to eat before making the hour-long drive home, without a license, no less. When I came back out to my car, the rear window had been smashed. My suitcase was gone. Inside it were all of my dresses, shoes, and accessories, thousands of dollars’ worth of work attire. Everything I needed to work in that club was gone in a moment.
+
+Without that wardrobe, I couldn’t return. That single break-in effectively shut the door on that opportunity and put me out of work again. It felt cruel in its timing, as if every time I found my footing, something unseen reached in and swept it away.
+
+I went back into Denny’s, needing another cup of coffee and a few moments to collect my thoughts. I couldn’t call the police to report the break-in and theft, not with my suspended license and the chaos surrounding my life, so I just tried to breathe and think. I sat at the counter, staring into my coffee, when a man named Mohammed sat down next to me.
+
+He was an interesting character, to say the least. Worn-out leather jacket in a Michael Jackson style, faded blue jeans, a white t-shirt, and hair slicked back like Elvis. I couldn’t help but tell him he was by far the most interesting person I’d ever met. He was Muslim, from New York City, just traveling through.
+
+We started talking, and it was a relief. He had an open mind and a calm presence that I wasn’t used to encountering. I told him about my life, why I was in Cleveland, and the theft I had just endured. He didn’t judge me. Not once. He asked me what I dreamed of doing with my life. Without thinking, I told him I’d always wanted to open a health-food restaurant or café.
+
+By the time I left, it was 4 a.m., and I had to get home. Before I walked out, he gave me his number and asked me to let him know that I made it back safely. I did.
+
+In the spaces between judgment and survival, there is only the quiet truth of doing what it takes to keep going.
+
+
+
+
+
+Chapter:  Juice In The Shadé
+
+
+About two weeks later, he called out of the blue. He explained that he had a friend and family in Brooklyn who were losing a coffee shop and newspaper stand, they were struggling financially, and the space was about to close. He told me that after thinking about our conversation, he had researched juice bars and wondered if I’d consider partnering with him to open a small juice bar there. That’s how Juice in the Shade began, born out of coincidence, conversation, and a shared dream.
+
+I agreed to go to New York. I flew there, toured the space, spoke with the landlord, and signed a sublet for the remaining two and a half years of the twenty-year lease that Mohammed’s friends were walking away from. The next day, I returned home, gathered my things, and told my mom what I was doing. My sisters, along with her, agreed to watch Justin while I got the store up and running.
+
+I drove back to New York in a U-Haul. Mohammed had an apartment with two efficiencies side by side, so I had my own space. As soon as I arrived, I learned the subway system, familiarized myself with the neighborhood, and threw myself into the juice bar. In thirty days, with permits, renovations, stocking, and loading complete, Juice in the Shade was open. I was all business, focused, driven, and determined.
+
+Unfortunately, Mohammed had developed a crush on me that I did not welcome. It quickly became clear that he was not handling it well. He would get jealous if I spoke to male customers, threw things around the apartment, slammed doors, and made working next to him increasingly uncomfortable. The tension escalated to the point where I had no choice but to take him to court to buy him out. Living right next door to each other made it even more complicated.
+
+Through all of this, I learned quickly that entrepreneurship wasn’t just about finances or logistics; it was about navigating personalities, boundaries, and emotional dynamics. The juice bar thrived, but the personal challenges reminded me that even new beginnings come with their own storms.
+
+
+
+Chapter: The Unburdening
+
+
+Interlude 
+
+
+In the hush between chapters,
+The weight slips from my shoulders.
+
+Stories once hidden rise into daylight,
+
+each word a stone lifted
+from the river of memory.
+
+
+
+I offer them trembling and true:
+the broken glass of old wounds,
+
+the shimmer of fleeting peace,
+the ache of what went unnamed,
+
+and the courage to name it now.
+
+
+
+This is the sound of letting go:
+a breath held too long,
+finally released.
+
+A heart once quieted by fear
+beating louder
+in the presence of its own truth.
+
+
+
+Let sorrow be honored.
+
+Let shame unravel.
+
+Let the laughter of children
+ring like wind chimes
+across a bruised horizon.
+
+
+I lay down the armor,
+the silence,
+the blame,
+
+to make room for gentler things:
+
+the wild hope of becoming,
+the soft dawn of forgiveness,
+the blessing of being seen.
+
+Here, in this pause,
+I reclaim what was never truly lost.
+
+I hold space for the girl I was
+and give thanks for the woman
+writing her way home.
+
+
+
+
+
+Chapter: Entrepreneurship
+
+
+I eventually acquired the juice bar outright and took full ownership.
+
+At the time, I was still living in my small flat on Livingston Street in downtown Brooklyn. My days began early, waking at 5 a.m. to catch the subway down to Clark Street. The routine was relentless but grounding, the kind of exhaustion that comes from purpose rather than fear.
+
+The juice bar was located at the Clark Street Station terminal entrance, directly beneath the St. George Hotel. Commuters passed through in steady waves each morning, their lives brushing past mine in seconds. I stood behind the counter watching the city move, feeding people something clean and alive before they disappeared back underground.
+
+For the first time in a long while, the work felt honest. I had built something with my own hands, and every morning I unlocked the gate knowing exactly why I was there.
+
+
+
+
+
+Chapter:  Bay Ridge
+
+
+I met so many amazing people in New York, and I truly loved living there. I managed the juice bar on my own for about six months, settling into a rhythm that finally felt like stability, when I met Mario, another restaurateur.
+
+His family owned an Italian restaurant on Montague Street. One day, he pulled up in a Porsche, came in for a juice and a sandwich, and struck up a conversation. He asked me out, but at first I genuinely didn’t have time. The shop consumed me. After a few weeks, I hired two new employees and finally allowed myself some personal space. That’s when I agreed to go on a date with him.
+
+We started dating, and a few months later, he invited me to move into his four-story condo in Bay Ridge, Brooklyn. Eventually, Mike brought Justin up to live with me. I enrolled Justin in preschool, continued running the shop, and for a while, life felt full and balanced.
+
+When my lease reached the 2½-year deadline, everything shifted. The landlord didn’t raise my rent by a few hundred dollars; he raised it from $700 a month to $3,700. I was furious and overwhelmed. There was no possible way I could sustain that with my income. Mario and I talked it through and decided we would eventually find another location, something larger, something with room to grow.
+
+But time slipped by. I was happy with Mario, and he loved me. Justin was thriving in New York. From the outside, everything looked good.
+
+Except it wasn’t.
+
+Mario’s father hated me with a vengeance. He called me names as I walked past him, ignored me when I spoke, and made his contempt unmistakable. I understood it, even if it hurt. I was a single mother. I wasn’t a virgin. My business had closed. I was living with his son. They were old-fashioned Italians who had imagined a teenage Italian, an untouched princess for him.
+
+Then Mario’s grandfather passed away, and Mario had to leave for Italy for four to six months to settle the estate. 
+
+While he was gone, I made a decision I would later regret deeply.  I went back to Florida so Justin could spend time near his father.
+
+It was one of the worst decisions I ever made.
+
+
+
+
+
+
+Chapter: Coming Back to Ground
+
+I loved New York. I still do. I was sad to leave it, and even now I catch myself imagining what it would be like to return. New York gave me anonymity, movement, and a sense that life could unfold without explanation. But it was also a hard place to raise a child. Daycare alone was monstrously expensive, and everything required stamina, timing, and money I didn’t always have.
+
+Bringing Justin back to Florida was not what I wanted. It was what he needed.
+
+When I arrived, I did what I’ve always done when the ground shifts beneath me: I rebuilt. I joined a gym right away, needing somewhere solid, somewhere with routine and physical release. I didn’t have a vehicle, so I bought a bike and started pedaling myself into a new rhythm. I got my waitressing job back at Molly Goodhead’s in Ozona. 
+
+It was good money, familiar work, and I knew the flow of the place by heart. Familiarity mattered then. It still does.
+
+I stayed there for a while, but there was a problem lingering in the background, one that followed me like unfinished business. I still didn’t have my driver’s license.
+
+I had been without one for nearly 8 years, ever since a DUI at twenty-one. 
+
+In New York, it hadn’t mattered. I didn’t need a car there. Florida was different. Florida wouldn’t issue me a license until I cleared everything in Ohio, and Ohio required me to physically appear in court. The problem was simple and impossible at the same time: I hadn’t been back to Ohio.
+
+Eventually, I contacted the courts myself. I explained the situation. The judge was insistent, no clearance without a court appearance. So I made the trip. One issue. One purpose. One unfinished loop to close.
+
+Standing there, resolving something that had quietly limited my freedom for nearly a decade, felt unexpectedly profound. It wasn’t dramatic. It was procedural. But it was freeing. For the first time in years, I wasn’t carrying that invisible restriction anymore.
+
+I reinstated my license immediately.
+
+It felt like reclaiming movement, not just the ability to drive, but the ability to choose. To go forward without dragging an unresolved past behind me. I didn’t know then how many new obstacles would arise later, how many times my autonomy would be questioned or interrupted again. But in that moment, I had something back that I hadn’t realized how deeply I’d missed.
+
+Agency.
+
+And for a while, that was enough.
+
+
+
+
+Chapter: Choosing to Stay
+
+
+After that trip, I went back to Florida. Life resumed its quieter rhythm, and for the most part, it was going well. I was settled in my small apartment, working steadily, keeping myself grounded. For the first time in a long while, I felt like I was moving forward instead of just surviving.
+
+I was still talking to Mario every once in a while. Our connection hadn’t disappeared, but it had changed. When he came to visit me in Florida after returning from Italy, the difference between us was impossible to ignore. Things weren’t the same. Not because the care was gone, but because the weight around it had grown heavier.
+
+I wasn’t ready to walk back into the hatred and judgment his family had shown toward me. That part of my life had taken enough from me already. I knew what it cost to constantly defend my worth, my choices, my very existence. I couldn’t do it again, not then, and maybe not ever.
+
+So I chose to stay.
+
+That decision wasn’t easy. I really cared for him. There are still moments when I think about the last time I saw him, how it felt, what went unsaid, how final it was without either of us admitting it. I still have the letter he wrote to me. I’ve kept it all this time. Some things are too meaningful to let go of, even when the relationship itself can’t continue.
+
+But Florida was steady. My life here was beginning to make sense. I had routine, work, and a sense of direction. More importantly, I had momentum, something fragile that I knew could shatter if I made the wrong choice. Staying on track mattered more than revisiting a love that came with conditions I couldn’t survive again.
+
+Sometimes loving someone means recognizing the cost of staying connected to them. This was one of those times.
+
+So I stayed where I was. I kept building. And even though part of my heart lingered in what might have been, I chose the version of my life that allowed me to breathe.
+
+
+
+
+Chapter: Momentum and Missteps
+
+Life felt exciting then. I was young, energized, and once again full of plans. I had my heart set on opening another juice bar in Florida. I started doing what dreamers do, saving what I could, scouting locations, imagining what it might look like. But reality kept interrupting the vision. I needed capital, not just hope, and I didn’t have it.
+
+So I made a decision I knew was risky.
+
+I went back to dancing, this time at a club in Clearwater. It felt irresponsible because I knew exactly what came with that world: the nightlife, the drinking, the parties, the constant pull away from structure. I made good money, fast money, but it wasn’t steady. 
+
+It didn’t resemble the life I had been trying so hard to build. It felt like borrowing from myself, with interest I’d eventually have to pay.
+
+Still, that chapter didn’t end the way it easily could have.
+
+A regular customer kept telling me he would hire me if I wanted out. He ran a software firm and said I had the personality, the drive, the instincts for sales. I didn’t see myself in tech at all.  I had never worked in software, never sold anything more complex than juice or a vision, but eventually, I leaped.
+
+I left dancing and went to work for his company, selling computer software. To my surprise, I was good at it. Really good. I made just as much money as I ever had dancing, but this time it came with daylight, contracts, and credibility. For the first time, I felt respected in a professional setting that had nothing to do with how I looked or who was watching me.
+
+In 1999, we took it a step further and opened a company together: Computer People Software, Inc. We focused on hardware recovery software, and suddenly, I was running a tech business. Something I never could have predicted for myself. 
+
+I learned fast. I handled sales, relationships, and operations. I ran that company for a couple of years, and I was proud of what I was building.
+
+Then everything unraveled.
+
+Joe started drinking heavily, and things became complicated in ways I couldn’t ignore. What finally broke it open was discovering he had been selling software to old customers by charging their credit cards without authorization. What we called “writing wood.” I never would have known if the technicians hadn’t started sending the product back, telling me they hadn’t ordered anything.
+
+I was stunned.
+
+When I confronted him, he confessed. I immediately stepped in, resolved the damage, made things right with the affected customers, and shut the business down. No version of success justified that kind of betrayal: of clients, of ethics, of trust. I didn’t want to work with him anymore. I couldn’t.
+
+Closing that company was painful, but it was also clarifying. I walked away knowing I had done the right thing, even though it meant losing something I had worked hard to build. I had crossed into a world I never planned to enter, proven to myself that I could succeed there, and then chose to leave rather than compromise who I was becoming.
+
+That mattered more than money.
+
+
+
+
+
+Chapter:  Moving Forward Alone
+
+The next phase of my life didn’t arrive neatly. It came as a collage, overlapping jobs, shifting relationships, and moments that felt disconnected at the time but would later reveal their shape.
+
+I moved to Dunedin and found work at a steak restaurant, doing a little of everything: hostessing, cocktail waitressing, serving food. It was a good job. The pace was busy, the money was decent, and for once, I felt anchored again. Around the same time, I also started working at a shop that sold stencils for mural painting. It felt like a bridge back to creativity, to color, form, and expression.  Something I had always returned to, no matter what else was happening in my life.
+
+That’s where I met my daughter’s father.
+
+We didn’t technically work together, but our paths overlapped through art. We painted, created, talked, and shared that space where ideas move faster than words. There was an ease to it, a sense of shared language. When I became pregnant and told him, everything changed.
+
+He disappeared.
+
+He skipped town without explanation, without conversation, without accountability. I was devastated. Confused. Angry. There’s no clean way to process being abandoned at a moment when your life is fundamentally changing. I had questions with no answers and emotions with nowhere to land. But there was nothing I could do except keep going, alone.
+
+He denied our daughter for thirteen years.
+
+Thirteen years of silence. Thirteen years of absence. Thirteen years of raising her without his acknowledgment, his support, or his presence. I carried that reality quietly, doing what needed to be done, protecting her from questions she was too young to answer.
+
+I didn’t hear from him again until after a serious accident left me physically crippled. At that point, I needed help.  
+
+Not emotionally, not symbolically, but practically. I needed him to contribute child support while I healed. That request did not bring accountability. It brought hostility.
+
+He became angry and threatened to take her from me entirely.
+
+He lied to his family, telling them that I had prevented him from being part of her life. He tried to rewrite history in a way that placed blame on me for his absence. Those lies created problems I never should have had to navigate, especially while recovering and vulnerable. The situation escalated to the point where we needed a mediator just to establish boundaries and basic expectations.
+
+Even then, he never became a stabilizing force. He was a saboteur, not just to me, but to any sense of peace or consistency around our daughter. His involvement, when it came, brought disruption rather than support.
+
+Still, I held the line.
+
+I protected my child as best I could. I maintained structure where he introduced chaos. I continued forward, even when doing so required strength I wasn’t sure I had left. Motherhood didn’t arrive for me wrapped in partnership or shared responsibility. It arrived demanding resilience, clarity, and the willingness to stand alone when necessary.
+
+And I did.
+
+
+
+Chapter:  Autonomy
+
+
+During my pregnancy with Autumn, I was involved in a terrifying car accident that could have changed everything.
+
+I was eight months pregnant at the time and driving with Justin in the car. He was ten years old. We were stopped at a red light at Alderman Road and U.S. 19 when I looked over and noticed he wasn’t wearing his seat belt. I gently scolded him and told him to put it on immediately. He did. We continued north on U.S. 19, unaware of how close we were to disaster.
+
+Less than a mile later, an S-10 pickup truck came flying across the highway from the median. I barely had time to register what was happening. I was traveling at around 55 miles per hour when I saw him coming from the left. I hit the brakes, but there was no time to spare. Instead of crossing straight through, the truck, packed 5 feet high with lawn furniture, fishtailed from the right turn lane directly into my path. At the time I struck him, he was moving maybe 20 miles per hour, but the impact was violent. The car was totaled.
+
+Thank Heavens, I had told Justin put his seat belt on just a few minutes earlier.  He hit his forehead on the dashboard, leaving a permanent scar.   
+We have talked about that many times.  It was a miracle. 
+
+From the Accident, we were rushed to the Women’s Center in Tampa. Almost immediately, I was told I was “going into labor” and that they were preparing me for an emergency C-section. I was overwhelmed and terrified. My body hurt from the crash, especially my lower abdomen from the seatbelt, but I had been in labor before, and I didn’t feel like I was in labor.
+
+I told the doctor, a stern German-Russian man, that something didn’t feel right, that this didn’t feel like labor. They performed an ultrasound, and he told me directly that my water had broken in the accident and that there was no amniotic fluid surrounding the baby.
+
+I panicked.
+
+Up until that moment, I had been under the care of a midwife and was planning a completely natural birth at Labor of Love Birthing Studios. Suddenly, that plan was being ripped away from me. I was placed on a cold metal gurney with nothing but a sheet over me, sore, shaken, and frightened. Then they left me there, alone, for over an hour without care, explanation, or comfort.
+
+Eventually, I was given a phone. I called my midwife and told her exactly what had happened: the accident, the ultrasound, the doctor’s claim that my water had broken. She listened carefully and then told me something that went against everything the hospital was telling me: to sign myself out, go home, rest, keep my phone nearby, and come see her first thing in the morning.
+
+I trusted her.
+
+I followed her instructions exactly. A dear friend came to the hospital to pick Justin and me up.  When I went in for a full physical examination and fetal monitoring the next day, everything was normal. My blood pressure was stable. The baby’s heartbeat was strong. I even scheduled an ultrasound to be sure. There was no sign that my water had broken. No emergency. No crisis.
+
+It had all been a lie.
+
+
+I carried Autumn to full term and went on to have a completely natural, empowering, and beautiful birth, exactly as I had planned. Looking back, that experience left a deep impression on me. It taught me how easily fear can be manufactured, how quickly autonomy can be stripped away, and how vital it is to trust your own body and your own voice, especially when others insist you are powerless.
+
+
+
+Chapter: Another New Beginning
+
+After the accident, I began seeing a chiropractor in Tarpon Springs who came highly recommended for working with pregnant women. The treatments helped me tremendously, both before and after Autumn’s birth. Over time, I became familiar with the office and the people there, and after a few months, the office manager approached me with an unexpected request. She asked if I would paint a small mural in her home.
+
+At the time, I hadn’t seriously considered mural painting. I had never worked on a large scale before; everything I’d done up to that point was on canvas. The idea felt unfamiliar and slightly intimidating, but I agreed.
+
+The mural was in her entryway, a simple beach scene with seagrass, dunes, and a white picket fence peeking through. It wasn’t elaborate, but it was my first experience painting directly onto a wall, working with space instead of edges. Looking back, that small project often slips my mind. Life was chaotic then, full of upheaval and survival. But that quiet act of creativity planted a seed that would grow into something much larger than I could have imagined at the time.
+
+
+Autumn was such a beautiful baby, and after her birth, I felt a deep knowing that my life had to stabilize, not someday, but now. We rented a small house between Palm Harbor and Tarpon Springs, right along the Pinellas Trail. 
+
+It was modest, but it was ours. We lived there for four years. 
+
+We started attending a small Baptist church on the hill, and slowly, deliberately, I began building a steadier life, one rooted in responsibility, intention, and the belief that I could create something lasting for myself and my children.
+
+
+
+Chapter: Choosing Myself
+
+Over the next several years, I changed direction again. By then, I had healed from several serious accidents, had two children 10 and 1,  and was independent.  I had learned that people were unpredictable, that they served their own interests before others, that they would come and go, and that circumstances would rise and collapse. Stability was never something handed to me; it was something I had to build deliberately. 
+
+What I wanted more than anything was to be self-sufficient, to be in control of my life and my time. I was exhausted by waitressing jobs, by schedules that belonged to someone else, by the constant feeling that I was surviving but not progressing.
+
+I made a promise to myself: I would never go back to dancing for money.
+
+No matter how tempting.
+No matter how desperate things felt.
+
+I needed a fresh start.  I needed something that I could be proud of myself for accomplishing.  Something that belonged to me.
+
+
+So I asked myself a question I had avoided for years: What do I truly want to be doing? What kind of work would actually make me happy? I sat down and made a list of my favorite things: painting, gardening, designing, singing, creating environments, and then I did something practical. I analyzed that list and brainstormed how each of those passions could realistically earn me a living.
+
+That’s when the answer became clear.
+
+I wanted to paint murals.
+
+I had only one under my belt. 
+
+The dream was bigger and farther away than I initially understood, but for the first time, it felt honest. I knew I didn’t yet have the professional experience to jump straight into that world, so I made a rule for myself: I would only apply for artistic jobs. If I were going to work, it had to move me closer to where I wanted to go.
+
+That’s how I found an ad in the paper for a painting job in Tampa.
+
+I applied and was hired onto a team of painters. The work itself was unlike anything I had seen before. Each day, our job was to mass-produce paintings, sometimes as many as 250 canvases a day, all identical. One artist would design a decorative painting, and then ten of us would each take a single color and a sponge. 
+
+One stroke at a time, canvas by canvas, we would repeat the same motion over and over. By the end of the day, those small, mechanical gestures added up to hundreds of finished “original” paintings.
+
+At the very end of the process, one artist would walk around and add a fake signature to each canvas.
+
+It was mesmerizing.
+
+We didn’t make much money, but I learned something invaluable: how vast and layered the art industry actually was. I realized that many of the hand-painted canvases sold in home décor stores weren’t created by solitary artists in studios; they were created by teams, systems, and production pipelines. 
+
+Art, I learned, could be both creative and industrial.
+
+That realization opened my eyes.
+
+One afternoon during my lunch break, while heading out to grab food, I saw a sign for another business looking for artists: Dr. Doodle Inc. On impulse, I walked in. I was hired on the spot and began working there a few days a week in addition to my other job.
+
+I completed three murals for them. On the fourth one, something in me shifted. Quietly, almost instinctively, I added my signature to the wall.
+
+I knew I wasn’t supposed to.
+
+At Dr. Doodle, we weren’t allowed to take personal credit for our work. We weren’t even allowed to include the murals in our personal portfolios. The work belonged entirely to the company, and authorship was erased by design. Somehow, the owner noticed my signature or saw me add it, and threatened to fire me, to sue me if I ever did it again.
+
+I stayed through the completion of that project, but I already knew what the moment meant.
+
+That small act of signing my name wasn’t a rebellion. It was recognition. I understood then that I didn’t want to spend my life creating anonymously, building other people’s brands while erasing myself in the process. I wanted ownership. I wanted authorship. I wanted to stand behind what I created and say, This is mine.
+
+So when that mural was finished, I made a decision.
+
+I would go off on my own.
+
+I didn’t have a roadmap. I didn’t have money, backing, or guarantees. But for the first time, I trusted myself enough to believe that if I didn’t claim my work, no one ever would. That decision marked the beginning of something new, not just a career, but a declaration of identity.
+
+And once I chose myself, there was no going back.
+
+After leaving Tampa that day, I drove home without any real plan for what came next. Somewhere between habit and instinct, I pulled into Giacomelli’s Auto Repair on Crystal Beach Avenue. I had passed that building thousands of times over the years on my way to Crystal Beach or to Karla’s house, never once imagining it would become a turning point in my life. 
+
+On a whim, I walked in and asked the owners if they had ever considered painting a mural of old cars on the side of their building. To my surprise, they told me they had just been talking about it that very weekend. They already had images in mind.   
+
+She opened the desk drawer and pulled out the old car images that they wanted on the wall. All they needed was someone willing to do it. It was meant to be. 
+
+They paid me very little and only covered the cost of supplies, but what I gained in that moment mattered far more than money. Over the following weeks, I painted my first large-scale, solo, public mural.  Not as part of a team, not under a company name, and not in the shadow of someone else’s signature. 
+
+It was the first time I stood in front of a wall that large with only my own vision to guide me and only my own hands responsible for the outcome. Every line, every decision, every mistake and correction belonged to me. No one else took credit. No one else absorbed the risk. For the first time, I wasn’t assisting, reproducing, or disappearing into someone else’s work. I was there as an independent professional artist, fully visible, and unmistakably my own.
+
+Just me, a wall, and my vision. 
+
+This was the first time my work existed in a public space because I made it happen. 
+
+That mural marked the moment I stopped waiting for permission and stepped fully into my own identity as a muralist, not as an aspiration, but as a lived reality.
+
+
+
+
+Chapter: Lesson In Self-Worth
+
+
+It wasn’t all roses after that. Finding mural work was genuinely hard. I had only two projects to show, barely enough to convince anyone to trust me with a wall. Striking out on my own created an immediate financial void, and inspiration alone didn’t pay the bills. To survive, I started painting houses, interiors, and exteriors.  Work that wasn’t my dream but steadily sharpened my technical skills and discipline. I told myself that if I persisted, even work that wasn’t ideal would still move me closer to where I wanted to be.
+
+I turned to guerrilla marketing out of necessity. I ordered business cards, assembled a not-so-professional flip-book portfolio, and walked into every business I could find that had a potential wall. It was tedious and humbling, but slowly, it worked. One project at a time, momentum began to build. The early jobs were informal and uneven: favors, barters, and small payments that barely covered my time. I gave my skills away far too cheaply in the beginning, believing that access and exposure were worth more than money.
+
+
+Looking back now, I can see that many of those clients received far more value than they paid for. What began as survival pricing quietly became a trap. For years afterward, everyone I knew expected me to paint for almost nothing, and I struggled to escape the rates I had set out of desperation. 
+
+I spent nearly a decade trying to recalibrate my worth, caught between gratitude for the work and the slow realization that undervaluing myself had become its own form of confinement.
+
+
+
+
+Chapter:  Pleasant Valley
+
+I was on a good path then. Not an easy one, but a hopeful one. I struggled financially, often more than I admitted to anyone, but I was grounded. I was going to church. I was raising my children. I was building something with my hands and my heart as a muralist and painter.
+
+Art, especially mural work, is a give-and-take profession. You can be busy one month and completely idle the next. Weeks could pass without a single paid project. Sometimes months. When work dried up, I didn’t stop creating. I couldn’t afford to. I began painting the church’s delivery box truck, covering it in beach scenes, sunsets, and expansive skies. When there was no paying work, that truck became my canvas. I painted while the kids were at school and daycare, right along a busy road, hoping that someone might stop, ask a question, notice the work, and offer a commission.
+
+A few small projects came from that visibility. Just enough to keep going. Never enough to create a real financial buffer.
+
+At church, I gave everything I could. I volunteered for events, helped teach ESL classes, led Sunday school, and stepped in wherever there was a need. I loved it. It gave me purpose beyond survival. It gave me community. It gave my children stability.
+
+Then a new couple began attending the church.
+
+Within a few months, their judgment surfaced. Subtle at first. Then unmistakable. Their tone was patronizing, their smiles thin. Eventually, the pastor sat me down and told me what they had said: that they didn’t think it was a good image for a single mother of two with no official training to be leading anything at the church.
+
+They were applying for a full-time position.
+
+And I was quietly removed from ministry.
+
+I could see it in Pastor Mike’s face; he was cornered. He told me gently, almost apologetically, that if I truly wanted to work in the church, I should consider going back to school and earning a ministerial degree.
+
+I was devastated.
+
+I had never asked for money. Not once. I wasn’t seeking a title or recognition. I loved teaching those classes. I loved those kids. I loved serving. And suddenly, all of that was taken away, not because I had failed, but because I didn’t fit someone else’s image of respectability.
+
+That same day, still raw, I drove to pick up my daughter from preschool. On the way, I passed another church. Their roadside sign stopped me in my tracks:
+
+“God does not call the prepared. He prepares the called.”
+
+I pulled over and cried.
+
+Something shifted in me. Not anger. Not bitterness. Clarity.
+
+The very next day, I drove myself to Trinity College of Florida. I walked into the administration office, filled out an application, spoke with an advisor, and enrolled for the upcoming semester. I chose a track in family counseling and worship leadership.
+
+If I were going to be removed for not being “qualified,” then I would become qualified: on my own terms, in my own time, without surrendering my calling to anyone else’s judgment.
+
+It wasn’t defiance. It was obedience.
+
+
+And it changed the direction of my life.
+
+
+
+Chapter: The Saving Grace
+
+
+While I continued for a short while at the Baptist church, Pastor Mike was incredibly supportive of my decision to return to school. Yet, the financial strain was relentless. Work wasn’t coming in, there were no prospects, and I reached a point where I didn’t know what to do next. I even considered briefly going back to dancing to make ends meet, though I never did and can barely remember that moment, it was a depressing, desperate time.
+
+I questioned God. I couldn’t understand how, despite dedicating my life to Him, I could be struggling so profoundly. Diapers, food, daycare, an eviction notice from my landlord, a massive electric bill… it was overwhelming.
+
+One night, after Justin and Autumn had gone to bed, I sat on my couch, completely depleted. I was bawling, delirious, crying out in anguish, accusing God of abandoning me even as I tried to follow Him. My despair felt endless.
+
+Then, across the room, I saw it: a Bible sitting on the shelf. I walked to it, my heart racing, my mind pleading. “Why are You letting me slip through the cracks?” I whispered. I opened it, and the first words I saw were Matthew 11:28-30:
+
+"Come to me, all you who are weary and burdened, and I will give you rest. Take my yoke upon you and learn from me, for I am gentle and humble in heart, and you will find rest for your souls. For my yoke is easy and my burden is light."
+
+I prayed with everything I had that night. My tears stained the floor, my eyes were swollen and raw, yet for the first time in weeks, I slept deeply and peacefully. When I woke the next morning, the darkness had lifted slightly, my sadness dampened, hope returning in fragile sparks.
+
+Reluctantly, I got Justin and Autumn ready for school and drove to the church. I had no money, no one to call, no plan beyond trusting that Jesus would somehow show me the next step. Standing beside a box truck outside the church, I cried on and off, feeling completely lost, alone, and forgotten.
+
+Then Paul, a close friend and older mentor, and his wife Ellen, who cooked the Wednesday dinners at the church, arrived. They noticed my tear-streaked face and asked what had happened. I confided in Paul about my financial struggles. They weren’t in a position to help me materially, and I would never have asked, but Paul reminded me that Minnie, the office manager, had a check for me from helping at a golf tournament parking event a month earlier.
+
+Paul called Minnie, and within the hour, she came to the church and handed me a $150 check. It wasn’t everything, but it was enough to pay my phone bill and buy some groceries. I remember standing in front of the diaper aisle, overwhelmed with relief, when my reactivated phone rang, it had been off for three days due to the unpaid bill.
+
+A professional, friendly voice spoke on the other end. She had picked up my card at a local restaurant where I had painted a small project. She asked if I could meet her in half an hour. I went immediately to the location she gave me: a wall in a ground-floor lanai of a four-story condo on the water, where the client wanted a mural. The design was already prepared, the wall already prepared, and she sheepishly admitted that other artists she’d contacted couldn’t work within the client’s budget. Could I do it for $1,200?
+
+I could barely contain my excitement. I concluded the meeting, drove home, a mile away, and fell to my knees, crying tears of gratitude and awe. That day, I devoted myself fully, without reservation, to my relationship with YHWH and YAHUSHUA.
+
+
+It was the turning point, the moment when faith, perseverance, and opportunity intersected, and I realized that even in the darkest times, God’s guidance never truly abandoned me.
+
+
+
+Chapter: Ralph Lowe and The Copper Kettle
+
+
+Mom had married Ralph, an older man, about seventy-five at the time. He was remarkable. When I met him, he seemed vibrant and steady, a man fully at peace with who he was. But not long after their marriage, everything changed. Within months, he was on his deathbed. His decline was sudden and shocking, and when he passed, my mother was left devastated and furious.
+
+Because of a paperwork issue, Ralph’s ex-wife ended up inheriting his estate. Mom had believed they were building a life together. They had bought a second home, an old farmhouse just outside of Bellville, complete with a barn. She poured her heart into it, turning part of it into a country store. I remember the ground floor vividly, a massive tree painted on the wall, its branches stretching across the ceiling so completely that it felt like you were standing beneath it, sheltered and small in the best way.
+
+After Ralph’s death, Mom stayed in that house and eventually opened a 24-hour diner in Bucyrus, Ohio.  A truck stop called Mary’s Copper Kettle. About a year after opening, she was in a serious car accident, crashing into a tree. She was confined to a wheelchair for nearly a year. When I heard what had happened, I left my job in Florida without hesitation and drove to Ohio to help her keep the restaurant running.
+
+I lived upstairs from the diner for nine or ten months and worked constantly, sometimes around the clock—doing whatever it took to keep the doors open. I discovered quickly that employees were stealing food, supplies, and cash from the register. It was hard to find dependable help in that town, but the work itself came naturally to me. Line cooking, waitressing, managing the restaurant, it all clicked. I carried the place the best I could while she recovered.
+
+When my mom finally returned to work, something shifted. She told me she didn’t need me anymore. Just like that, I was let go. Fired. No real explanation. I was deeply hurt, confused, unappreciated, and discarded after giving everything I had. I packed up and left in my old blue ’89 F-150.
+
+I stayed in Ohio for a short while after that, trying to regroup, and then I returned to Florida, carrying with me another lesson about family, sacrifice, and how love and loss often tangle together in ways we don’t expect.
+
+
+Poetic Pause
+
+Between Yesterday and What Comes Next
+
+Let me rest here
+for a moment,
+in the hush between stories,
+before the next truth unfolds.
+
+Let me lay down
+what I’ve carried so far,
+the brittle weight of memory,
+the ache of longing,
+the bright shards of hope
+I still gather from the dust.
+
+Let these words be a lantern
+for the road I cannot yet see,
+a gentle hand on the small of my back
+saying:
+It’s okay to pause,
+to gather breath,
+to be exactly where you are.
+
+What was lived cannot be unlived.
+But what is carried
+can be set down,
+even if only for a heartbeat.
+
+Here, in the in‑between,
+may softness find me.
+May I honor the girl
+who walked through fire,
+and welcome the woman
+who is learning how to rise.
+
+The next page waits,
+patient and unwritten.
+
+For now - 
+let me be grateful for the light
+that got me this far,
+and for the courage
+to turn the page.
+
+
+
+To Be Continued....
+`.trim();
+
+/* ==========================
+   Config + Storage Keys
+   ========================== */
+const LINES_PER_PAGE   = 24;
+const CHAPTER_ON_RIGHT = false;
+
+const PAGE_TEXT_WIDTH_PX = 555; // 555 - 33 - 33 (must match CSS + measure)
+const FONT_FAMILY      = `"Cormorant Garamond",serif`;
+const FONT_SIZE_PX     = 14;     // must match CSS .body font-size
+const LINE_HEIGHT      = 1.7;    // must match CSS --line-height
+const LS_MARK          = "memoir_marker_v3";
+const LS_LANG          = "memoir_lang_v1";
+const LS_MODE          = "memoir_mode_v1";
+const LS_BOOK_OFFLINE  = "memoir_offline_books_v1";  // { langCode: rawText }
+const LS_TX_CACHE      = "memoir_translate_cache_v1"; // { "from|to|text": translated }
+const LS_PROT          = "memoir_protect_v1";
+
+/* ==========================
+   Measurement setup
+   ========================== */
+const measure = document.getElementById("measure");
+measure.style.width = PAGE_TEXT_WIDTH_PX + "px";
+measure.style.fontFamily = FONT_FAMILY;
+measure.style.fontSize = FONT_SIZE_PX + "px";
+measure.style.lineHeight = LINE_HEIGHT;
+
+function normalize(raw){ return (raw||"").replace(/\r\n/g,"\n"); }
+function paragraphs(raw){
+  return normalize(raw).split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
+}
+function isHeading(para){
+  const rx = /^(PROLOGUE|CHAPTER)\b[\s\u00A0]*([A-Z0-9IVXLC]+)?\s*([—:-]+)?\s*(.*)$/i;
+  const m = para.match(rx);
+  if(!m) return null;
+  const kind = m[1].toUpperCase();
+  const num  = (m[2]||"").trim();
+  const title= (m[4]||"").trim();
+  const head = kind;
+  const fullTitle = kind==="CHAPTER"
+    ? (num ? `Chapter ${num}${title? " — "+title:""}` : `Chapter${title? " — "+title:""}`)
+    : (title? `Prologue — ${title}` : `Prologue`);
+  return {head, title: fullTitle, meta: ""};
+}
+function sentenceSplit(text){
+  const re=/[^.!?…]+[.!?…]"?\s*/g, out=[]; let m;
+  while((m=re.exec(text))!==null) out.push(m[0].trim());
+  return out.length? out:[text];
+}
+function countLines(text){
+  measure.textContent = text;
+  const h = measure.scrollHeight;
+  const lh = FONT_SIZE_PX * LINE_HEIGHT;
+  return Math.ceil(h / lh);
+}
+
+/* ==========================
+   Pagination
+   ========================== */
+/* Page = { body:string, head?:string, title?:string, meta?:string } */
+function paginate(raw){
+  const paras = paragraphs(raw);
+  const pages = [];
+  let currentBody = "";
+  let currentMeta = null;
+
+  function flushPage(){
+    const body = currentBody.trim();
+    if(body.length || currentMeta?.title){
+      pages.push({
+        body,
+        head: currentMeta?.head || "",
+        title: currentMeta?.title || "",
+        meta: currentMeta?.meta || ""
+      });
+      currentBody = "";
+      currentMeta = null;
+    }
+  }
+
+  function startNewChapter(meta){
+    if(currentBody.trim()) flushPage();
+
+    if(CHAPTER_ON_RIGHT){
+      const nextIndex = pages.length; // 0:left, 1:right
+      const isRight = (nextIndex % 2) === 1;
+      if(!isRight){
+        pages.push({ body:"", head:"", title:"", meta:"" });
+      }
+    }
+
+    currentMeta = meta;
+
+    // Ensure a page exists even if the chapter has no body yet
+    if(!currentBody.trim()){
+      flushPage();
+    }
+  }
+
+  for(const p of paras){
+    const meta = isHeading(p);
+    if(meta){ startNewChapter(meta); continue; }
+
+    const joiner = currentBody ? "\n\n" : "";
+    const candidate = currentBody + joiner + p;
+    if(countLines(candidate) <= LINES_PER_PAGE){
+      currentBody = candidate;
+      continue;
+    }
+
+    if(countLines(p) <= LINES_PER_PAGE){
+      flushPage();
+      currentBody = p;
+      continue;
+    }
+
+    const sentences = sentenceSplit(p);
+    let buf = "";
+    for(const s of sentences){
+      const c = (buf? buf+" " : "") + s;
+      if(countLines(c) <= LINES_PER_PAGE){
+        buf = c;
+      }else{
+        if(currentBody){
+          const tryFill = currentBody + "\n\n" + buf;
+          if(buf && countLines(tryFill) <= LINES_PER_PAGE){
+            currentBody = tryFill;
+            flushPage();
+          }else{
+            flushPage();
+            if(buf) pages.push({ body: buf, head:"", title:"", meta:"" });
+          }
+        }else{
+          if(buf) pages.push({ body: buf, head:"", title:"", meta:"" });
+        }
+        buf = s;
+      }
+    }
+    if(buf){
+      if(currentBody){
+        const tryFill2 = currentBody + "\n\n" + buf;
+        if(countLines(tryFill2) <= LINES_PER_PAGE){
+          currentBody = tryFill2;
+        }else{
+          flushPage();
+          currentBody = buf;
+        }
+      }else{
+        currentBody = buf;
+      }
+    }
+  }
+
+  if(currentBody.trim() || currentMeta?.title) flushPage();
+  return pages;
+}
+
+/* ==========================
+   Offline language library
+   ========================== */
+function loadJSON(key, fallback){
+  try{ return JSON.parse(localStorage.getItem(key) || "") ?? fallback; }
+  catch{ return fallback; }
+}
+function saveJSON(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+function getOfflineBooks(){
+  const books = loadJSON(LS_BOOK_OFFLINE, {});
+  if(!books.en) books.en = MASTER_EN; // guarantee English exists
+  return books;
+}
+function setOfflineBooks(books){
+  books.en = books.en || MASTER_EN;
+  saveJSON(LS_BOOK_OFFLINE, books);
+}
+
+/* Active language state */
+let activeLang = localStorage.getItem(LS_LANG) || "en";
+let activeMode = localStorage.getItem(LS_MODE) || "offline";
+
+/* Returns the RAW_BOOK for active language based on mode */
+function getActiveRaw(){
+  const books = getOfflineBooks();
+  if(activeMode === "offline"){
+    return books[activeLang] || (activeLang==="en" ? MASTER_EN : "");
+  }
+  // online mode still renders from offline if present, else fall back to English
+  return books[activeLang] || (activeLang==="en" ? MASTER_EN : MASTER_EN);
+}
+
+/* ==========================
+   Rendering/State
+   ========================== */
+let pages = [];
+let leftIndex = 0;
+
+const L_head = document.getElementById("L_head");
+const L_title= document.getElementById("L_title");
+const L_meta = document.getElementById("L_meta");
+const L_body = document.getElementById("L_body");
+const L_num  = document.getElementById("L_num");
+
+const R_head = document.getElementById("R_head");
+const R_title= document.getElementById("R_title");
+const R_meta = document.getElementById("R_meta");
+const R_body = document.getElementById("R_body");
+const R_num  = document.getElementById("R_num");
+
+function setStatus(msg, kind="ok"){
+  const el = document.getElementById("status");
+  el.className = "status " + (kind || "ok");
+  el.textContent = msg;
+}
+
+function renderSpread(anim){
+  if(leftIndex<0) leftIndex=0;
+  if(leftIndex>Math.max(0,pages.length-1)) leftIndex = Math.max(0,pages.length-1);
+
+  const L = pages[leftIndex] || {body:"",head:"",title:"",meta:""};
+  const R = pages[leftIndex+1] || {body:"",head:"",title:"",meta:""};
+
+  L_head.textContent = L.head||"";
+  L_title.textContent= L.title||"";
+  L_meta.textContent = L.meta||"";
+  L_body.textContent = L.body||"";
+  L_num.textContent  = "Page " + (leftIndex+1);
+
+  R_head.textContent = R.head||"";
+  R_title.textContent= R.title||"";
+  R_meta.textContent = R.meta||"";
+  R_body.textContent = R.body||"";
+  R_num.textContent  = R.body ? ("Page " + (leftIndex+2)) : "";
+
+  const spreads = Math.max(1, Math.ceil(pages.length/2));
+  const currentSpread = Math.floor(leftIndex/2) + 1;
+  document.getElementById("pageInfo").textContent = `Spread ${currentSpread} of ${spreads} — ${activeLang.toUpperCase()} (${activeMode.toUpperCase()})`;
+
+  document.getElementById("prevBtn").disabled = (leftIndex<=0);
+  document.getElementById("nextBtn").disabled = (leftIndex>=pages.length-2);
+
+  const book = document.getElementById("book");
+  book.classList.remove("turning-left","turning-right");
+  if(anim==="left")  book.classList.add("turning-left");
+  if(anim==="right") book.classList.add("turning-right");
+  setTimeout(()=>book.classList.remove("turning-left","turning-right"), 450);
+}
+
+/* =================
+   TOC + Marker
+   ================= */
+document.getElementById("tocBtn").onclick = ()=>{
+  const items = [];
+  for(let i=0;i<pages.length;i++){
+    const p = pages[i];
+    // Only take the first page that has a title/head and avoid duplicates by requiring page index even
+    if((p.title || p.head) && (i % 2 === 0)){
+      items.push({label: (p.title || p.head || "Chapter"), page: i+1});
+    }
+  }
+  const list = items.map((it,k)=> `${k+1}. ${it.label} (p.${it.page})`).join("\n");
+  const pick = prompt("Table of Contents:\n\n"+(list||"(no entries)")+"\n\nEnter page number to jump:");
+  if(!pick) return;
+  let target = parseInt(pick,10);
+  if(Number.isFinite(target)){
+    target = Math.min(Math.max(1,target), pages.length);
+    leftIndex = target-1 - ((target-1)%2);
+    renderSpread("left");
+  }
+};
+
+document.getElementById("placeBtn").onclick = ()=>{
+  localStorage.setItem(LS_MARK, String(leftIndex));
+  setStatus("Marker placed at page "+(leftIndex+1), "ok");
+};
+document.getElementById("jumpBtn").onclick = ()=>{
+  const raw = localStorage.getItem(LS_MARK)||"0";
+  const idx = Math.max(0, Math.min(pages.length-1, parseInt(raw,10)||0));
+  leftIndex = idx - (idx%2);
+  renderSpread("left");
+  setStatus("Jumped to marker.", "ok");
+};
+
+/* =========
+   Nav/Keys
+   ========= */
+document.getElementById("prevBtn").onclick = ()=>{
+  if(leftIndex<=0) return;
+  leftIndex = Math.max(0, leftIndex-2);
+  renderSpread("right");
+};
+document.getElementById("nextBtn").onclick = ()=>{
+  if(leftIndex>=pages.length-2) return;
+  leftIndex = Math.min(pages.length-2, leftIndex+2);
+  renderSpread("left");
+};
+document.addEventListener("keydown", (e)=>{
+  if(e.key==="ArrowLeft")  document.getElementById("prevBtn").click();
+  if(e.key==="ArrowRight") document.getElementById("nextBtn").click();
+});
+
+/* ==========================
+   Language + Mode controls
+   ========================== */
+const langSel = document.getElementById("langSel");
+const modeSel = document.getElementById("modeSel");
+const translateBtn = document.getElementById("translateBtn");
+const saveLangBtn = document.getElementById("saveLangBtn");
+
+langSel.value = activeLang;
+modeSel.value = activeMode;
+
+function applyModeUI(){
+  const online = (activeMode === "online");
+  translateBtn.disabled = !online;
+  if(online){
+    setStatus("Online mode: Translate Book uses MyMemory (internet). Results can be saved to Offline Library.", "bad");
+  }else{
+    setStatus("Offline Library mode: fully local. Switch to Online mode to generate a translation, then Save Language.", "ok");
+  }
+}
+applyModeUI();
+
+langSel.addEventListener("change", ()=>{
+  activeLang = langSel.value;
+  localStorage.setItem(LS_LANG, activeLang);
+  init(true);
+});
+
+modeSel.addEventListener("change", ()=>{
+  activeMode = modeSel.value;
+  localStorage.setItem(LS_MODE, activeMode);
+  applyModeUI();
+  init(true);
+});
+
+saveLangBtn.onclick = ()=>{
+  const raw = normalize(getActiveRaw());
+  const books = getOfflineBooks();
+  // Save whatever is currently rendering for this language.
+  books[activeLang] = raw || (activeLang==="en" ? MASTER_EN : "");
+  setOfflineBooks(books);
+  setStatus(`Saved ${activeLang.toUpperCase()} to Offline Library.`, "ok");
+};
+
+/* ==========================
+   Online translation (paragraph-by-paragraph)
+   ========================== */
+function txCacheKey(from,to,text){ return `${from}|${to}|${text}`; }
+function getTxCache(){ return loadJSON(LS_TX_CACHE, {}); }
+function setTxCache(c){ saveJSON(LS_TX_CACHE, c); }
+
+async function translateTextMyMemory(from, to, text){
+  // Note: free endpoints can rate-limit; we cache results locally.
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`;
+  const res = await fetch(url, { method:"GET" });
+  if(!res.ok) throw new Error("HTTP "+res.status);
+  const data = await res.json();
+  const translated = (data && data.responseData && data.responseData.translatedText) ? String(data.responseData.translatedText) : "";
+  if(!translated) throw new Error("No translatedText returned.");
+  return translated;
+}
+
+translateBtn.onclick = async ()=>{
+  if(activeMode !== "online") return;
+
+  const target = activeLang;
+  if(target === "en"){
+    setStatus("English is the master. Choose another language to translate into.", "bad");
+    return;
+  }
+
+  const sourceRaw = MASTER_EN; // always translate from master English for consistency
+  const paras = paragraphs(sourceRaw);
+
+  setStatus(`Translating to ${target.toUpperCase()}… (paragraph-by-paragraph)`, "bad");
+  translateBtn.disabled = true;
+  langSel.disabled = true;
+  modeSel.disabled = true;
+
+  const cache = getTxCache();
+  const outParas = [];
+
+  try{
+    for(let i=0;i<paras.length;i++){
+      const p = paras[i];
+      const meta = isHeading(p);
+      if(meta){
+        // Keep headings as-is (you can manually localize later if desired)
+        outParas.push(p);
+        continue;
+      }
+
+      const key = txCacheKey("en", target, p);
+      let t = cache[key];
+      if(!t){
+        t = await translateTextMyMemory("en", target, p);
+        cache[key] = t;
+        setTxCache(cache);
+      }
+      outParas.push(t);
+
+      if((i+1) % 3 === 0){
+        setStatus(`Translating… ${i+1}/${paras.length} paragraphs`, "bad");
+      }
+    }
+
+    const translatedRaw = outParas.join("\n\n");
+    const books = getOfflineBooks();
+    books[target] = translatedRaw;
+    setOfflineBooks(books);
+
+    setStatus(`Translation complete ✓ Saved ${target.toUpperCase()} into Offline Library.`, "ok");
+
+    // Switch to offline rendering for stability
+    activeMode = "offline";
+    modeSel.value = activeMode;
+    localStorage.setItem(LS_MODE, activeMode);
+    applyModeUI();
+    init(true);
+
+  }catch(e){
+    setStatus("Translation failed: " + (e && e.message ? e.message : "Unknown error"), "bad");
+  }finally{
+    translateBtn.disabled = (activeMode !== "online");
+    langSel.disabled = false;
+    modeSel.disabled = false;
+  }
+};
+
+/* ==========================
+   Init
+   ========================== */
+function init(keepPlace){
+  const oldLeft = leftIndex;
+  const raw = getActiveRaw();
+  pages = paginate(raw && raw.trim() ? raw : (activeLang==="en" ? MASTER_EN : ""));
+  if(!keepPlace) leftIndex = 0;
+  else leftIndex = Math.min(Math.max(0, oldLeft), Math.max(0, pages.length-1));
+  leftIndex = leftIndex - (leftIndex % 2);
+  renderSpread();
+}
+init();
+
+/* ==========================
+   Copy Discouragement (speed bump)
+   Secret toggle: Ctrl+Shift+L
+   ========================== */
+(function discourageCopy(){
+  let enabled = localStorage.getItem(LS_PROT);
+  if(enabled === null) enabled = "1";
+  localStorage.setItem(LS_PROT, enabled);
+
+  function editable(t){
+    return t && (t.tagName==="TEXTAREA" || t.tagName==="INPUT" || t.isContentEditable);
+  }
+
+  document.addEventListener("contextmenu", (e)=>{
+    if(localStorage.getItem(LS_PROT)!=="1") return;
+    if(editable(e.target)) return;
+    e.preventDefault();
+    setStatus("Right-click disabled on this view.", "bad");
+  });
+
+  document.addEventListener("keydown", (e)=>{
+    const k = (e.key || "").toLowerCase();
+    const ctrl = e.ctrlKey || e.metaKey;
+
+    // Secret author toggle
+    if(ctrl && e.shiftKey && k==="l"){
+      e.preventDefault();
+      const cur = localStorage.getItem(LS_PROT)==="1";
+      localStorage.setItem(LS_PROT, cur ? "0" : "1");
+      setStatus(cur ? "Author Mode ✓ protection OFF" : "Protection ON", "ok");
+      return;
+    }
+
+    if(localStorage.getItem(LS_PROT)!=="1") return;
+
+    const blocked =
+      (ctrl && ["c","x","s","u","p","a"].includes(k)) ||
+      (e.key === "F12") ||
+      (ctrl && e.shiftKey && ["i","j","c"].includes(k));
+
+    if(blocked){
+      if(editable(document.activeElement)) return;
+      e.preventDefault();
+      setStatus("Copy/inspect shortcut blocked on this view.", "bad");
+    }
+  });
+
+  document.addEventListener("copy", (e)=>{
+    if(localStorage.getItem(LS_PROT)!=="1") return;
+    if(editable(document.activeElement)) return;
+    e.preventDefault();
+    setStatus("Copy disabled on this view.", "bad");
+  });
+})();
+</script>
+</body>
+</html>
