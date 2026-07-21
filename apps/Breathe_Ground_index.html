@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Breath & Ground — Any Time Reset</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <style>
+    :root {
+      --midnight: #05070f;
+      --midnight-soft: #0b1020;
+      --parchment: #f7f5f0;
+      --parchment-soft: #ebe4d7;
+      --gold: #d9b878;
+      --ink: #2b2520;
+      --radius-main: 21px;
+      --radius-soft: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 24px 12px 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background:
+        radial-gradient(circle at 20% 0%, #141b33 0%, transparent 55%),
+        radial-gradient(circle at 80% 100%, #231424 0%, transparent 55%),
+        linear-gradient(180deg, var(--midnight-soft), var(--midnight));
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--parchment);
+    }
+
+    .breath-shell {
+      width: 100%;
+      max-width: 720px;
+      border-radius: var(--radius-main);
+      background: linear-gradient(180deg, #111520, #070913);
+      border: 1px solid rgba(247, 245, 240, 0.18);
+      box-shadow: 0 33px 88px rgba(0, 0, 0, 0.85);
+      padding: 21px 18px 24px;
+    }
+
+    .breath-header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .breath-title {
+      font-family: "Cinzel", "Times New Roman", serif;
+      font-size: 26px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin: 0 0 8px;
+      color: var(--parchment);
+    }
+
+    .breath-tag {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 0 0 10px;
+    }
+
+    .breath-sub {
+      max-width: 540px;
+      margin: 0 auto;
+      font-size: 15px;
+      line-height: 1.7;
+      color: #e7dfd2;
+    }
+
+    .breath-card {
+      margin: 18px auto 6px;
+      max-width: 540px;
+      border-radius: var(--radius-main);
+      background: var(--parchment);
+      border: 1px solid rgba(32, 26, 19, 0.14);
+      box-shadow: 0 24px 44px rgba(0, 0, 0, 0.65);
+      padding: 18px 18px 21px;
+      text-align: center;
+      color: var(--ink);
+    }
+
+    .breath-circle-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .breath-circle {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 3px solid rgba(0, 0, 0, 0.14);
+      background: radial-gradient(circle at 30% 20%, #ffffff, #f2ebdd);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
+      transform: scale(1);
+      transition: transform 0.9s ease-in-out, box-shadow 0.9s ease-in-out;
+    }
+
+    .breath-circle.phase-inhale {
+      transform: scale(1.18);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.46);
+    }
+
+    .breath-circle.phase-hold {
+      transform: scale(1.12);
+      box-shadow: 0 22px 46px rgba(0, 0, 0, 0.42);
+    }
+
+    .breath-circle.phase-exhale {
+      transform: scale(0.9);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .breath-phase {
+      font-size: 18px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #6b5a3a;
+      margin-bottom: 4px;
+    }
+
+    .breath-count {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      margin-bottom: 8px;
+      color: #3c3124;
+    }
+
+    .breath-line {
+      font-size: 14px;
+      color: #6c5f4f;
+      margin-bottom: 12px;
+    }
+
+    .breath-btn {
+      border-radius: 999px;
+      border: 1px solid #c0a573;
+      padding: 9px 22px;
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #e8d9b7, #d9b878);
+      color: #2b2520;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .breath-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+      background: linear-gradient(135deg, #f6e8c6, #e0c48d);
+    }
+
+    .breath-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .breath-footer {
+      max-width: 540px;
+      margin: 10px auto 0;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #cbc0af;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .breath-shell {
+        padding: 18px 12px 20px;
+      }
+      .breath-card {
+        padding: 16px 14px 18px;
+      }
+      .breath-circle {
+        width: 140px;
+        height: 140px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="breath-shell">
+    <header class="breath-header">
+      <h1 class="breath-title">Breath & Ground</h1>
+      <p class="breath-tag">Any Time Reset · 4–4–6 Rhythm</p>
+      <p class="breath-sub">
+        A gentle, all-day breathing practice to calm your nervous system and bring you back
+        into your body. Follow the circle as it expands to inhale, softens to hold, and
+        settles as you exhale. You can use this for one minute or several — whenever you
+        need to arrive, release, and reset.
+      </p>
+    </header>
+
+    <section class="breath-card" aria-label="Guided breathing exercise">
+      <div class="breath-circle-wrap">
+        <div class="breath-circle" id="breathCircle"></div>
+      </div>
+
+      <div class="breath-phase" id="breathPhase">Ready</div>
+      <div class="breath-count" id="breathCount">4</div>
+      <div class="breath-line" id="breathLine">
+        When you’re ready, press Begin and follow the rhythm.
+      </div>
+
+      <button type="button" class="breath-btn" id="breathToggleBtn">
+        Begin Practice
+      </button>
+    </section>
+
+    <p class="breath-footer">
+      Suggested pattern: Inhale for 4 · Hold for 4 · Exhale for 6.  
+      If you feel light-headed, soften the inhale or pause the practice.  
+      You can close your eyes once you know the rhythm and just listen to your breath.
+    </p>
+  </div>
+
+  <script>
+    (function() {
+      const circle = document.getElementById('breathCircle');
+      const phaseEl = document.getElementById('breathPhase');
+      const countEl = document.getElementById('breathCount');
+      const lineEl = document.getElementById('breathLine');
+      const toggleBtn = document.getElementById('breathToggleBtn');
+
+      // 4–4–6 grounding pattern
+      const phases = [
+        { key: 'inhale',  label: 'Inhale',  duration: 4, line: 'Breathe in gently through your nose.' },
+        { key: 'hold',    label: 'Hold',    duration: 4, line: 'Hold softly. Shoulders relaxed.' },
+        { key: 'exhale',  label: 'Exhale',  duration: 6, line: 'Slow exhale through your mouth.' }
+      ];
+
+      let currentPhaseIndex = 0;
+      let remaining = phases[0].duration;
+      let timer = null;
+      let running = false;
+
+      function setCirclePhase(key) {
+        circle.classList.remove('phase-inhale','phase-hold','phase-exhale');
+        if (key === 'inhale') circle.classList.add('phase-inhale');
+        if (key === 'hold')   circle.classList.add('phase-hold');
+        if (key === 'exhale') circle.classList.add('phase-exhale');
+      }
+
+      function setPhase(phaseIndex) {
+        const phase = phases[phaseIndex];
+        currentPhaseIndex = phaseIndex;
+        remaining = phase.duration;
+        phaseEl.textContent = phase.label;
+        countEl.textContent = remaining;
+        lineEl.textContent = phase.line;
+        setCirclePhase(phase.key);
+      }
+
+      function nextPhase() {
+        currentPhaseIndex = (currentPhaseIndex + 1) % phases.length;
+        setPhase(currentPhaseIndex);
+      }
+
+      function tick() {
+        remaining--;
+        if (remaining <= 0) {
+          nextPhase();
+        } else {
+          countEl.textContent = remaining;
+        }
+      }
+
+      function startPractice() {
+        if (running) return;
+        running = true;
+        toggleBtn.textContent = 'Pause Practice';
+        if (!timer) {
+          setPhase(currentPhaseIndex);
+          timer = setInterval(tick, 1000);
+        }
+      }
+
+      function pausePractice() {
+        running = false;
+        toggleBtn.textContent = 'Resume Practice';
+        phaseEl.textContent = 'Paused';
+        lineEl.textContent = 'Rest here. When you’re ready, press Resume to continue.';
+        circle.classList.remove('phase-inhale','phase-hold','phase-exhale');
+        circle.style.transform = 'scale(1)';
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }
+
+      function resetToReady() {
+        running = false;
+        currentPhaseIndex = 0;
+        remaining = phases[0].duration;
+        toggleBtn.textContent = 'Begin Practice';
+        phaseEl.textContent = 'Ready';
+        countEl.textContent = remaining;
+        lineEl.textContent = 'When you’re ready, press Begin and follow the rhythm.';
+        circle.classList.remove('phase-inhale','phase-hold','phase-exhale');
+        circle.style.transform = 'scale(1)';
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      }
+
+      toggleBtn.addEventListener('click', function() {
+        if (!running && !timer) {
+          // First start
+          resetToReady();
+          setPhase(0);
+          timer = setInterval(tick, 1000);
+          running = true;
+          toggleBtn.textContent = 'Pause Practice';
+          return;
+        }
+
+        if (running) {
+          pausePractice();
+        } else {
+          // resume
+          running = true;
+          phaseEl.textContent = phases[currentPhaseIndex].label;
+          lineEl.textContent = phases[currentPhaseIndex].line;
+          setCirclePhase(phases[currentPhaseIndex].key);
+          toggleBtn.textContent = 'Pause Practice';
+          timer = setInterval(tick, 1000);
+        }
+      });
+
+      // Initialize display
+      resetToReady();
+    })();
+  </script>
+</body>
+</html>
