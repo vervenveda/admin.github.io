@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Centered Earth — Grounding Game</title>
+
+<style>
+:root{
+  --bg:#0f1412;
+  --card:#1b221e;
+  --ink:#eef3ef;
+  --muted:#9fb3a6;
+  --accent:#7fd1b9;
+  --soft:#2a3a33;
+  --radius:21px;
+  --shadow:0 7px 21px rgba(0,0,0,.45);
+  --step:33px;
+  --btnRadius:14px;
+  --pad:21px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  min-height:100vh;
+  background:radial-gradient(circle at top,#1a2420,#0b0f0d);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:var(--pad);
+}
+
+.app{
+  max-width:430px;
+  width:100%;
+  background:linear-gradient(180deg,var(--card),#121815);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:var(--pad);
+}
+
+h1{
+  font-size:20px;
+  text-align:center;
+  margin:0 0 9px;
+  letter-spacing:.05em;
+}
+
+.subtitle{
+  text-align:center;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:18px;
+  line-height:1.5;
+}
+
+.row{
+  display:flex;
+  gap:9px;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:rgba(127,209,185,.10);
+  border:1px solid rgba(127,209,185,.22);
+  color:var(--muted);
+  font-size:12px;
+}
+
+.toggle{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  color:var(--muted);
+  user-select:none;
+}
+
+.toggle input{
+  width:16px;height:16px;
+  accent-color:var(--accent);
+}
+
+.step{ margin-bottom:14px; }
+.step label{
+  display:block;
+  font-weight:650;
+  margin-bottom:7px;
+  color:#cfe8dd;
+}
+.step small{
+  display:block;
+  color:var(--muted);
+  margin-bottom:6px;
+  font-size:12px;
+}
+
+textarea{
+  width:100%;
+  min-height:var(--step);
+  background:var(--soft);
+  border:1px solid #2f443b;
+  border-radius:14px;
+  padding:9px 12px;
+  color:var(--ink);
+  resize:none;
+  font-size:14px;
+  line-height:1.45;
+}
+textarea:focus{
+  outline:none;
+  border-color:var(--accent);
+}
+
+.actions{
+  display:flex;
+  gap:9px;
+  margin-top:12px;
+}
+button{
+  flex:1;
+  border:none;
+  border-radius:var(--btnRadius);
+  padding:11px 12px;
+  font-weight:750;
+  cursor:pointer;
+}
+button.primary{
+  background:linear-gradient(135deg,#8fe6cc,#6dbfa7);
+  color:#0c1a14;
+}
+button.ghost{
+  background:transparent;
+  border:1px solid rgba(127,209,185,.28);
+  color:var(--ink);
+}
+button:active{ transform:scale(.99); }
+
+.response{
+  margin-top:16px;
+  background:rgba(127,209,185,.08);
+  border:1px solid rgba(127,209,185,.25);
+  border-radius:16px;
+  padding:14px;
+  font-size:14px;
+  line-height:1.65;
+}
+
+.footer{
+  margin-top:14px;
+  text-align:center;
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.4;
+}
+hr.soft{
+  border:none;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(127,209,185,.35),transparent);
+  margin:14px 0;
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <h1>🌿 The Centered Earth</h1>
+  <div class="subtitle">
+    A gentle return to the present moment.<br>
+    Name what is near. Let your body believe you again.
+  </div>
+
+  <div class="row">
+    <div class="pill">Mode: <strong id="modeLabel" style="color:var(--ink);font-weight:800">Ready</strong></div>
+    <label class="toggle">
+      <input id="saveToggle" type="checkbox" checked>
+      Save locally
+    </label>
+  </div>
+
+  <div class="step">
+    <label>👀 5 things you can see</label>
+    <small>Let your eyes move slowly.</small>
+    <textarea id="see" placeholder="Example: window, shadow, plant, book, floor"></textarea>
+  </div>
+
+  <div class="step">
+    <label>✋ 4 things you can touch</label>
+    <small>Texture, pressure, temperature.</small>
+    <textarea id="touch" placeholder="Example: chair supporting me, fabric, cool air, my hands"></textarea>
+  </div>
+
+  <div class="step">
+    <label>👂 3 things you can hear</label>
+    <small>Near or far, loud or quiet.</small>
+    <textarea id="hear" placeholder="Example: fan, distant traffic, my breath"></textarea>
+  </div>
+
+  <div class="step">
+    <label>👃 2 things you can smell</label>
+    <small>Or scents you remember fondly.</small>
+    <textarea id="smell" placeholder="Example: soap, coffee, rain"></textarea>
+  </div>
+
+  <div class="step">
+    <label>👅 1 thing you can taste</label>
+    <small>Present or remembered.</small>
+    <textarea id="taste" placeholder="Example: mint, tea, sweetness"></textarea>
+  </div>
+
+  <div class="actions">
+    <button class="primary" id="completeBtn">Complete</button>
+    <button class="ghost" id="anotherBtn" disabled>Another</button>
+  </div>
+
+  <div id="response" class="response" style="display:none;"></div>
+
+  <hr class="soft">
+
+  <div class="footer">
+    Your words stay with you. Nothing is sent anywhere.<br>
+    This is a private ritual page.
+  </div>
+</div>
+
+<script>
+/* ===========================
+   Sovereign local storage keys
+   =========================== */
+const K = {
+  LOG: "centered_earth_log_v1",
+  POEM_DECK: "centered_earth_poem_deck_v1",
+  REFLECT_DECK: "centered_earth_reflect_deck_v1"
+};
+
+const $ = (id)=>document.getElementById(id);
+
+/* ===========================
+   Banks (expand anytime)
+   - grouped by tone
+   =========================== */
+const BANK = {
+  reflections: {
+    calm: [
+      "You did it. You returned to the room you’re in. Let that be enough for this moment.",
+      "Notice how the body softens when it is named into safety. This is you learning to trust the present again.",
+      "The world can wait. Right now, you are here, and here is real.",
+      "Your attention is a lantern. Wherever you point it, life becomes touchable again."
+    ],
+    tender: [
+      "Be gentle with yourself. The nervous system doesn’t need perfection—only reassurance.",
+      "You don’t have to carry it all at once. Let the next breath be the only task.",
+      "If you feel small, that’s okay. Small is still held. Small is still sacred.",
+      "Thank you for staying. Thank you for choosing the present instead of the spiral."
+    ],
+    heavy: [
+      "If this feels hard, that makes sense. You’ve been strong for a long time. Rest is not failure.",
+      "Even now, you’re doing the brave thing: returning. That counts more than you know.",
+      "When the weight returns, come back to what you can touch. The body knows the way home.",
+      "You are not behind. You are healing. Those are different roads."
+    ]
+  },
+
+  poems: {
+    calm: [
+`I named the light on the wall,
+and the day grew quieter.
+Not because it changed—
+because I did.`,
+`The present is a small field
+hidden beneath the mind.
+I step into it,
+and my shoulders remember.`,
+`Here, the world is simple:
+a chair, a breath,
+a soft edge of morning
+asking nothing of me.`
+    ],
+    tender: [
+`If you can’t be strong today,
+be here.
+If you can’t be here,
+be held
+by one slow breath.`,
+`I return like a bird
+to a familiar branch—
+not because the storm is gone,
+but because I deserve a place to land.`,
+`Some days,
+the miracle is not rising—
+it is softening
+without apology.`
+    ],
+    heavy: [
+`I did not fix the world today.
+I touched the ground instead.
+And something ancient in me said:
+good.`,
+`When the mind becomes a mountain,
+I take one step—
+and call it holy.`,
+`Even in the loudest hour,
+there is a still center.
+I found it
+beneath my own ribs.`
+    ]
+  }
+};
+
+/* ===========================
+   Deck logic (no repeats until cycle)
+   =========================== */
+function loadDeck(key){
+  try{
+    const raw = localStorage.getItem(key);
+    if(raw) return JSON.parse(raw);
+  }catch{}
+  return null;
+}
+function saveDeck(key, deck){
+  try{ localStorage.setItem(key, JSON.stringify(deck)); }catch{}
+}
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function nextFromDeck(deckKey, items){
+  // deck stores indices in randomized order
+  let deck = loadDeck(deckKey);
+  if(!deck || !Array.isArray(deck) || deck.length === 0){
+    deck = shuffle(items.map((_,i)=>i));
+  }
+  const idx = deck.shift();
+  saveDeck(deckKey, deck);
+  return items[idx];
+}
+
+/* ===========================
+   Tone detection (gentle heuristic)
+   =========================== */
+function detectTone(allText){
+  const t = allText.toLowerCase();
+  const heavyWords = ["overwhelmed","panic","tired","exhausted","heavy","hurt","cry","alone","afraid","anxious","stressed"];
+  const tenderWords = ["soft","gentle","please","hope","heart","care","safe","held","love","thank"];
+  const punct = (t.match(/[!]/g)||[]).length;
+
+  let heavy = 0, tender = 0;
+  heavyWords.forEach(w=>{ if(t.includes(w)) heavy++; });
+  tenderWords.forEach(w=>{ if(t.includes(w)) tender++; });
+
+  // simple rule:
+  if(heavy >= 2 || punct >= 3) return "heavy";
+  if(tender >= 2) return "tender";
+  return "calm";
+}
+
+/* ===========================
+   Entry gather + log
+   =========================== */
+function getEntry(){
+  const inputs = ["see","touch","hear","smell","taste"].map(id=>$(id).value.trim());
+  return {
+    time: new Date().toISOString(),
+    see: inputs[0], touch: inputs[1], hear: inputs[2], smell: inputs[3], taste: inputs[4],
+    combined: inputs.join(" ").trim()
+  };
+}
+
+function saveEntry(entry){
+  if(!$("saveToggle").checked) return;
+  try{
+    const log = JSON.parse(localStorage.getItem(K.LOG) || "[]");
+    log.push(entry);
+    localStorage.setItem(K.LOG, JSON.stringify(log));
+  }catch{}
+}
+
+/* ===========================
+   Response generation
+   =========================== */
+let lastTone = "calm";
+
+function generateResponse(tone){
+  const reflect = nextFromDeck(K.REFLECT_DECK + "_" + tone, BANK.reflections[tone]);
+  const poem = nextFromDeck(K.POEM_DECK + "_" + tone, BANK.poems[tone]);
+
+  // 60/40 blend: mostly reflections, sometimes poem
+  const pickPoem = Math.random() < 0.40;
+  if(pickPoem){
+    return `<strong>A small poem for you:</strong><br><br>${poem.replaceAll("\n","<br>")}`;
+  }
+  return `<strong>Reflection:</strong><br><br>${reflect}`;
+}
+
+/* ===========================
+   UI wiring
+   =========================== */
+function setMode(txt){ $("modeLabel").textContent = txt; }
+
+function showResponse(html){
+  const box = $("response");
+  box.style.display = "block";
+  box.innerHTML = html;
+  $("anotherBtn").disabled = false;
+}
+
+$("completeBtn").addEventListener("click", ()=>{
+  const entry = getEntry();
+  if(!entry.combined){
+    setMode("Waiting");
+    showResponse("<strong>Take your time.</strong><br><br>Even one word is enough. Name something you can see, or something you can touch.");
+    return;
+  }
+  lastTone = detectTone(entry.combined);
+  setMode(lastTone.charAt(0).toUpperCase() + lastTone.slice(1));
+  saveEntry(entry);
+  showResponse(generateResponse(lastTone));
+});
+
+$("anotherBtn").addEventListener("click", ()=>{
+  setMode(lastTone.charAt(0).toUpperCase() + lastTone.slice(1));
+  showResponse(generateResponse(lastTone));
+});
+
+/* Auto-grow textareas (mobile-friendly) */
+document.querySelectorAll("textarea").forEach(t=>{
+  const grow = ()=>{
+    t.style.height = "auto";
+    t.style.height = Math.min(180, t.scrollHeight) + "px";
+  };
+  t.addEventListener("input", grow);
+  setTimeout(grow, 0);
+});
+</script>
+</body>
+</html>
