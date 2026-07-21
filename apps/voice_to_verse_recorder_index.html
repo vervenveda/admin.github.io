@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Voice to Verse — Sovereign Dictation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root{ --paper:#fffbe7; --ink:#231c17; --gold:#b89252; --soft:#f7f5e7; --note:#fff5c8; --line:#e4c793; --line2:#d9b878; }
+    *{box-sizing:border-box}
+    html,body{margin:0}
+    body{
+      background:#f7f5ef; color:var(--ink);
+      font-family:'Cormorant Garamond', serif;
+      min-height:99vh; display:flex; justify-content:center; align-items:center;
+    }
+    .voice-wrap{
+      background:var(--paper); border-radius:24px; box-shadow:0 7px 24px #e9dcc658;
+      width:min(444px,99vw); padding:24px 14px 24px; text-align:center;
+    }
+    h1{font-family:'Cinzel',serif; letter-spacing:1.2px; color:#ad7c28; font-size:1.7em; margin:0 0 11px}
+    .desc{font-size:1.02em; color:#725c3a; margin:0 0 14px}
+    .row{display:flex; gap:7px; justify-content:center; align-items:center; margin:7px 0}
+    select{border:1px solid var(--line); border-radius:7px; padding:7px 11px; background:#faf6e7; font-family:inherit}
+    #recordBtn{
+      background:linear-gradient(90deg,#b89a50,#d9b878); color:#fff; border:none; border-radius:7px;
+      padding:11px 14px; font-size:1.05em; cursor:pointer; box-shadow:0 3px 7px #b8925240; transition:filter .15s;
+      min-width:111px;
+    }
+    #recordBtn.recording{ background:#ca3939; filter:brightness(1.05) contrast(1.07) }
+    .status{font-size:.95em; color:#7a5a28; min-height:24px}
+    textarea,.poem,.saved{
+      width:100%; border-radius:7px; border:3px solid var(--line); padding:11px; font-size:1.02em; background:var(--soft); color:#3e2d1d; resize:none;
+    }
+    #spokenText{ background:#faf7df; border:1.5px solid var(--line2) }
+    .poem{ background:#f3f0e3; border:1.5px solid #b89a50; min-height:66px }
+    .notice{ background:var(--note); border:1.5px solid var(--line2); border-radius:7px; padding:7px 11px; font-size:.95em; color:#7a5a28; margin:7px 0 }
+    .actions{ display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:10px 0 6px }
+    button.action{ border-radius:9px; padding:8px 14px; border:1px solid var(--line); background:#fffdf3; cursor:pointer }
+    .copyright{font-size:.88em; color:#9b8860; opacity:.7; margin-top:14px}
+    .pill{padding:4px 9px; border-radius:999px; background:#efe3be; border:1px solid #e1cd95; font-size:.88em; color:#7a5a28}
+  </style>
+</head>
+<body>
+<div class="voice-wrap">
+  <h1>Voice to Verse</h1>
+  <div class="desc">
+    Speak your heart, turn words into poetry on-device.<br> <br> <br><span class="pill">No servers. Local only.</span>
+  </div>
+
+  <div class="row">
+    <select id="lang">
+      <option value="en-US" selected>English (US)</option>
+      <option value="en-GB">English (UK)</option>
+      <option value="es-ES">Español</option>
+      <option value="fr-FR">Français</option>
+      <option value="ar-SA">العربية</option>
+    </select>
+    <button id="recordBtn">🎤 Start Recording</button>
+  </div>
+  <div class="status" id="status"></div>
+
+  <textarea id="spokenText" rows="3" placeholder="Your spoken words will appear here…"></textarea>
+
+  <div class="actions">
+    <button id="poetifyBtn" class="action">Poetify ✨</button>
+    <button id="clearBtn" class="action">Clear</button>
+    <button id="saveBtn" class="action">Save</button>
+  </div>
+
+  <textarea id="poemBox" class="poem" rows="4" placeholder="Your poem will appear here…"></textarea>
+
+  <div id="savedPoems"></div>
+
+  <div class="notice" id="compatNote" style="display:none"></div>
+  <div class="copyright">© 2025 Verve N Veda · Local & Sovereign</div>
+</div>
+
+<script>
+/* ---------- Elements ---------- */
+const $ = id => document.getElementById(id);
+const recordBtn = $("recordBtn");
+const statusEl  = $("status");
+const langSel   = $("lang");
+const spoken    = $("spokenText");
+const poetifyBtn= $("poetifyBtn");
+const poemBox   = $("poemBox");
+const saveBtn   = $("saveBtn");
+const clearBtn  = $("clearBtn");
+const savedDiv  = $("savedPoems");
+const compatNote= $("compatNote");
+
+/* ---------- Speech Recognition Setup ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let recognizing = false;
+let hasPreflight = false;
+let interimBuffer = "";
+
+/* Helpful compatibility guidance */
+function showCompat(message){
+  compatNote.style.display = "block";
+  compatNote.innerHTML = message;
+}
+
+/* Preflight mic permission to surface UX-friendly errors */
+async function micPreflight(){
+  if (hasPreflight) return true;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    showCompat("This browser doesn’t expose microphone access to the page. Try Chrome/Edge on desktop or Android.");
+    return false;
+  }
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    stream.getTracks().forEach(t=>t.stop());
+    hasPreflight = true;
+    return true;
+  }catch(err){
+    showCompat("Microphone access was blocked. Please allow mic permissions in your browser/site settings and try again.");
+    return false;
+  }
+}
+
+/* Initialize recognition when supported */
+function initRecognition(){
+  if (!SR){
+    recordBtn.disabled = true;
+    recordBtn.textContent = "Speech not supported";
+    showCompat("Web Speech Recognition isn’t available here. You can still type into the box and use Poetify.");
+    // Allow manual typing
+    spoken.readOnly = false;
+    return;
+  }
+  recognition = new SR();
+  recognition.continuous = true;          // keep listening until stop
+  recognition.interimResults = true;      // show interim text
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = ()=>{
+    recognizing = true;
+    recordBtn.textContent = "⏹️ Stop Recording";
+    recordBtn.classList.add("recording");
+    statusEl.textContent = "Listening… speak clearly.";
+  };
+  recognition.onend = ()=>{
+    recognizing = false;
+    recordBtn.textContent = "🎤 Start Recording";
+    recordBtn.classList.remove("recording");
+    statusEl.textContent = "Stopped.";
+  };
+  recognition.onerror = (e)=>{
+    const m = {
+      "no-speech":"No speech detected — try again closer to the mic.",
+      "audio-capture":"No microphone detected.",
+      "not-allowed":"Microphone permission denied.",
+      "service-not-allowed":"Speech service blocked.",
+      "network":"Network error (speech engine)."
+    }[e.error] || ("Error: " + e.error);
+    statusEl.textContent = m;
+  };
+  recognition.onresult = (e)=>{
+    let finalText = spoken.value;
+    interimBuffer = "";
+    for (let i = e.resultIndex; i < e.results.length; i++){
+      const res = e.results[i];
+      const txt = res[0].transcript;
+      if (res.isFinal){
+        // append a space before final chunk if needed
+        finalText = (finalText + " " + txt).trim();
+      } else {
+        interimBuffer += txt;
+      }
+    }
+    // Show final + interim live
+    spoken.value = (finalText + (interimBuffer ? " " + interimBuffer : "")).trim();
+  };
+
+  // keep spoken editable even with SR
+  spoken.readOnly = false;
+}
+initRecognition();
+
+/* Toggle recording */
+recordBtn.addEventListener("click", async ()=>{
+  // basic secure-context & gesture guards
+  if (location.protocol !== "https:" && location.hostname !== "localhost"){
+    showCompat("For microphone access, this page must be served over HTTPS (or localhost).");
+    return;
+  }
+  if (!recognition){ return; }
+
+  // set chosen language
+  recognition.lang = langSel.value || "en-US";
+
+  if (recognizing){
+    recognition.stop();
+    return;
+  }
+  const ok = await micPreflight();
+  if (!ok) return;
+
+  // clear interim buffer and start
+  interimBuffer = "";
+  statusEl.textContent = "Starting…";
+  try{
+    recognition.start();
+  }catch(e){
+    // sometimes start throws if already starting; ignore
+  }
+});
+
+/* ---------- Poetify (lightweight local transform) ---------- */
+function poetify(text){
+  if (!text.trim()) return "";
+  // split on major punctuation, then wrap lines
+  let lines = text.replace(/[.!?]+/g,"\n").split("\n").map(s=>s.trim()).filter(Boolean);
+  if (lines.length === 1 && lines[0].split(/\s+/).length <= 8){
+    return lines[0] + "\n— (haiku?)";
+  }
+  const wrapped = [];
+  for (const line of lines){
+    if (line.length <= 56){ wrapped.push(line); continue; }
+    // soft wrap around 56 chars
+    let i = line.lastIndexOf(" ", 56);
+    if (i < 30) i = line.indexOf(" ", 56); // if no good break, go forward
+    if (i > 0) { wrapped.push(line.slice(0,i)); wrapped.push(line.slice(i+1)); }
+    else wrapped.push(line);
+  }
+  return wrapped.map(l=>l.replace(/^i /,"I ")).join("\n");
+}
+
+poetifyBtn.addEventListener("click", ()=>{
+  const t = spoken.value.trim();
+  if (!t){ statusEl.textContent = "Nothing to poetify yet."; return; }
+  poemBox.value = poetify(t);
+  statusEl.textContent = "Poem created.";
+});
+
+/* ---------- Save / Load ---------- */
+function loadPoems(){
+  const poems = JSON.parse(localStorage.getItem("voiceToVersePoems") || "[]");
+  savedDiv.innerHTML = "";
+  if (!poems.length) return;
+  const hdr = document.createElement("div");
+  hdr.style.margin = "8px 0 6px"; hdr.style.fontWeight = "700";
+  hdr.textContent = "Saved Poems";
+  savedDiv.appendChild(hdr);
+  poems.slice().reverse().forEach(p=>{
+    const d = document.createElement("div");
+    d.className = "saved";
+    d.style.margin = "6px 0";
+    d.textContent = p;
+    savedDiv.appendChild(d);
+  });
+}
+loadPoems();
+
+saveBtn.addEventListener("click", ()=>{
+  const p = poemBox.value.trim();
+  if (!p){ statusEl.textContent = "Nothing to save."; return; }
+  const key = "voiceToVersePoems";
+  const poems = JSON.parse(localStorage.getItem(key) || "[]");
+  poems.push(p);
+  localStorage.setItem(key, JSON.stringify(poems));
+  poemBox.value = "";
+  loadPoems();
+  statusEl.textContent = "Saved locally.";
+});
+
+clearBtn.addEventListener("click", ()=>{
+  if (recognizing && recognition) recognition.stop();
+  spoken.value = "";
+  poemBox.value = "";
+  statusEl.textContent = "Cleared.";
+});
+<script>
+(async function micDiagnostics(){
+  const status = document.getElementById("status") || (()=> {
+    const s = document.createElement('div'); s.id='status';
+    s.style.cssText='margin-top:6px;color:#7a5a28;font-size:.95em';
+    document.querySelector('.voice-wrap')?.appendChild(s);
+    return s;
+  })();
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const secure = location.protocol === 'https:' || location.hostname === 'localhost';
+  const inIframe = window.self !== window.top;
+
+  function msg(t){ status.textContent = t; }
+
+  if(!secure){ msg("Microphone needs HTTPS (or localhost)."); return; }
+  if(!SR){
+    msg("Speech engine not available here. Try Chrome/Edge desktop/Android, or use your keyboard’s Dictation.");
+    return;
+  }
+
+  // Permissions API (not universal)
+  try{
+    const p = await navigator.permissions.query({ name: 'microphone' });
+    if (p.state === 'denied'){ msg("Microphone permission denied. Please enable it in browser/site settings."); return; }
+  }catch{}
+
+  // Preflight getUserMedia (must be user-gesture in some browsers; this is advisory)
+  if (!navigator.mediaDevices?.getUserMedia){
+    msg("Browser does not expose microphone capture to this page.");
+    return;
+  }
+
+  // iOS Safari hint
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (isIOS && isSafari){
+    msg("iOS Safari: Speech recognition isn’t supported. Use Dictation or switch to Chrome/Edge desktop.");
+    return;
+  }
+
+  // Iframe hint
+  if (inIframe){
+    // We can’t read iframe allow list, so provide guidance if it fails later.
+    msg("If recording still fails: enable microphone permission on the Wix embed (allow='microphone').");
+  } else {
+    msg("Microphone ready. Tap Start Recording.");
+  }
+})();
+</script>
+
+</body>
+</html>
