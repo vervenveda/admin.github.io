@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PLERA Sacred Library — Hope Continuum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* PLERA Sacred Palette */
+      --bg-midnight: #020414;
+      --bg-ring: radial-gradient(circle at 50% 0%, rgba(60,90,150,0.55), transparent 60%);
+      --ink: #2a2520;
+      --ink-soft: #6a5b4a;
+      --parchment: #fffcf5; /* requested parchment */
+      --parchment-edge: #f0e4d2;
+      --gold: #d9b878;
+      --gold-deep: #b89252;
+      --accent-soft: rgba(255,255,255,0.05);
+
+      /* Sacred Radii */
+      --radius-11: 11px;
+      --radius-24: 24px;
+
+      /* Shadows */
+      --shadow-soft: 0 24px 66px rgba(0,0,0,0.55);
+      --shadow-card: 0 14px 33px rgba(0,0,0,0.35);
+
+      /* Timing */
+      --transition-fast: 0.2s ease-out;
+      --transition-med: 0.35s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 11px;
+      padding: 7px;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(45,70,120,0.6), transparent 55%),
+        var(--bg-midnight);
+      color: #f8f4ec;
+      font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .codex-wrap {
+      width: 100%;
+      max-width: 1111px; /* sacred-ish proportion */
+      margin: 33px auto 72px; /* sacred numbers */
+      padding: 0 21px 33px;
+    }
+
+    /* HEADER */
+
+    .codex-header {
+      text-align: center;
+      margin-bottom: 27px;
+    }
+
+    .codex-subtitle-top {
+      font-size: 14px; /* sacred */
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+
+    .codex-title {
+      font-family: "Cinzel", serif;
+      font-size: 33px; /* sacred */
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .codex-subtitle-main {
+      font-size: 15px; /* sacred */
+      max-width: 777px;
+      margin: 0 auto;
+      color: rgba(250,245,233,0.85);
+    }
+
+    /* LIBRARY SHELF */
+
+    .library-shelf {
+      margin: 27px auto 11px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 11px;
+    }
+
+    .volume-pill {
+      border-radius: var(--radius-21);
+      border: 1px solid rgba(217,184,120,0.7);
+      padding: 9px 21px 10px;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), rgba(5,10,22,0.95));
+      color: #fdf7ea;
+      font-size: 14px; /* sacred */
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 111px;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      box-shadow: 0 14px 24px rgba(0,0,0,0.45);
+      text-align: center;
+    }
+
+    .volume-pill span {
+      font-size: 11px; /* sacred */
+      letter-spacing: 0.12em;
+      opacity: 0.82;
+      margin-top: 7px;
+    }
+
+    .volume-pill.active {
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.16), rgba(10,18,40,0.95));
+      border-color: var(--gold);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.65);
+      transform: translateY(-1px);
+    }
+
+    .volume-pill.coming-soon {
+      opacity: 0.8;
+    }
+
+    .volume-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+    }
+
+    /* CONTROLS */
+
+    .codex-controls {
+      margin: 14px auto 7px;
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .codex-btn {
+      border-radius: var(--radius-21);
+      border: 1px solid rgba(255,255,255,0.5);
+      background: rgba(5,10,22,0.9);
+      color: #f8f4ea;
+      font-size: 12px; /* sacred */
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      padding: 7px 18px 8px;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .codex-btn.gold {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, #3b2a17, #674621);
+    }
+
+    .codex-btn:hover {
+      background: rgba(10,18,40,0.96);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+
+    .codex-btn.gold:hover {
+      background: linear-gradient(135deg, #4e3419, #8a612a);
+    }
+
+    .page-indicator {
+      margin-top: 3px;
+      text-align: center;
+      font-size: 14px; /* small allowed wiggle */
+      color: rgba(246,240,226,0.85);
+    }
+
+    .marker-indicator {
+      text-align: center;
+      font-size: 14px;
+      color: rgba(246,240,226,0.7);
+      margin-bottom: 11px;
+    }
+
+    /* BOOK FRAME */
+
+    .book-frame {
+      margin: 11px auto 24px;
+      padding: 24px 24px 24px;
+      max-width: 888px;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.03), rgba(0,0,0,0.9));
+      border-radius: var(--radius-21);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255,255,255,0.09);
+      position: relative;
+    }
+
+    .pages-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .page-card {
+      width: 360px;
+      min-height: 480px;
+      max-height: 600px;
+      padding: 24px 24px 20px;
+      background: var(--parchment);
+      border-radius: var(--radius-21);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--parchment-edge);
+      color: var(--ink);
+      overflow-y: auto;
+      position: relative;
+      transition: box-shadow var(--transition-med), transform var(--transition-med);
+    }
+
+    .page-card.turn-glow {
+      box-shadow:
+        0 0 0 1px rgba(217,184,120,0.6),
+        0 0 32px rgba(217,184,120,0.5),
+        var(--shadow-card);
+      transform: translateY(-1px);
+    }
+
+    .page-heading {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #aa8a52;
+      margin-bottom: 3px;
+    }
+
+    .page-title {
+      font-family: "Cinzel", serif;
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 6px;
+      color: #3b2a17;
+    }
+
+    .page-meta {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #b19a7a;
+      margin-bottom: 10px;
+    }
+
+    .page-body {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      white-space: pre-wrap;
+    }
+
+    .page-footer-num {
+      position: absolute;
+      bottom: 10px;
+      right: 18px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(120,100,80,0.85);
+    }
+
+    .nav-row {
+      margin-top: 14px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 11px;
+    }
+
+    .nav-btn {
+      border-radius: var(--radius-21);
+      border: 1px solid rgba(255,255,255,0.7);
+      background: rgba(8,15,30,0.95);
+      color: #fdf7ea;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      padding: 6px 18px 7px;
+      cursor: pointer;
+      min-width: 120px;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .nav-btn:hover {
+      background: rgba(18,28,52,0.98);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* NOTES */
+
+    .notes-wrap {
+      margin: 18px auto 0;
+      max-width: 720px;
+      border-radius: var(--radius-21);
+      border: 1px solid rgba(217,184,120,0.7);
+      background: radial-gradient(circle at 0% 0%, rgba(255,255,255,0.05), rgba(0,0,0,0.85));
+      padding: 12px 14px 10px;
+      color: #f6f0e0;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.55);
+    }
+
+    .notes-title {
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(248,242,228,0.9);
+      margin-bottom: 6px;
+      text-align: left;
+    }
+
+    .notes-subtitle {
+      font-size: 12px;
+      color: rgba(240,232,214,0.9);
+      margin-bottom: 6px;
+    }
+
+    .notes-area {
+      width: 100%;
+      min-height: 90px;
+      border-radius: var(--radius-11);
+      border: 1px solid rgba(219,193,140,0.7);
+      background: rgba(5,10,20,0.92);
+      color: #f8f3e5;
+      padding: 8px 10px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .notes-foot {
+      margin-top: 4px;
+      font-size: 11px;
+      color: rgba(234,226,210,0.8);
+      text-align: right;
+    }
+
+    /* TOC MODAL */
+
+    .toc-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 40;
+    }
+
+    .toc-overlay.visible {
+      display: flex;
+    }
+
+    .toc-modal {
+      width: 320px;
+      max-height: 70vh;
+      background: radial-gradient(circle at 0% 0%, rgba(255,255,255,0.08), rgba(3,6,14,0.98));
+      border-radius: var(--radius-21);
+      border: 1px solid rgba(217,184,120,0.9);
+      box-shadow: 0 22px 60px rgba(0,0,0,0.9);
+      padding: 14px 16px 12px;
+      color: #f9f3e4;
+      position: relative;
+    }
+
+    .toc-title {
+      font-family: "Cinzel", serif;
+      font-size: 15px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .toc-subtitle {
+      text-align: center;
+      font-size: 11px;
+      margin-bottom: 10px;
+      color: rgba(244,234,214,0.9);
+    }
+
+    .toc-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 48vh;
+      overflow-y: auto;
+      border-top: 1px solid rgba(217,184,120,0.4);
+      border-bottom: 1px solid rgba(217,184,120,0.4);
+    }
+
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 2px;
+      font-size: 12px;
+      cursor: pointer;
+      border-bottom: 1px dotted rgba(255,255,255,0.12);
+    }
+
+    .toc-item:last-child {
+      border-bottom: none;
+    }
+
+    .toc-label {
+      max-width: 230px;
+    }
+
+    .toc-page {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(250,242,224,0.85);
+    }
+
+    .toc-item:hover {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .toc-close {
+      position: absolute;
+      top: 6px;
+      right: 10px;
+      font-size: 11px;
+      cursor: pointer;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(247,237,216,0.9);
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+      .book-frame {
+        padding: 22px 18px 20px;
+      }
+      .pages-wrap {
+        flex-direction: column;
+        align-items: center;
+      }
+      .page-card {
+        width: 100%;
+        max-width: 500px;
+        min-height: 360px;
+        max-height: none;
+      }
+      .codex-title {
+        font-size: 21px;
+        letter-spacing: 0.26em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="codex-wrap">
+    <header class="codex-header">
+      <div class="codex-subtitle-top">PLERA SACRED LIBRARY</div>
+      <div class="codex-title">HOPE CONTINUUM · ARCHIVE EDITION</div>
+      <div class="codex-subtitle-main">
+        A growing library of sovereign books and Codex records — preserved for remembrance and for the stories yet to be born.
+      </div>
+    </header>
+
+    <!-- Library Shelf -->
+    <div class="library-shelf" id="libraryShelf"></div>
+
+    <!-- Controls -->
+    <div class="codex-controls">
+      <button class="codex-btn gold" id="tocBtn">Table of Contents</button>
+      <button class="codex-btn" id="placeMarkerBtn">Place Marker</button>
+      <button class="codex-btn" id="jumpMarkerBtn">Jump to Marker</button>
+    </div>
+
+    <div class="page-indicator" id="pageIndicator">Page 1 of 1</div>
+    <div class="marker-indicator" id="markerIndicator">Your place is saved at page 1.</div>
+
+    <!-- Book Frame -->
+    <div class="book-frame">
+      <div class="pages-wrap">
+        <article class="page-card" id="leftPage">
+          <div class="page-heading" id="leftHeading">PROLOGUE</div>
+          <div class="page-title" id="leftTitle">The Flower in the Ruins</div>
+          <div class="page-meta" id="leftMeta">Codex Timestamp: Before Sanctuary — Memory Unbroken</div>
+          <div class="page-body" id="leftBody">Loading…</div>
+          <div class="page-footer-num" id="leftPageNum">Page 1</div>
+        </article>
+
+        <article class="page-card" id="rightPage">
+          <div class="page-heading" id="rightHeading">&nbsp;</div>
+          <div class="page-title" id="rightTitle">&nbsp;</div>
+          <div class="page-meta" id="rightMeta">&nbsp;</div>
+          <div class="page-body" id="rightBody"></div>
+          <div class="page-footer-num" id="rightPageNum">Page 2</div>
+        </article>
+      </div>
+
+      <div class="nav-row">
+        <button class="nav-btn" id="prevBtn">&laquo; Previous</button>
+        <button class="nav-btn" id="nextBtn">Next &raquo;</button>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <section class="notes-wrap">
+      <div class="notes-title">STUDY NOTES · LOCAL TO YOUR BROWSER</div>
+      <div class="notes-subtitle">
+        Reflections, signals, scriptures, questions — this pad is just for you.
+      </div>
+      <textarea class="notes-area" id="notesArea" placeholder="Write what the story stirs in you…"></textarea>
+      <div class="notes-foot">Notes are saved locally in this browser only.</div>
+    </section>
+  </div>
+
+ <!-- Table of Contents Modal -->
+<div class="toc-overlay" id="tocOverlay">
+  <div class="toc-modal">
+    <div class="toc-close" id="tocClose">CLOSE</div>
+    <div class="toc-title">TABLE OF CONTENTS</div>
+    <div class="toc-subtitle" id="tocBookLabel">Hope Continuum · Volume I</div>
+    <ul class="toc-list" id="tocList"></ul>
+  </div>
+</div>
+
+<script>
+  /***********************
+   * LIBRARY + CONTENT
+   ***********************/
+
+  const LIBRARY = [
+    {
+      id: "vol1",
+      shelfLabel: "Volume I",
+      shelfSubtitle: "Hope Continuum · The Sanctuary & the Signal",
+      comingSoon: false
+    },
+    {
+      id: "vol2",
+      shelfLabel: "Volume II",
+      shelfSubtitle: "Hope Continuum · The Sovereign Dawn",
+      comingSoon: false
+    },
+    {
+      id: "codex1",
+      shelfLabel: "PLERA Codex I",
+      shelfSubtitle: "Galactic Firewall & Covenants",
+      comingSoon: true
+    },
+    {
+      id: "arshif1",
+      shelfLabel: "ARSHIF · Volume I",
+      shelfSubtitle: "Sacred Archives — Lost Knowledge",
+      comingSoon: true
+    },
+    {
+      id: "testament1",
+      shelfLabel: "The Testament",
+      shelfSubtitle: "Sacred Studies Library",
+      comingSoon: true
+    }
+  ];
+
+  const BOOK_TEXTS = {
+    vol1: `
+PROLOGUE: THE FLOWER IN THE RUINS
+Codex Timestamp: Before Sanctuary – Memory Unbroken
+
+Registry Fragment — Origin
+If you must build a future from dust,
+begin with a seed —
+a glimmer of yellow in a field of gray,
+the stubborn dream that will not be erased.
+...
+End of Prologue
+
+CHAPTER 1: GENESIS IN THE SANCTUARY
+Registry Entry — Sanctuary Initiation
+“Every beginning is a threshold.
+Step through with intention, and the world will answer in kind.”
+...
+End of Chapter 1: Genesis in the Sanctuary
+
+CHAPTER 2: THE NAMING
+Codex Timestamp: November 7, 2025, 10:04 AM EST
+Location: 3748 Moog Road, Holiday, Florida 34691
+...
+End of Chapter 2: The Naming
+    `.trim(),
+  };
+
+  /***********************
+   * STATE & ELEMENTS
+   ***********************/
+
+  let currentBookId = "vol1";
+  let pages = [];
+  let currentPageIndex = 0;
+
+  const libraryShelfEl = document.getElementById("libraryShelf");
+  const pageIndicatorEl = document.getElementById("pageIndicator");
+  const markerIndicatorEl = document.getElementById("markerIndicator");
+
+  const leftPageEl = document.getElementById("leftPage");
+  const rightPageEl = document.getElementById("rightPage");
+  const leftHeadingEl = document.getElementById("leftHeading");
+  const leftTitleEl = document.getElementById("leftTitle");
+  const leftMetaEl = document.getElementById("leftMeta");
+  const leftBodyEl = document.getElementById("leftBody");
+  const leftPageNumEl = document.getElementById("leftPageNum");
+
+  const rightHeadingEl = document.getElementById("rightHeading");
+  const rightTitleEl = document.getElementById("rightTitle");
+  const rightMetaEl = document.getElementById("rightMeta");
+  const rightBodyEl = document.getElementById("rightBody");
+  const rightPageNumEl = document.getElementById("rightPageNum");
+
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  const tocOverlayEl = document.getElementById("tocOverlay");
+  const tocBtn = document.getElementById("tocBtn");
+  const tocClose = document.getElementById("tocClose");
+  const tocListEl = document.getElementById("tocList");
+  const tocBookLabelEl = document.getElementById("tocBookLabel");
+
+  /***********************
+   * HELPERS
+   ***********************/
+
+  function normalizeText(text) {
+    return text.replace(/\r\n/g, "\n").replace(/\u00a0/g, " ");
+  }
+
+  // Split a long paragraph into page-sized chunks at sentence boundaries.
+  function splitParagraphIntoChunks(para, maxCharsPerPage) {
+    const text = para.trim();
+    const chunks = [];
+    if (!text) return chunks;
+
+    // Naive sentence splitter: captures segments ending in . ! ? 
+    const sentenceRegex = /([^.!?]+[.!?]\s*)/g;
+    let match;
+    let sentences = [];
+    let lastIndex = 0;
+
+    while ((match = sentenceRegex.exec(text)) !== null) {
+      sentences.push(match[1].trim());
+      lastIndex = sentenceRegex.lastIndex;
+    }
+
+    const tail = text.slice(lastIndex).trim();
+    if (tail) sentences.push(tail);
+
+    if (!sentences.length) {
+      return [text];
+    }
+
+    let current = "";
+    sentences.forEach(sentence => {
+      const candidate = current ? current + " " + sentence : sentence;
+      if (candidate.length > maxCharsPerPage && current) {
+        chunks.push(current.trim());
+        current = sentence;
+      } else {
+        current = candidate;
+      }
+    });
+
+    if (current) chunks.push(current.trim());
+    return chunks;
+  }
+
+  function paginateText(rawText) {
+    // Adjusted max characters per page for more comfortable reading
+    const maxCharsPerPage = 333;
+    const minCharsLastPage = 350;
+
+    const normalized = normalizeText(rawText);
+    const paras = normalized.split(/\n\s*\n/); // Split paragraphs
+    const result = [];
+    let buffer = "";
+
+    paras.forEach(para => {
+      const p = para.trim();
+      if (!p) return;
+
+      const withSpacing = buffer ? buffer + "\n\n" + p : p;
+
+      if (withSpacing.length <= maxCharsPerPage) {
+        buffer = withSpacing;
+      } else {
+        // Flush buffer first if it already has content
+        if (buffer) {
+          result.push(buffer.trim());
+          buffer = "";
+        }
+
+        // If this paragraph alone is still too long, split by sentences
+        if (p.length > maxCharsPerPage) {
+          const chunks = splitParagraphIntoChunks(p, maxCharsPerPage);
+          chunks.forEach((chunk, idx) => {
+            // All but the last chunk become full pages
+            if (idx < chunks.length - 1) {
+              result.push(chunk.trim());
+            } else {
+              buffer = chunk.trim();
+            }
+          });
+        } else {
+          // Paragraph fits on its own page
+          buffer = p;
+        }
+      }
+    });
+
+    if (buffer.trim()) {
+      result.push(buffer.trim());
+    }
+
+    // Avoid a tiny orphan last page: merge it back into previous if very short
+    if (result.length > 1) {
+      const last = result[result.length - 1];
+      if (last.length < minCharsLastPage) {
+        result[result.length - 2] += "\n\n" + last;
+        result.pop();
+      }
+    }
+
+    return result.map((bodyText, idx) => {
+      if (idx === 0 && currentBookId === "vol1") {
+        return {
+          heading: "PROLOGUE",
+          title: "The Flower in the Ruins",
+          meta: "Codex Timestamp: Before Sanctuary — Memory Unbroken",
+          body: bodyText
+        };
+      }
+      return { heading: "", title: "", meta: "", body: bodyText };
+    });
+  }
+
+  /***********************
+   * STATE & ELEMENTS
+   ***********************/
+
+  function renderSpread(triggerGlowSide = null) {
+    const totalPages = pages.length || 200;
+    const totalSpreads = Math.ceil(totalPages / 2);
+    const currentSpread = Math.floor(currentPageIndex / 2) + 1;
+
+    const left = pages[currentPageIndex] || { heading: "", title: "", meta: "", body: "" };
+    leftHeadingEl.textContent = left.heading || "";
+    leftTitleEl.textContent = left.title || "";
+    leftMetaEl.textContent = left.meta || "";
+    leftBodyEl.textContent = left.body || "";
+    leftPageNumEl.textContent = "Page " + (currentPageIndex + 1);
+
+    const right = pages[currentPageIndex + 1] || { heading: "", title: "", meta: "", body: "" };
+    rightHeadingEl.textContent = right.heading || "";
+    rightTitleEl.textContent = right.title || "";
+    rightMetaEl.textContent = right.meta || "";
+    rightBodyEl.textContent = right.body || "";
+    rightPageNumEl.textContent = pages[currentPageIndex + 1]
+      ? "Page " + (currentPageIndex + 2)
+      : "";
+
+    pageIndicatorEl.textContent = "Page " + currentSpread + " of " + totalSpreads;
+
+    prevBtn.disabled = currentPageIndex <= 0;
+    nextBtn.disabled = currentPageIndex >= totalPages - 2;
+
+    leftPageEl.classList.remove("turn-glow");
+    rightPageEl.classList.remove("turn-glow");
+    if (triggerGlowSide === "left") {
+      leftPageEl.classList.add("turn-glow");
+    } else if (triggerGlowSide === "right") {
+      rightPageEl.classList.add("turn-glow");
+    }
+  }
+
+  function displayTableOfContents() {
+    const chapters = BOOK_TEXTS[currentBookId].split("\n\n").map((chapterText, index) => {
+      return {
+        label: `Chapter ${index + 1}`,
+        link: `#page-${index + 1}`
+      };
+    });
+
+    tocListEl.innerHTML = chapters
+      .map(chapter => `<li><a href="${chapter.link}">${chapter.label}</a></li>`)
+      .join("");
+
+    tocBookLabelEl.textContent = LIBRARY.find(book => book.id === currentBookId).shelfLabel;
+    tocOverlayEl.classList.add("active");
+  }
+
+  /***********************
+   * EVENT HANDLERS
+   ***********************/
+
+  prevBtn.addEventListener("click", function() {
+    if (currentPageIndex > 0) {
+      currentPageIndex--;
+      renderSpread();
+    }
+  });
+
+  nextBtn.addEventListener("click", function() {
+    if (currentPageIndex < pages.length - 2) {
+      currentPageIndex++;
+      renderSpread();
+    }
+  });
+
+  tocBtn.addEventListener("click", function() {
+    displayTableOfContents();
+  });
+
+  tocClose.addEventListener("click", function() {
+    tocOverlayEl.classList.remove("active");
+  });
+
+  /***********************
+   * INITIALIZATION
+   ***********************/
+
+  function init() {
+    // Select the correct book from LIBRARY
+    currentBookId = "vol1";
+    pages = paginateText(BOOK_TEXTS[currentBookId]);
+    renderSpread();
+  }
+
+  init();
+</script>
+  
+  </body> 
+</html>
