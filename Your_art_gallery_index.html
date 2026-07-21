@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sovereign Artist Gallery Studio</title>
+<style>
+  :root{
+    --bg:#f7f2e9; --panel:#fffaf0; --ink:#241b16; --muted:#786c61; --line:rgba(36,27,22,.16);
+    --accent:#8d5a2b; --accent2:#c8a36a; --good:#1f7a4d; --bad:#a03a2f; --shadow:0 22px 55px rgba(42,26,8,.12);
+    --radius:22px; --tile-radius:18px; --font: ui-serif, Georgia, Cambria, "Times New Roman", serif; --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  }
+  [data-theme="white-cube"]{ --bg:#f7f7f4; --panel:#ffffff; --ink:#151515; --muted:#666; --line:#ddd; --accent:#111; --accent2:#888; --shadow:0 20px 55px rgba(0,0,0,.08); --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+  [data-theme="velvet-night"]{ --bg:#0e0d12; --panel:#17151f; --ink:#f5eee6; --muted:#b7a99d; --line:rgba(255,255,255,.13); --accent:#d8a24c; --accent2:#7d2e45; --shadow:0 25px 65px rgba(0,0,0,.35); }
+  [data-theme="botanical"]{ --bg:#eef2e8; --panel:#fbfbf5; --ink:#182418; --muted:#66705d; --line:rgba(33,59,30,.18); --accent:#3f6c3e; --accent2:#b49b57; --shadow:0 22px 50px rgba(25,65,30,.12); }
+  [data-theme="parchment"]{ --bg:#f3e5c8; --panel:#fff7dc; --ink:#30210f; --muted:#6d5838; --line:rgba(95,60,20,.18); --accent:#884d1b; --accent2:#d2aa54; --shadow:0 24px 60px rgba(86,55,10,.15); }
+  [data-theme="editorial"]{ --bg:#f5f3ef; --panel:#fff; --ink:#0c0c0c; --muted:#767676; --line:#d8d8d8; --accent:#b3272d; --accent2:#1d1d1d; --shadow:0 18px 45px rgba(0,0,0,.09); --radius:8px; --tile-radius:4px; --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--sans)}
+  body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 20% 5%, color-mix(in srgb, var(--accent2) 20%, transparent), transparent 28%), radial-gradient(circle at 95% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 26%);opacity:.75;z-index:-1}
+  .app{max-width:1440px;margin:auto;padding:22px}
+  header{display:grid;grid-template-columns:1.2fr .8fr;gap:20px;align-items:stretch;margin-bottom:18px}
+  .hero,.panel,.card,.modal-card{background:color-mix(in srgb,var(--panel) 88%,transparent);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:var(--radius);backdrop-filter:blur(10px)}
+  .hero{padding:28px;position:relative;overflow:hidden;min-height:250px}
+  .hero:after{content:"";position:absolute;right:-80px;bottom:-90px;width:280px;height:280px;border:1px solid var(--line);border-radius:50%;background:radial-gradient(circle,var(--accent2),transparent 58%);opacity:.16}
+  .eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.22em;color:var(--accent);font-weight:800}
+  h1{font-family:var(--font);font-size:clamp(2.25rem,5vw,5.8rem);line-height:.92;margin:14px 0 16px;letter-spacing:-.06em;max-width:850px}
+  .hero p{font-size:clamp(1rem,2vw,1.2rem);line-height:1.65;max-width:790px;color:var(--muted);margin:0 0 22px}
+  .hero-actions,.toolbar,.row,.filters,.button-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  button,.button,file-selector-button{appearance:none;border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:var(--panel);color:var(--ink);font-weight:800;cursor:pointer;transition:.2s ease;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+  button:hover,.button:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 50%,var(--line));}
+  button.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  button.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.danger{color:var(--bad)}
+  button.small{padding:7px 10px;font-size:12px}
+  input,textarea,select{width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 12px;background:color-mix(in srgb,var(--panel) 72%,var(--bg));color:var(--ink);font:inherit;outline:none}
+  textarea{min-height:84px;resize:vertical}
+  label{display:grid;gap:6px;font-weight:800;font-size:13px;color:var(--muted)}
+  .side-status{padding:18px;display:grid;gap:14px;align-content:start}
+  .brand-card{display:grid;gap:11px;padding:18px;border-radius:18px;background:color-mix(in srgb,var(--bg) 60%,var(--panel));border:1px dashed var(--line)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .stat{padding:14px;border-radius:16px;border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 65%,transparent)}
+  .stat b{display:block;font-size:1.55rem;font-family:var(--font)}
+  .stat span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  nav.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px;position:sticky;top:0;z-index:8;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);padding:8px;border-radius:999px;border:1px solid var(--line)}
+  nav.tabs button{box-shadow:none;background:transparent}
+  nav.tabs button.active{background:var(--ink);color:var(--bg)}
+  .grid-main{display:grid;grid-template-columns:360px 1fr;gap:18px;align-items:start}
+  .panel{padding:18px}
+  .panel h2,.panel h3{font-family:var(--font);letter-spacing:-.03em;margin:0 0 12px}
+  .panel h2{font-size:1.65rem}.panel h3{font-size:1.25rem}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-grid .wide{grid-column:1/-1}
+  .dropzone{border:1.8px dashed color-mix(in srgb,var(--accent) 45%,var(--line));border-radius:20px;padding:18px;text-align:center;background:color-mix(in srgb,var(--accent2) 9%,transparent);cursor:pointer;transition:.2s ease;margin-bottom:12px}
+  .dropzone.drag{background:color-mix(in srgb,var(--accent2) 25%,transparent);transform:scale(1.01)}
+  .dropzone strong{display:block;font-family:var(--font);font-size:1.15rem;margin-bottom:4px}
+  .dropzone small,.hint{color:var(--muted);line-height:1.45;font-size:12px}
+  .hidden{display:none!important}
+  .filters{justify-content:space-between;margin-bottom:14px}
+  .filters .search{min-width:240px;flex:1}
+  .gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;align-items:start}
+  .gallery-grid.masonry{column-count:3;column-gap:16px;display:block}.gallery-grid.masonry .art-tile{break-inside:avoid;margin-bottom:16px}
+  .art-tile{border-radius:var(--tile-radius);overflow:hidden;background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 28px rgba(0,0,0,.09);transition:.2s ease;cursor:pointer;position:relative}
+  .art-tile:hover{transform:translateY(-3px)}
+  .art-img-wrap{aspect-ratio:4/5;background:color-mix(in srgb,var(--bg) 80%,#000);overflow:hidden;display:grid;place-items:center}
+  .art-tile img{width:100%;height:100%;object-fit:cover;display:block}
+  .tile-body{padding:12px}.tile-body h3{font-family:var(--font);font-size:1.08rem;line-height:1.1;margin:0 0 6px}.tile-body p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 8px;font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 75%,transparent)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.status{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.66);color:white;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:900;letter-spacing:.04em}
+  .empty{padding:42px;text-align:center;border:1px dashed var(--line);border-radius:22px;background:color-mix(in srgb,var(--panel) 50%,transparent)}
+  .empty h3{font-family:var(--font);font-size:2rem;margin:0 0 8px}.empty p{color:var(--muted);margin:0 auto 18px;max-width:540px;line-height:1.55}
+  .view{display:none}.view.active{display:block}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.66);display:none;align-items:center;justify-content:center;padding:20px;z-index:30}.modal.open{display:flex}.modal-card{max-width:1120px;width:min(1120px,100%);max-height:92vh;overflow:auto;background:var(--panel);position:relative}.modal-close{position:sticky;top:12px;float:right;z-index:2;margin:10px}.lightbox{display:grid;grid-template-columns:1fr 360px;gap:0}.lightbox-img{min-height:70vh;background:#111;display:grid;place-items:center}.lightbox-img img{max-width:100%;max-height:86vh;object-fit:contain}.lightbox-info{padding:24px}.lightbox-info h2{font-family:var(--font);font-size:2.4rem;letter-spacing:-.05em;margin:0 0 10px}.meta-list{display:grid;gap:8px;margin:16px 0}.meta-list div{padding:10px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px}.meta-list span:first-child{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+  .editor-layout{display:grid;grid-template-columns:minmax(320px,1fr) 360px;gap:18px}.canvas-wrap{min-height:560px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(45deg,rgba(127,127,127,.12) 25%,transparent 25%,transparent 75%,rgba(127,127,127,.12) 75%),linear-gradient(45deg,rgba(127,127,127,.12) 25%,transparent 25%,transparent 75%,rgba(127,127,127,.12) 75%);background-size:22px 22px;background-position:0 0,11px 11px;display:grid;place-items:center;padding:16px;overflow:auto}canvas{max-width:100%;height:auto;background:transparent;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18)}.range-grid{display:grid;gap:12px}.range-line{display:grid;grid-template-columns:1fr 70px;gap:8px;align-items:center}.range-line input{padding:0}.range-line output{font-variant-numeric:tabular-nums;text-align:right;color:var(--muted);font-size:12px}.section{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}.inventory-table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:16px;overflow:hidden}.inventory-table th,.inventory-table td{text-align:left;border-bottom:1px solid var(--line);padding:10px;font-size:13px;vertical-align:top}.inventory-table th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:color-mix(in srgb,var(--bg) 65%,transparent)}
+  .timeline{display:grid;gap:12px}.timeline-item{display:grid;grid-template-columns:70px 1fr;gap:12px}.timeline-item .dot{height:70px;width:70px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bg);font-weight:900}.timeline-item div:last-child{padding:14px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--panel) 75%,transparent)}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);border-radius:999px;padding:11px 16px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s ease;z-index:100}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media(max-width:980px){header,.grid-main,.lightbox,.editor-layout{grid-template-columns:1fr}.side-status{order:-1}.gallery-grid.masonry{column-count:2}.lightbox-img{min-height:45vh}.form-grid{grid-template-columns:1fr}}
+  @media(max-width:620px){.app{padding:12px}.hero{padding:20px}.stats{grid-template-columns:1fr}.gallery-grid,.gallery-grid.masonry{display:grid;grid-template-columns:1fr;column-count:auto}.filters{display:grid}.filters .search{min-width:0}.toolbar,.button-row{display:grid;grid-template-columns:1fr 1fr}.toolbar>*{width:100%}.lightbox-info h2{font-size:1.8rem}}
+  @media print{nav,.hero-actions,.side-status,.panel:first-child,.modal,.toast{display:none!important}.app{max-width:none}.grid-main{display:block}.art-tile{break-inside:avoid;box-shadow:none}.gallery-grid{grid-template-columns:repeat(3,1fr)}body{background:white;color:black}.panel{box-shadow:none;border:none}}
+</style>
+</head>
+<body data-theme="parchment">
+<div class="app">
+  <header>
+    <section class="hero">
+      <div class="eyebrow">Sovereign Artist Tool • Offline-first • No accounts</div>
+      <h1 id="heroTitle">Artist Gallery Studio</h1>
+      <p id="heroSubtitle">Build a museum-style portfolio, organize collections, edit image previews, export your inventory, and download a shareable standalone gallery HTML file that can live on your own site, USB drive, or archive.</p>
+      <div class="hero-actions">
+        <button class="primary" data-tab="gallery">Open Gallery</button>
+        <button data-tab="add">Add Artwork</button>
+        <button data-tab="editor">Image Editor</button>
+        <button class="accent" id="downloadSiteBtn">Download Shareable Gallery</button>
+      </div>
+    </section>
+    <aside class="side-status panel">
+      <div class="brand-card">
+        <div class="eyebrow">Portfolio Identity</div>
+        <strong id="artistNameBadge">Your Name / Studio</strong>
+        <small id="artistBioBadge">Add your artist statement, contact details, and style. Everything saves locally in your browser.</small>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="statArt">0</b><span>Artworks</span></div>
+        <div class="stat"><b id="statCollections">0</b><span>Collections</span></div>
+        <div class="stat"><b id="statForSale">0</b><span>For Sale</span></div>
+      </div>
+      <div class="toolbar">
+        <button id="exportJsonBtn" class="small">Export Data</button>
+        <label class="button small" style="display:inline-flex;width:auto">Import Data<input id="importJsonInput" class="hidden" type="file" accept="application/json,.json"></label>
+        <button id="resetBtn" class="small danger">Reset</button>
+      </div>
+      <small class="hint">Images are stored as data URLs inside your browser. For a large permanent archive, export your JSON and download your public gallery often.</small>
+    </aside>
+  </header>
+
+  <nav class="tabs" aria-label="App sections">
+    <button class="active" data-tab="gallery">Gallery</button>
+    <button data-tab="add">Add / Edit Artwork</button>
+    <button data-tab="editor">Image Editor</button>
+    <button data-tab="identity">Artist Identity</button>
+    <button data-tab="inventory">Inventory</button>
+    <button data-tab="guide">Build Guide</button>
+  </nav>
+
+  <main>
+    <section id="gallery" class="view active">
+      <div class="filters panel">
+        <input class="search" id="searchInput" placeholder="Search by title, medium, collection, tag, year, story…" />
+        <select id="collectionFilter" aria-label="Filter by collection"><option value="all">All collections</option></select>
+        <select id="statusFilter" aria-label="Filter by status"><option value="all">All status</option><option>Available</option><option>Sold</option><option>Private Collection</option><option>NFS</option></select>
+        <select id="layoutSelect" aria-label="Layout"><option value="grid">Clean Grid</option><option value="masonry">Masonry Wall</option></select>
+        <select id="themeSelect" aria-label="Theme"><option value="parchment">Parchment</option><option value="white-cube">White Cube</option><option value="velvet-night">Velvet Night</option><option value="botanical">Botanical</option><option value="editorial">Editorial</option></select>
+      </div>
+      <div id="galleryGrid" class="gallery-grid"></div>
+      <div id="emptyGallery" class="empty hidden">
+        <h3>Your gallery is ready.</h3>
+        <p>Add artwork images, titles, medium, sizes, prices, tags, and stories. Then export a finished public gallery that visitors can view without needing this builder.</p>
+        <button class="primary" data-tab="add">Add your first artwork</button>
+      </div>
+    </section>
+
+    <section id="add" class="view">
+      <div class="grid-main">
+        <section class="panel">
+          <h2 id="formTitle">Add Artwork</h2>
+          <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="Upload artwork image">
+            <strong>Drop artwork here</strong>
+            <small>or click to choose JPG, PNG, GIF, SVG, or WebP files. Multiple upload supported.</small>
+            <input id="fileInput" class="hidden" type="file" accept="image/*" multiple />
+          </div>
+          <form id="artForm" class="form-grid">
+            <input type="hidden" id="artId" />
+            <label class="wide">Preview Image
+              <img id="formPreview" alt="Artwork preview" style="max-width:100%;border-radius:18px;border:1px solid var(--line);background:var(--bg);display:none" />
+            </label>
+            <label>Title<input id="titleInput" required placeholder="Winter River Study" /></label>
+            <label>Artist<input id="artistInput" placeholder="Artist name" /></label>
+            <label>Collection / Series<input id="collectionInput" placeholder="River Works, Portraits, Abstracts" /></label>
+            <label>Medium<input id="mediumInput" placeholder="Watercolor, acrylic, mixed media" /></label>
+            <label>Year<input id="yearInput" placeholder="2026" /></label>
+            <label>Dimensions<input id="dimensionsInput" placeholder="16 × 20 in" /></label>
+            <label>Price<input id="priceInput" placeholder="$400 or inquire" /></label>
+            <label>Status<select id="statusInput"><option>Available</option><option>Sold</option><option>Private Collection</option><option>NFS</option></select></label>
+            <label class="wide">Tags<input id="tagsInput" placeholder="watercolor, landscape, Florida, botanical" /></label>
+            <label class="wide">Artwork Story / Notes<textarea id="storyInput" placeholder="Tell the story, inspiration, process, exhibition history, or collector notes."></textarea></label>
+            <div class="wide button-row">
+              <button class="primary" type="submit">Save Artwork</button>
+              <button type="button" id="newArtBtn">New Blank Form</button>
+              <button type="button" id="deleteArtBtn" class="danger hidden">Delete Selected</button>
+            </div>
+          </form>
+        </section>
+        <aside class="panel">
+          <h3>Portfolio Options</h3>
+          <p class="hint">A strong artist gallery usually includes collections, title/medium/year/size, status or price, contact details, a concise artist statement, and a clean lightbox view.</p>
+          <div class="section">
+            <h3>Batch Actions</h3>
+            <div class="button-row">
+              <button id="loadSampleBtn">Load Sample Works</button>
+              <button id="printBtn">Print Gallery</button>
+              <button id="downloadCsvBtn">Download Inventory CSV</button>
+            </div>
+          </div>
+          <div class="section">
+            <h3>Style Ideas</h3>
+            <div class="chips"><span class="chip">White Cube</span><span class="chip">Dark Salon</span><span class="chip">Parchment Archive</span><span class="chip">Botanical Studio</span><span class="chip">Editorial Catalog</span><span class="chip">Masonry Wall</span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="editor" class="view">
+      <div class="editor-layout">
+        <section class="panel">
+          <h2>Image Editor</h2>
+          <p class="hint">Choose an artwork, adjust the public preview, then save a new edited copy or replace the artwork image. Edits happen inside your browser canvas.</p>
+          <div class="canvas-wrap"><canvas id="editCanvas" width="900" height="900"></canvas></div>
+        </section>
+        <aside class="panel">
+          <label>Artwork to Edit<select id="editorSelect"><option value="">Choose artwork…</option></select></label>
+          <div class="section button-row">
+            <button id="rotateLeftBtn">Rotate Left</button><button id="rotateRightBtn">Rotate Right</button><button id="flipBtn">Flip</button><button id="resetEditBtn">Reset Edit</button>
+          </div>
+          <div class="section range-grid">
+            <label>Crop Ratio<select id="cropRatio"><option value="free">Original</option><option value="1">Square 1:1</option><option value="0.8">Portrait 4:5</option><option value="1.333">Classic 4:3</option><option value="1.777">Wide 16:9</option></select></label>
+            <label>Zoom<div class="range-line"><input type="range" id="zoomRange" min="1" max="2.8" step="0.01" value="1"><output id="zoomOut">1.00</output></div></label>
+            <label>Horizontal Pan<div class="range-line"><input type="range" id="panXRange" min="-100" max="100" step="1" value="0"><output id="panXOut">0</output></div></label>
+            <label>Vertical Pan<div class="range-line"><input type="range" id="panYRange" min="-100" max="100" step="1" value="0"><output id="panYOut">0</output></div></label>
+          </div>
+          <div class="section range-grid">
+            <label>Brightness<div class="range-line"><input type="range" id="brightnessRange" min="50" max="150" value="100"><output id="brightnessOut">100%</output></div></label>
+            <label>Contrast<div class="range-line"><input type="range" id="contrastRange" min="50" max="160" value="100"><output id="contrastOut">100%</output></div></label>
+            <label>Saturation<div class="range-line"><input type="range" id="saturationRange" min="0" max="180" value="100"><output id="saturationOut">100%</output></div></label>
+            <label>Grayscale<div class="range-line"><input type="range" id="grayscaleRange" min="0" max="100" value="0"><output id="grayscaleOut">0%</output></div></label>
+            <label>Sepia<div class="range-line"><input type="range" id="sepiaRange" min="0" max="100" value="0"><output id="sepiaOut">0%</output></div></label>
+          </div>
+          <div class="section button-row">
+            <button class="primary" id="saveEditedCopyBtn">Save as New Artwork</button>
+            <button id="replaceImageBtn">Replace Original Image</button>
+            <button id="downloadEditedBtn">Download Edited Image</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="identity" class="view">
+      <div class="grid-main">
+        <section class="panel">
+          <h2>Artist Identity</h2>
+          <form id="identityForm" class="form-grid">
+            <label>Gallery Title<input id="galleryTitleInput" placeholder="Jennifer Pearl Studio Gallery" /></label>
+            <label>Artist / Studio Name<input id="artistNameInput" placeholder="Your Name / Studio" /></label>
+            <label>Email or Contact Link<input id="contactInput" placeholder="hello@example.com or https://…" /></label>
+            <label>Location<input id="locationInput" placeholder="Florida, USA" /></label>
+            <label class="wide">Artist Statement<textarea id="bioInput" placeholder="A short public artist statement for collectors, curators, and visitors."></textarea></label>
+            <label class="wide">Copyright / Usage Notice<textarea id="copyrightInput">© Artist. All rights reserved. Images may not be copied, altered, trained on, minted, or redistributed without written permission.</textarea></label>
+            <button class="primary wide" type="submit">Save Identity</button>
+          </form>
+        </section>
+        <aside class="panel">
+          <h3>Public Sharing</h3>
+          <p class="hint">The downloaded public gallery is a single HTML file with your current art data embedded. It can be uploaded to a website, sent to a collector, opened offline, or kept as a dated archive.</p>
+          <div class="button-row"><button class="accent" id="downloadSiteBtn2">Download Gallery HTML</button><button id="shareBtn">Share / Copy Summary</button></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="inventory" class="view">
+      <section class="panel">
+        <h2>Inventory</h2>
+        <p class="hint">Use this as a simple art inventory tracker. Export CSV for spreadsheets, records, applications, calls for art, or price lists.</p>
+        <div style="overflow:auto"><table class="inventory-table" id="inventoryTable"></table></div>
+      </section>
+    </section>
+
+    <section id="guide" class="view">
+      <div class="grid-main">
+        <section class="panel">
+          <h2>Build Guide</h2>
+          <div class="timeline">
+            <div class="timeline-item"><div class="dot">1</div><div><strong>Curate</strong><p class="hint">Start with 12–30 strong works. Group by collection, medium, theme, or year so the visitor never feels lost.</p></div></div>
+            <div class="timeline-item"><div class="dot">2</div><div><strong>Document</strong><p class="hint">Add title, medium, year, dimensions, status, price/inquire note, and a short story. This creates collector confidence.</p></div></div>
+            <div class="timeline-item"><div class="dot">3</div><div><strong>Style</strong><p class="hint">Choose a gallery mood. White Cube is clean, Velvet Night is dramatic, Parchment feels archival, Botanical feels warm, Editorial is sharp.</p></div></div>
+            <div class="timeline-item"><div class="dot">4</div><div><strong>Export</strong><p class="hint">Download your gallery HTML and JSON backup. Keep dated copies so your portfolio has provenance over time.</p></div></div>
+          </div>
+        </section>
+        <aside class="panel">
+          <h3>Sovereign Principles</h3>
+          <div class="chips"><span class="chip">No login required</span><span class="chip">No CDN</span><span class="chip">No trackers</span><span class="chip">Local-first</span><span class="chip">Portable HTML</span><span class="chip">Artist-owned archive</span></div>
+          <div class="section"><h3>Limits</h3><p class="hint">Browser storage is finite. Very large images may fill localStorage. For best results, use web-sized artwork photos and keep original high-resolution masters in your own archive.</p></div>
+        </aside>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="lightboxModal" aria-hidden="true"><div class="modal-card"><button class="modal-close" id="modalClose">Close</button><div id="lightboxContent"></div></div></div>
+<div class="toast" id="toast">Saved</div>
+
+<script>
+(() => {
+  'use strict';
+  const STORE_KEY = 'sovereignArtistGallery.v1';
+  const defaultState = {
+    identity:{ galleryTitle:'Sovereign Artist Gallery Studio', artistName:'Your Name / Studio', contact:'', location:'', bio:'Add your artist statement, contact details, and style. Everything saves locally in your browser.', copyright:'© Artist. All rights reserved. Images may not be copied, altered, trained on, minted, or redistributed without written permission.' },
+    theme:'parchment', layout:'grid', artworks:[]
+  };
+  let state = loadState();
+  let pendingImage = '';
+  let editorImage = new Image();
+  let editorLoadedId = '';
+  let editorSettings = {rotation:0, flip:false, brightness:100, contrast:100, saturation:100, grayscale:0, sepia:0, ratio:'free', zoom:1, panX:0, panY:0};
+  const $ = id => document.getElementById(id);
+  const els = {
+    heroTitle:$('heroTitle'), heroSubtitle:$('heroSubtitle'), artistNameBadge:$('artistNameBadge'), artistBioBadge:$('artistBioBadge'),
+    statArt:$('statArt'), statCollections:$('statCollections'), statForSale:$('statForSale'), galleryGrid:$('galleryGrid'), emptyGallery:$('emptyGallery'),
+    searchInput:$('searchInput'), collectionFilter:$('collectionFilter'), statusFilter:$('statusFilter'), layoutSelect:$('layoutSelect'), themeSelect:$('themeSelect'),
+    dropzone:$('dropzone'), fileInput:$('fileInput'), artForm:$('artForm'), formTitle:$('formTitle'), formPreview:$('formPreview'), deleteArtBtn:$('deleteArtBtn'), newArtBtn:$('newArtBtn'),
+    artId:$('artId'), titleInput:$('titleInput'), artistInput:$('artistInput'), collectionInput:$('collectionInput'), mediumInput:$('mediumInput'), yearInput:$('yearInput'), dimensionsInput:$('dimensionsInput'), priceInput:$('priceInput'), statusInput:$('statusInput'), tagsInput:$('tagsInput'), storyInput:$('storyInput'),
+    identityForm:$('identityForm'), galleryTitleInput:$('galleryTitleInput'), artistNameInput:$('artistNameInput'), contactInput:$('contactInput'), locationInput:$('locationInput'), bioInput:$('bioInput'), copyrightInput:$('copyrightInput'),
+    inventoryTable:$('inventoryTable'), editorSelect:$('editorSelect'), canvas:$('editCanvas'), toast:$('toast'), lightboxModal:$('lightboxModal'), lightboxContent:$('lightboxContent')
+  };
+  const ctx = els.canvas.getContext('2d');
+
+  function loadState(){
+    try{ const raw = localStorage.getItem(STORE_KEY); return raw ? mergeDefaults(JSON.parse(raw)) : structuredClone(defaultState); }
+    catch(e){ console.warn(e); return structuredClone(defaultState); }
+  }
+  function mergeDefaults(s){ return { ...structuredClone(defaultState), ...s, identity:{...defaultState.identity, ...(s.identity||{})}, artworks:Array.isArray(s.artworks)?s.artworks:[] }; }
+  function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(state)); render(); }
+  function uid(){ return 'art-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8); }
+  function toast(msg='Saved'){ els.toast.textContent = msg; els.toast.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(()=>els.toast.classList.remove('show'), 1800); }
+  function escapeHtml(str=''){ return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
+  function dataToBlob(data, type='text/plain'){ return new Blob([data], {type}); }
+  function downloadBlob(blob, filename){ const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();}, 500); }
+  function slug(str){ return String(str||'gallery').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,70)||'gallery'; }
+
+  function showTab(id){ document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active', v.id===id)); document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===id)); if(id==='editor') drawEditor(); window.scrollTo({top:0, behavior:'smooth'}); }
+  document.addEventListener('click', e => { const b=e.target.closest('[data-tab]'); if(b) showTab(b.dataset.tab); });
+
+  function render(){
+    document.body.dataset.theme = state.theme || 'parchment';
+    els.heroTitle.textContent = state.identity.galleryTitle || 'Artist Gallery Studio';
+    els.heroSubtitle.textContent = state.identity.bio || defaultState.identity.bio;
+    els.artistNameBadge.textContent = state.identity.artistName || 'Your Name / Studio';
+    els.artistBioBadge.textContent = [state.identity.location, state.identity.contact].filter(Boolean).join(' • ') || 'Add your public contact and location in Artist Identity.';
+    els.statArt.textContent = state.artworks.length;
+    els.statForSale.textContent = state.artworks.filter(a=>a.status==='Available').length;
+    const collections = [...new Set(state.artworks.map(a=>a.collection).filter(Boolean))].sort();
+    els.statCollections.textContent = collections.length;
+    fillSelect(els.collectionFilter, ['all', ...collections], els.collectionFilter.value || 'all', v=> v==='all'?'All collections':v);
+    fillSelect(els.editorSelect, ['', ...state.artworks.map(a=>a.id)], els.editorSelect.value, v => v===''?'Choose artwork…':(state.artworks.find(a=>a.id===v)?.title||'Untitled'));
+    els.layoutSelect.value = state.layout || 'grid'; els.themeSelect.value = state.theme || 'parchment';
+    fillIdentityForm(); renderGallery(); renderInventory();
+  }
+  function fillSelect(sel, values, current, labeler){ const old=sel.value; sel.innerHTML=''; values.forEach(v=>{ const opt=document.createElement('option'); opt.value=v; opt.textContent=labeler?labeler(v):v; sel.appendChild(opt); }); sel.value = values.includes(current)?current:(values.includes(old)?old:values[0]); }
+  function fillIdentityForm(){ els.galleryTitleInput.value = state.identity.galleryTitle || ''; els.artistNameInput.value = state.identity.artistName || ''; els.contactInput.value = state.identity.contact || ''; els.locationInput.value = state.identity.location || ''; els.bioInput.value = state.identity.bio || ''; els.copyrightInput.value = state.identity.copyright || ''; }
+  function matches(a){ const q=(els.searchInput.value||'').trim().toLowerCase(); const collection=els.collectionFilter.value; const status=els.statusFilter.value; if(collection && collection!=='all' && a.collection!==collection) return false; if(status && status!=='all' && a.status!==status) return false; if(!q) return true; return [a.title,a.artist,a.collection,a.medium,a.year,a.dimensions,a.price,a.status,a.tags,a.story].join(' ').toLowerCase().includes(q); }
+  function renderGallery(){
+    const works = state.artworks.filter(matches);
+    els.galleryGrid.className = 'gallery-grid ' + (state.layout==='masonry'?'masonry':'');
+    els.galleryGrid.innerHTML = '';
+    works.forEach(a=>{
+      const tile=document.createElement('article'); tile.className='art-tile'; tile.tabIndex=0; tile.innerHTML = `<span class="status">${escapeHtml(a.status||'')}</span><div class="art-img-wrap"><img src="${a.image}" alt="${escapeHtml(a.title||'Artwork')}" loading="lazy"></div><div class="tile-body"><h3>${escapeHtml(a.title||'Untitled')}</h3><p>${escapeHtml([a.medium,a.year].filter(Boolean).join(' • '))}</p><div class="chips">${(a.collection?`<span class="chip">${escapeHtml(a.collection)}</span>`:'')}${(a.price?`<span class="chip">${escapeHtml(a.price)}</span>`:'')}</div></div>`;
+      tile.addEventListener('click',()=>openLightbox(a.id)); tile.addEventListener('keydown',ev=>{if(ev.key==='Enter')openLightbox(a.id)});
+      els.galleryGrid.appendChild(tile);
+    });
+    els.emptyGallery.classList.toggle('hidden', state.artworks.length>0);
+  }
+  function openLightbox(id){ const a=state.artworks.find(x=>x.id===id); if(!a) return; els.lightboxContent.innerHTML = `<div class="lightbox"><div class="lightbox-img"><img src="${a.image}" alt="${escapeHtml(a.title)}"></div><div class="lightbox-info"><h2>${escapeHtml(a.title||'Untitled')}</h2><p>${escapeHtml(a.story||'')}</p><div class="meta-list"><div><span>Artist</span><strong>${escapeHtml(a.artist||state.identity.artistName||'')}</strong></div><div><span>Medium</span><strong>${escapeHtml(a.medium||'')}</strong></div><div><span>Year</span><strong>${escapeHtml(a.year||'')}</strong></div><div><span>Dimensions</span><strong>${escapeHtml(a.dimensions||'')}</strong></div><div><span>Status</span><strong>${escapeHtml(a.status||'')}</strong></div><div><span>Price</span><strong>${escapeHtml(a.price||'')}</strong></div><div><span>Collection</span><strong>${escapeHtml(a.collection||'')}</strong></div></div><div class="chips">${String(a.tags||'').split(',').map(t=>t.trim()).filter(Boolean).map(t=>`<span class="chip">${escapeHtml(t)}</span>`).join('')}</div><div class="section button-row"><button onclick="window.__editArt('${a.id}')">Edit Record</button><button onclick="window.__chooseEditor('${a.id}')">Edit Image</button><button onclick="window.__downloadArt('${a.id}')">Download Image</button></div><p class="hint section">${escapeHtml(state.identity.copyright||'')}</p></div></div>`; els.lightboxModal.classList.add('open'); els.lightboxModal.setAttribute('aria-hidden','false'); }
+  function closeLightbox(){ els.lightboxModal.classList.remove('open'); els.lightboxModal.setAttribute('aria-hidden','true'); }
+  $('modalClose').addEventListener('click', closeLightbox); els.lightboxModal.addEventListener('click', e=>{if(e.target===els.lightboxModal)closeLightbox();}); document.addEventListener('keydown', e=>{if(e.key==='Escape')closeLightbox();});
+  window.__editArt = id => { closeLightbox(); loadArtIntoForm(id); showTab('add'); };
+  window.__chooseEditor = id => { closeLightbox(); els.editorSelect.value=id; loadEditorImage(id); showTab('editor'); };
+  window.__downloadArt = id => { const a=state.artworks.find(x=>x.id===id); if(a) downloadDataUrl(a.image, slug(a.title)+'.png'); };
+
+  function renderInventory(){
+    if(!state.artworks.length){ els.inventoryTable.innerHTML='<tr><td>No artwork entered yet.</td></tr>'; return; }
+    els.inventoryTable.innerHTML = `<thead><tr><th>Title</th><th>Collection</th><th>Medium</th><th>Year</th><th>Size</th><th>Status</th><th>Price</th><th>Tags</th></tr></thead><tbody>${state.artworks.map(a=>`<tr><td><strong>${escapeHtml(a.title||'Untitled')}</strong></td><td>${escapeHtml(a.collection||'')}</td><td>${escapeHtml(a.medium||'')}</td><td>${escapeHtml(a.year||'')}</td><td>${escapeHtml(a.dimensions||'')}</td><td>${escapeHtml(a.status||'')}</td><td>${escapeHtml(a.price||'')}</td><td>${escapeHtml(a.tags||'')}</td></tr>`).join('')}</tbody>`;
+  }
+
+  function resetArtForm(){ pendingImage=''; els.artForm.reset(); els.artId.value=''; els.formTitle.textContent='Add Artwork'; els.deleteArtBtn.classList.add('hidden'); els.formPreview.style.display='none'; els.formPreview.removeAttribute('src'); els.artistInput.value=state.identity.artistName||''; }
+  function loadArtIntoForm(id){ const a=state.artworks.find(x=>x.id===id); if(!a) return; els.formTitle.textContent='Edit Artwork'; els.deleteArtBtn.classList.remove('hidden'); els.artId.value=a.id; pendingImage=a.image; els.formPreview.src=a.image; els.formPreview.style.display='block'; els.titleInput.value=a.title||''; els.artistInput.value=a.artist||''; els.collectionInput.value=a.collection||''; els.mediumInput.value=a.medium||''; els.yearInput.value=a.year||''; els.dimensionsInput.value=a.dimensions||''; els.priceInput.value=a.price||''; els.statusInput.value=a.status||'Available'; els.tagsInput.value=a.tags||''; els.storyInput.value=a.story||''; }
+  function readFileAsDataUrl(file){ return new Promise((resolve,reject)=>{ const fr=new FileReader(); fr.onload=()=>resolve(fr.result); fr.onerror=reject; fr.readAsDataURL(file); }); }
+  async function handleFiles(files){ const list=[...files].filter(f=>f.type.startsWith('image/')); if(!list.length) return; if(list.length===1){ pendingImage = await readFileAsDataUrl(list[0]); els.formPreview.src=pendingImage; els.formPreview.style.display='block'; if(!els.titleInput.value) els.titleInput.value=list[0].name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' '); toast('Image loaded'); return; }
+    const newWorks=[]; for(const file of list){ const img=await readFileAsDataUrl(file); newWorks.push({id:uid(), image:img, title:file.name.replace(/\.[^.]+$/,'').replace(/[-_]+/g,' '), artist:state.identity.artistName||'', collection:'New Uploads', medium:'', year:new Date().getFullYear(), dimensions:'', price:'', status:'Available', tags:'', story:''}); }
+    state.artworks.unshift(...newWorks); saveState(); toast(`${newWorks.length} artworks added`); showTab('gallery'); }
+  els.dropzone.addEventListener('click',()=>els.fileInput.click()); els.dropzone.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')els.fileInput.click();}); els.fileInput.addEventListener('change',e=>handleFiles(e.target.files));
+  ['dragenter','dragover'].forEach(ev=>els.dropzone.addEventListener(ev,e=>{e.preventDefault();els.dropzone.classList.add('drag')})); ['dragleave','drop'].forEach(ev=>els.dropzone.addEventListener(ev,e=>{e.preventDefault();els.dropzone.classList.remove('drag')})); els.dropzone.addEventListener('drop',e=>handleFiles(e.dataTransfer.files));
+  els.artForm.addEventListener('submit', e=>{ e.preventDefault(); if(!pendingImage){ toast('Choose an artwork image first'); return; } const id=els.artId.value||uid(); const record={id, image:pendingImage, title:els.titleInput.value.trim(), artist:els.artistInput.value.trim(), collection:els.collectionInput.value.trim(), medium:els.mediumInput.value.trim(), year:els.yearInput.value.trim(), dimensions:els.dimensionsInput.value.trim(), price:els.priceInput.value.trim(), status:els.statusInput.value, tags:els.tagsInput.value.trim(), story:els.storyInput.value.trim()}; const i=state.artworks.findIndex(a=>a.id===id); if(i>=0) state.artworks[i]=record; else state.artworks.unshift(record); saveState(); toast('Artwork saved'); resetArtForm(); showTab('gallery'); });
+  els.newArtBtn.addEventListener('click', resetArtForm); els.deleteArtBtn.addEventListener('click',()=>{ const id=els.artId.value; if(!id) return; if(confirm('Delete this artwork from local gallery data?')){ state.artworks=state.artworks.filter(a=>a.id!==id); saveState(); resetArtForm(); toast('Artwork deleted'); }});
+
+  els.identityForm.addEventListener('submit',e=>{ e.preventDefault(); state.identity={galleryTitle:els.galleryTitleInput.value.trim(), artistName:els.artistNameInput.value.trim(), contact:els.contactInput.value.trim(), location:els.locationInput.value.trim(), bio:els.bioInput.value.trim(), copyright:els.copyrightInput.value.trim()}; saveState(); toast('Identity saved'); });
+  [els.searchInput,els.collectionFilter,els.statusFilter].forEach(el=>el.addEventListener('input',renderGallery));
+  els.layoutSelect.addEventListener('change',()=>{state.layout=els.layoutSelect.value;saveState();}); els.themeSelect.addEventListener('change',()=>{state.theme=els.themeSelect.value;saveState();});
+  $('downloadCsvBtn').addEventListener('click',()=>downloadCsv()); $('printBtn').addEventListener('click',()=>window.print()); $('loadSampleBtn').addEventListener('click',loadSamples);
+  $('exportJsonBtn').addEventListener('click',()=>downloadBlob(dataToBlob(JSON.stringify(state,null,2),'application/json'), slug(state.identity.galleryTitle)+'-backup.json'));
+  $('importJsonInput').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return; try{ const text=await f.text(); state=mergeDefaults(JSON.parse(text)); saveState(); toast('Imported gallery data'); }catch(err){ alert('Could not import JSON. '+err.message); }});
+  $('resetBtn').addEventListener('click',()=>{ if(confirm('Reset all local gallery data? Export a backup first if you want to keep it.')){ localStorage.removeItem(STORE_KEY); state=structuredClone(defaultState); resetArtForm(); saveState(); toast('Gallery reset'); }});
+  $('downloadSiteBtn').addEventListener('click',downloadPublicSite); $('downloadSiteBtn2').addEventListener('click',downloadPublicSite); $('shareBtn').addEventListener('click',shareSummary);
+
+  function downloadCsv(){ const headers=['Title','Artist','Collection','Medium','Year','Dimensions','Status','Price','Tags','Story']; const rows=state.artworks.map(a=>[a.title,a.artist,a.collection,a.medium,a.year,a.dimensions,a.status,a.price,a.tags,a.story]); const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n'); downloadBlob(dataToBlob(csv,'text/csv'), slug(state.identity.galleryTitle)+'-inventory.csv'); }
+  function shareSummary(){ const text=`${state.identity.galleryTitle}\n${state.identity.artistName}\n${state.artworks.length} artworks • ${new Set(state.artworks.map(a=>a.collection).filter(Boolean)).size} collections\n${state.identity.contact||''}`; if(navigator.share){ navigator.share({title:state.identity.galleryTitle, text}).catch(()=>{}); } else if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>toast('Summary copied')); } else { prompt('Copy this summary:', text); } }
+  function downloadPublicSite(){ const html=buildPublicHtml(); downloadBlob(dataToBlob(html,'text/html'), slug(state.identity.galleryTitle)+'-public-gallery.html'); toast('Gallery HTML downloaded'); }
+  function buildPublicHtml(){ const embedded = JSON.stringify({identity:state.identity, artworks:state.artworks, theme:state.theme, layout:state.layout}).replace(/</g,'\\u003c'); return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(state.identity.galleryTitle||'Artist Gallery')}</title><style>${publicCss()}</style></head><body data-theme="${escapeHtml(state.theme)}"><header><div><p class="eyebrow">Artist Portfolio</p><h1>${escapeHtml(state.identity.galleryTitle||'Artist Gallery')}</h1><p>${escapeHtml(state.identity.bio||'')}</p><div class="chips"><span>${escapeHtml(state.identity.artistName||'')}</span><span>${escapeHtml(state.identity.location||'')}</span><span>${escapeHtml(state.identity.contact||'')}</span></div></div></header><main><div class="bar"><input id="q" placeholder="Search the gallery"><select id="c"><option value="all">All collections</option></select><select id="s"><option value="all">All status</option><option>Available</option><option>Sold</option><option>Private Collection</option><option>NFS</option></select></div><section id="grid"></section></main><footer>${escapeHtml(state.identity.copyright||'')}</footer><dialog id="d"><button onclick="d.close()">Close</button><div id="detail"></div></dialog><script>const DATA=${embedded};${publicJs()}<\/script></body></html>`; }
+  function publicCss(){ return `:root{--bg:#f3e5c8;--panel:#fff7dc;--ink:#30210f;--muted:#6d5838;--line:rgba(95,60,20,.18);--accent:#884d1b;--shadow:0 22px 60px rgba(0,0,0,.12);--font:ui-serif,Georgia,serif;--sans:system-ui,-apple-system,Segoe UI,sans-serif}[data-theme=white-cube]{--bg:#f7f7f4;--panel:#fff;--ink:#111;--muted:#666;--line:#ddd;--accent:#111;--font:system-ui,sans-serif}[data-theme=velvet-night]{--bg:#0e0d12;--panel:#17151f;--ink:#f5eee6;--muted:#b7a99d;--line:rgba(255,255,255,.13);--accent:#d8a24c}[data-theme=botanical]{--bg:#eef2e8;--panel:#fbfbf5;--ink:#182418;--muted:#66705d;--line:rgba(33,59,30,.18);--accent:#3f6c3e}[data-theme=editorial]{--bg:#f5f3ef;--panel:#fff;--ink:#0c0c0c;--muted:#767676;--line:#d8d8d8;--accent:#b3272d;--font:system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans)}header{min-height:48vh;display:grid;place-items:end start;padding:7vw;border-bottom:1px solid var(--line);background:radial-gradient(circle at 80% 0,color-mix(in srgb,var(--accent) 18%,transparent),transparent 35%)}.eyebrow{text-transform:uppercase;letter-spacing:.25em;color:var(--accent);font-weight:800}h1{font-family:var(--font);font-size:clamp(3rem,10vw,8rem);letter-spacing:-.07em;line-height:.9;margin:.2em 0}header p{max-width:850px;color:var(--muted);font-size:1.15rem;line-height:1.65}.chips{display:flex;gap:8px;flex-wrap:wrap}.chips span{border:1px solid var(--line);padding:7px 10px;border-radius:999px;background:var(--panel);font-size:13px}main{padding:26px;max-width:1400px;margin:auto}.bar{display:flex;gap:10px;flex-wrap:wrap;position:sticky;top:0;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(8px);padding:10px;border:1px solid var(--line);border-radius:999px;z-index:2}input,select{padding:12px 14px;border:1px solid var(--line);border-radius:999px;background:var(--panel);color:var(--ink);font:inherit}input{flex:1;min-width:220px}#grid{margin-top:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}.tile{background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer}.tile img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block}.tile div{padding:14px}.tile h2{font-family:var(--font);margin:0 0 5px;font-size:1.2rem}.tile p{color:var(--muted);margin:0;font-size:13px;line-height:1.4}dialog{width:min(1060px,94vw);border:1px solid var(--line);border-radius:20px;background:var(--panel);color:var(--ink);box-shadow:var(--shadow)}dialog::backdrop{background:rgba(0,0,0,.7)}dialog button{float:right;border:1px solid var(--line);background:var(--ink);color:var(--bg);border-radius:999px;padding:10px 14px}.detail{display:grid;grid-template-columns:1fr 340px;gap:20px}.detail img{width:100%;max-height:82vh;object-fit:contain;background:#111}.meta{padding:12px}.meta h2{font-family:var(--font);font-size:2.2rem;letter-spacing:-.04em;margin:.3em 0}.meta dl{display:grid;grid-template-columns:120px 1fr;gap:8px;border-top:1px solid var(--line);padding-top:14px}.meta dt{color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:12px}footer{text-align:center;color:var(--muted);padding:30px;border-top:1px solid var(--line)}@media(max-width:800px){.detail{grid-template-columns:1fr}.bar{border-radius:20px}input,select{width:100%}}`; }
+  function publicJs(){ return `const $=id=>document.getElementById(id);const esc=s=>String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));const q=$('q'),c=$('c'),s=$('s'),grid=$('grid'),d=$('d'),detail=$('detail');const cols=[...new Set(DATA.artworks.map(a=>a.collection).filter(Boolean))].sort();cols.forEach(x=>{const o=document.createElement('option');o.value=x;o.textContent=x;c.appendChild(o)});function ok(a){const text=[a.title,a.artist,a.collection,a.medium,a.year,a.tags,a.story].join(' ').toLowerCase();return (!q.value||text.includes(q.value.toLowerCase()))&&(c.value==='all'||a.collection===c.value)&&(s.value==='all'||a.status===s.value)}function render(){grid.innerHTML='';DATA.artworks.filter(ok).forEach(a=>{const el=document.createElement('article');el.className='tile';el.innerHTML='<img src="'+a.image+'" alt="'+esc(a.title)+'"><div><h2>'+esc(a.title||'Untitled')+'</h2><p>'+esc([a.medium,a.year,a.collection].filter(Boolean).join(' • '))+'</p></div>';el.onclick=()=>openArt(a);grid.appendChild(el)})}function openArt(a){detail.innerHTML='<div class="detail"><img src="'+a.image+'" alt="'+esc(a.title)+'"><div class="meta"><h2>'+esc(a.title||'Untitled')+'</h2><p>'+esc(a.story||'')+'</p><dl><dt>Artist</dt><dd>'+esc(a.artist||DATA.identity.artistName||'')+'</dd><dt>Medium</dt><dd>'+esc(a.medium||'')+'</dd><dt>Year</dt><dd>'+esc(a.year||'')+'</dd><dt>Size</dt><dd>'+esc(a.dimensions||'')+'</dd><dt>Status</dt><dd>'+esc(a.status||'')+'</dd><dt>Price</dt><dd>'+esc(a.price||'')+'</dd><dt>Tags</dt><dd>'+esc(a.tags||'')+'</dd></dl></div></div>';d.showModal()}[q,c,s].forEach(x=>x.addEventListener('input',render));render();`; }
+
+  function downloadDataUrl(dataUrl, filename){ fetch(dataUrl).then(r=>r.blob()).then(b=>downloadBlob(b, filename)); }
+  function loadSamples(){
+    if(state.artworks.length && !confirm('Add sample works to your existing gallery?')) return;
+    const samples = [
+      ['Sunlit Archive','Parchment Works','#b98949','#f7e7bb'],['River Memory','Water Studies','#2f6f73','#c8e5df'],['Nocturne Window','Night Collection','#1b1832','#d7a85c'],['Botanical Hymn','Garden Studies','#436b3b','#e2d2a1'],['White Room Study','Minimal Works','#f5f5f2','#111111'],['Red Editorial Mark','Modern Catalog','#b3272d','#f5f3ef']
+    ].map(([title,col,a,b],i)=>({id:uid(), image:sampleSvg(title,a,b), title, artist:state.identity.artistName||'Sample Artist', collection:col, medium:i%2?'Mixed media on paper':'Acrylic study', year:'2026', dimensions:'16 × 20 in', price:i%3?'Inquire':'$450', status:i%4?'Available':'NFS', tags:'sample, portfolio, gallery', story:'A sample placeholder artwork. Replace this with your own image and story.'}));
+    state.artworks.unshift(...samples); saveState(); toast('Sample works added'); showTab('gallery');
+  }
+  function sampleSvg(title,c1,c2){ const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1250" viewBox="0 0 1000 1250"><defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient><filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 .16"/></feComponentTransfer></filter></defs><rect width="1000" height="1250" fill="url(#g)"/><circle cx="220" cy="260" r="170" fill="rgba(255,255,255,.25)"/><path d="M100 900 C300 650 470 980 650 700 S870 600 930 360" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="28" stroke-linecap="round"/><rect x="110" y="100" width="780" height="1050" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="5"/><rect width="1000" height="1250" filter="url(#grain)"/><text x="500" y="1080" text-anchor="middle" font-family="Georgia,serif" font-size="58" fill="rgba(0,0,0,.68)">${escapeHtml(title)}</text></svg>`; return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg); }
+
+  // Editor
+  function resetEditorSettings(){ editorSettings={rotation:0, flip:false, brightness:100, contrast:100, saturation:100, grayscale:0, sepia:0, ratio:'free', zoom:1, panX:0, panY:0}; syncEditorControls(); }
+  function syncEditorControls(){ $('brightnessRange').value=editorSettings.brightness; $('contrastRange').value=editorSettings.contrast; $('saturationRange').value=editorSettings.saturation; $('grayscaleRange').value=editorSettings.grayscale; $('sepiaRange').value=editorSettings.sepia; $('cropRatio').value=editorSettings.ratio; $('zoomRange').value=editorSettings.zoom; $('panXRange').value=editorSettings.panX; $('panYRange').value=editorSettings.panY; updateOutputs(); }
+  function updateOutputs(){ $('brightnessOut').value=editorSettings.brightness+'%'; $('contrastOut').value=editorSettings.contrast+'%'; $('saturationOut').value=editorSettings.saturation+'%'; $('grayscaleOut').value=editorSettings.grayscale+'%'; $('sepiaOut').value=editorSettings.sepia+'%'; $('zoomOut').value=Number(editorSettings.zoom).toFixed(2); $('panXOut').value=editorSettings.panX; $('panYOut').value=editorSettings.panY; }
+  function loadEditorImage(id){ const a=state.artworks.find(x=>x.id===id); if(!a) return; editorLoadedId=id; editorImage = new Image(); editorImage.onload=()=>{ resetEditorSettings(); drawEditor(); }; editorImage.src=a.image; }
+  els.editorSelect.addEventListener('change', e=>loadEditorImage(e.target.value));
+  ['brightness','contrast','saturation','grayscale','sepia'].forEach(name=>$(name+'Range').addEventListener('input',e=>{editorSettings[name]=+e.target.value;updateOutputs();drawEditor();}));
+  $('cropRatio').addEventListener('change',e=>{editorSettings.ratio=e.target.value;drawEditor();}); ['zoom','panX','panY'].forEach(name=>$(name+'Range').addEventListener('input',e=>{editorSettings[name]=+e.target.value;updateOutputs();drawEditor();}));
+  $('rotateLeftBtn').addEventListener('click',()=>{editorSettings.rotation=(editorSettings.rotation-90)%360;drawEditor();}); $('rotateRightBtn').addEventListener('click',()=>{editorSettings.rotation=(editorSettings.rotation+90)%360;drawEditor();}); $('flipBtn').addEventListener('click',()=>{editorSettings.flip=!editorSettings.flip;drawEditor();}); $('resetEditBtn').addEventListener('click',()=>{resetEditorSettings();drawEditor();});
+  $('downloadEditedBtn').addEventListener('click',()=>els.canvas.toBlob(b=>downloadBlob(b, 'edited-artwork.png'), 'image/png'));
+  $('replaceImageBtn').addEventListener('click',()=>{ const a=state.artworks.find(x=>x.id===editorLoadedId); if(!a) return toast('Choose artwork first'); a.image=els.canvas.toDataURL('image/png'); saveState(); toast('Original image replaced'); });
+  $('saveEditedCopyBtn').addEventListener('click',()=>{ const a=state.artworks.find(x=>x.id===editorLoadedId); if(!a) return toast('Choose artwork first'); const copy={...a,id:uid(),title:(a.title||'Artwork')+' — Edited Copy',image:els.canvas.toDataURL('image/png')}; state.artworks.unshift(copy); saveState(); els.editorSelect.value=copy.id; loadEditorImage(copy.id); toast('Edited copy saved'); });
+  function drawEditor(){
+    const canvas=els.canvas; const ctx=canvas.getContext('2d'); if(!editorImage || !editorImage.complete || !editorImage.naturalWidth){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='rgba(127,127,127,.25)'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--muted'); ctx.font='24px system-ui'; ctx.textAlign='center'; ctx.fillText('Choose an artwork to edit', canvas.width/2, canvas.height/2); return; }
+    let w=editorImage.naturalWidth, h=editorImage.naturalHeight; const ratio = editorSettings.ratio==='free' ? w/h : parseFloat(editorSettings.ratio); let outW=w, outH=h; if(editorSettings.ratio!=='free'){ if(w/h>ratio){ outH=h; outW=Math.round(h*ratio); } else { outW=w; outH=Math.round(w/ratio); } } outW=Math.min(outW,1400); outH=Math.min(outH,1400); canvas.width=outW; canvas.height=outH; ctx.save(); ctx.clearRect(0,0,outW,outH); ctx.filter=`brightness(${editorSettings.brightness}%) contrast(${editorSettings.contrast}%) saturate(${editorSettings.saturation}%) grayscale(${editorSettings.grayscale}%) sepia(${editorSettings.sepia}%)`; ctx.translate(outW/2,outH/2); ctx.rotate(editorSettings.rotation*Math.PI/180); ctx.scale(editorSettings.flip?-1:1,1);
+    const zoom=editorSettings.zoom; const baseScale=Math.max(outW/w, outH/h)*zoom; const drawW=w*baseScale, drawH=h*baseScale; const panX=(editorSettings.panX/100)*(drawW-outW)/2; const panY=(editorSettings.panY/100)*(drawH-outH)/2; ctx.drawImage(editorImage, -drawW/2 + panX, -drawH/2 + panY, drawW, drawH); ctx.restore(); updateOutputs();
+  }
+
+  function loadFromPaste(e){ const items=[...(e.clipboardData?.items||[])]; const files=items.filter(i=>i.type.startsWith('image/')).map(i=>i.getAsFile()).filter(Boolean); if(files.length) handleFiles(files); }
+  document.addEventListener('paste', loadFromPaste);
+
+  render(); resetArtForm(); drawEditor();
+})();
+</script>
+</body>
+</html>
