@@ -1,0 +1,367 @@
+<!-- 🌙 Evening Sanctum — ARSHIF Night Portal -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:wght@400;500&display=swap" rel="stylesheet">
+
+<section id="eveningSanctum" class="evening-sanctum">
+  <div class="es-inner">
+    <h2 class="es-title">Evening Sanctum</h2>
+    <p class="es-tag">Reflection · Release · Gratitude</p>
+    <p class="es-sub">
+      A small night-lamp for the soul. Choose a tab, breathe with the words, 
+      and gently lay down what does not need to cross the threshold into tomorrow.
+    </p>
+
+    <!-- Lay It Down focus line -->
+    <div class="es-focus">
+      <span class="es-focus-label">Lay it down:</span>
+      <span class="es-focus-line" id="esFocusLine">
+        One thought you don’t need to carry into sleep.
+      </span>
+    </div>
+
+    <!-- Tabs -->
+    <nav class="es-tabs" aria-label="Evening Sanctum modes">
+      <button type="button" class="es-tab active" data-tab="reflection">Reflection</button>
+      <button type="button" class="es-tab" data-tab="release">Release</button>
+      <button type="button" class="es-tab" data-tab="gratitude">Gratitude</button>
+    </nav>
+
+    <!-- Card -->
+    <article class="es-card" aria-live="polite">
+      <p class="es-card-label" id="esCardTitle">Reflection</p>
+      <p class="es-card-line" id="esCardLine">
+        Where did you feel most like yourself today?
+      </p>
+      <p class="es-card-sub" id="esCardSub">
+        Let your mind walk back over the day gently. Notice what felt aligned, 
+        not to judge the rest, but to learn what nourishes you.
+      </p>
+      <button type="button" class="es-next" id="esNextBtn">
+        Show me another line
+      </button>
+    </article>
+  </div>
+</section>
+
+<style>
+/* === Evening Sanctum · Night-Sky Shell === */
+
+.evening-sanctum{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  padding:33px 0 36px;
+  background:
+    radial-gradient(circle at top,
+      #181b30 0%,
+      #080b16 55%,
+      #02030b 100%);
+}
+
+.es-inner{
+  width:100%;
+  max-width:888px; /* sacred inward width */
+  margin:0 auto;
+  padding:24px 18px 27px;
+  border-radius:21px;
+  background:linear-gradient(160deg,
+    rgba(16,20,40,0.98),
+    rgba(6,8,20,0.98));
+  border:1px solid rgba(201,173,120,0.55);
+  box-shadow:0 24px 72px rgba(0,0,0,0.85);
+  box-sizing:border-box;
+  color:#f7f3ea;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+/* soft star dust */
+.es-inner::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 15% 10%,rgba(255,255,255,0.10) 0,transparent 55%),
+    radial-gradient(circle at 80% 0,rgba(206,178,128,0.09) 0,transparent 50%);
+  opacity:0.7;
+  pointer-events:none;
+}
+
+/* keep content above glow overlay */
+.es-inner > *{
+  position:relative;
+  z-index:1;
+}
+
+/* Typography */
+
+.es-title{
+  font-family:'Cinzel','Times New Roman',serif;
+  font-size:27px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  margin:0 0 6px;
+}
+
+.es-tag{
+  font-size:13px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:#d9b878;
+  margin:0 0 12px;
+}
+
+.es-sub{
+  max-width:720px;
+  margin:0 auto 18px;
+  font-size:14px;
+  line-height:1.7;
+  color:#f0e9dc;
+}
+
+/* Lay It Down focus line */
+
+.es-focus{
+  max-width:720px;
+  margin:0 auto 21px;
+  padding:9px 14px;
+  border-radius:999px;
+  background:rgba(7,10,24,0.9);
+  border:1px solid rgba(217,184,120,0.4);
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:7px;
+  align-items:center;
+}
+
+.es-focus-label{
+  font-size:11px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:#e8d5a4;
+}
+
+.es-focus-line{
+  font-size:14px;
+  color:#f7f3ea;
+}
+
+/* Tabs */
+
+.es-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:9px;
+  margin-bottom:18px;
+}
+
+.es-tab{
+  border:none;
+  border-radius:777px;
+  padding:7px 18px;
+  font-size:11px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  background:rgba(255,255,255,0.05);
+  color:#f7f3ea;
+  cursor:pointer;
+  border:1px solid rgba(217,184,120,0.5);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  white-space:normal;
+  line-height:1.4;
+  transition:background .18s,transform .18s,box-shadow .18s,color .18s;
+}
+
+.es-tab:hover{
+  transform:translateY(-1px);
+  box-shadow:0 7px 21px rgba(0,0,0,0.45);
+}
+
+.es-tab.active{
+  background:linear-gradient(135deg,#d9b878,#b89252);
+  color:#050713;
+}
+
+/* Card */
+
+.es-card{
+  max-width:720px;
+  margin:0 auto;
+  padding:18px 18px 21px;
+  border-radius:18px;
+  background:radial-gradient(circle at top,
+    rgba(13,18,40,0.98) 0%,
+    rgba(5,7,18,0.98) 72%);
+  border:1px solid rgba(247,243,234,0.12);
+  box-shadow:0 18px 48px rgba(0,0,0,0.72);
+  text-align:left;
+}
+
+.es-card-label{
+  font-size:12px;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:#e8d5a4;
+  margin:0 0 7px;
+}
+
+.es-card-line{
+  font-family:'Cormorant Garamond','Times New Roman',serif;
+  font-size:21px;
+  line-height:1.5;
+  margin:0 0 9px;
+  color:#fdf7eb;
+}
+
+.es-card-sub{
+  font-size:14px;
+  line-height:1.7;
+  color:#f0e9dc;
+  margin:0 0 12px;
+}
+
+.es-next{
+  border:none;
+  border-radius:999px;
+  padding:7px 18px;
+  font-size:11px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  background:rgba(255,255,255,0.06);
+  color:#f7f3ea;
+  cursor:pointer;
+  border:1px solid rgba(217,184,120,0.5);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .18s,transform .18s,box-shadow .18s,color .18s;
+}
+
+.es-next:hover{
+  transform:translateY(-1px);
+  box-shadow:0 7px 21px rgba(0,0,0,0.45);
+  background:linear-gradient(135deg,#d9b878,#b89252);
+  color:#050713;
+}
+
+/* Responsive */
+
+@media (max-width:720px){
+  .es-inner{
+    padding:18px 12px 21px;
+  }
+  .es-card{
+    padding:16px 14px 18px;
+  }
+}
+</style>
+
+<script>
+/* 🌙 Evening Sanctum Logic — Reflection / Release / Gratitude */
+
+(function(){
+  const deck = {
+    reflection: [
+      {
+        line: "Where did you feel most like yourself today?",
+        sub: "Let your mind walk back over the day gently. Notice what felt aligned, not to judge the rest, but to learn what nourishes you.",
+        focus: "Remember one moment that felt true to who you are."
+      },
+      {
+        line: "What did today teach you about your limits?",
+        sub: "Limits are not failures, they are contours. They show you where to rest, where to ask for help, and where tomorrow can be lighter.",
+        focus: "Lay down the expectation that you must do everything alone."
+      },
+      {
+        line: "Where did you see even a small trace of mercy today?",
+        sub: "Mercy can look like a pause, a kind word, a near-miss, or a quiet comfort in your chest. Let yourself recognize it.",
+        focus: "Hold onto the one mercy you can name. Let the rest go."
+      }
+    ],
+    release: [
+      {
+        line: "What worry is circling your mind on repeat?",
+        sub: "Name it honestly. You do not have to solve it tonight. You are allowed to set it down for a few hours and rest.",
+        focus: "Lay down the belief that constant worry keeps you safe."
+      },
+      {
+        line: "Whose voice are you still arguing with in your head?",
+        sub: "The conversation is over for now. You are allowed to step out of the courtroom and back into your own room.",
+        focus: "Release the invisible arguments and let your nervous system exhale."
+      },
+      {
+        line: "What did you promise yourself you’d finish today… but didn’t?",
+        sub: "You are still worthy, still loved, still on your way. The work can continue tomorrow. Tonight belongs to your breath.",
+        focus: "Lay down perfection; keep only the intention to keep going."
+      }
+    ],
+    gratitude: [
+      {
+        line: "Name one small, almost forgettable kindness from today.",
+        sub: "A held door, a song you liked, warm water, a soft pillow. Gratitude does not need to be dramatic to be real.",
+        focus: "Let one tiny kindness be enough to soften the edges of your night."
+      },
+      {
+        line: "Who are you quietly grateful for right now?",
+        sub: "They may never know you are thinking of them, but your gratitude still reshapes the inner atmosphere of your heart.",
+        focus: "Hold their name gently and bless them in your own words."
+      },
+      {
+        line: "What stayed with you today instead of leaving?",
+        sub: "Maybe it was your breath, your body carrying you, a friendship, or faith that refused to let go. Notice what endured.",
+        focus: "Thank the One who kept you, even in the hours you felt alone."
+      }
+    ]
+  };
+
+  let currentTab = "reflection";
+
+  const tabs      = document.querySelectorAll(".es-tab");
+  const cardTitle = document.getElementById("esCardTitle");
+  const cardLine  = document.getElementById("esCardLine");
+  const cardSub   = document.getElementById("esCardSub");
+  const focusLine = document.getElementById("esFocusLine");
+  const nextBtn   = document.getElementById("esNextBtn");
+
+  if(!tabs.length || !cardLine || !cardSub || !focusLine || !nextBtn) return;
+
+  function pickRandom(arr){
+    return arr[Math.floor(Math.random()*arr.length)];
+  }
+
+  function renderCard(tab){
+    const pool = deck[tab] || deck.reflection;
+    const entry = pickRandom(pool);
+    cardTitle.textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
+    cardLine.textContent  = entry.line;
+    cardSub.textContent   = entry.sub;
+    focusLine.textContent = entry.focus || "One thing you don’t need to carry into sleep.";
+  }
+
+  tabs.forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const tab = btn.getAttribute("data-tab");
+      if(!deck[tab]) return;
+
+      currentTab = tab;
+
+      tabs.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+
+      renderCard(currentTab);
+    });
+  });
+
+  nextBtn.addEventListener("click",()=>{
+    renderCard(currentTab);
+  });
+
+  // initial render
+  renderCard(currentTab);
+})();
+</script>
