@@ -1,0 +1,1446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Aurora Inspiration Game – My Art Gallery</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    html, body {
+      margin: 0;
+      min-height: 88vh;
+      background: radial-gradient(ellipse at 55% 34%, #23243c 76%, #141827 100%);
+      color: #ffefbf;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+      height: 88vh;
+      width: 88vw;
+    }
+    .game-wrap {
+      background: linear-gradient(180deg, rgba(32,36,57,0.99), rgba(24,28,44,0.97) 92%);
+      border-radius: 38px;
+      box-shadow: 0 16px 64px #000b 0.17;
+      padding: 85px 54px 58px 54px;
+      max-width: 800px;
+      width: 98vw;
+      min-width: 344px;
+      text-align: center;
+      margin: 60px auto 0 auto;
+      position: relative;
+      overflow: visible;
+    }
+    .aurora-glow {
+      width: 160px; height: 26px; margin: 0 auto 30px auto;
+      border-radius: 90px;
+      background: linear-gradient(90deg, #7de6fe 0%, #da91f7 50%, #fff58b 100%);
+      filter: blur(13px) brightness(1.2);
+      opacity: 0.85;
+      transition: filter 1.2s;
+    }
+    .aurora-title {
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #fffef9;
+      font-size: 2.5em;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .aurora-msg {
+      font-size: 1.75em;
+      color: #c8e2ee;
+      margin-bottom: 44px;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+      font-weight: 400;
+    }
+    .question {
+      font-size: 1.82em;
+      margin: 36px 0 22px 0;
+      color: #ffefbf;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    input, select, textarea {
+      margin: 12px 0 0 0;
+      padding: 18px;
+      width: 95%;
+      font-size: 1.22em;
+      border-radius: 14px;
+      border: 1.5px solid #343c52;
+      outline: none;
+      background: #23243c;
+      color: #ffecc9;
+      box-sizing: border-box;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+    }
+    textarea { min-height: 95px; }
+    button {
+      margin-top: 34px;
+      background: #7c5a27;
+      color: #fff;
+      border: none;
+      border-radius: 18px;
+      padding: 24px 65px;
+      font-size: 1.58em;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      box-shadow: 0 6px 26px rgba(124,90,39,0.14);
+      letter-spacing: 0.04em;
+    }
+    button:hover { background: #684d29; }
+    .aurora-affirm {
+      margin: 34px 0 10px 0;
+      color: #87d9c3;
+      font-size: 1.39em;
+      min-height: 2.7em;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    /* Result Modal */
+    .aurora-modal-bg {
+      position: fixed; z-index: 9999;
+      inset: 0;
+      background: rgba(23, 26, 44, 0.98);
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 1.2s;
+    }
+    .aurora-modal {
+      background: linear-gradient(180deg, rgba(32,36,57,0.99), rgba(24,28,44,0.99) 92%);
+      border-radius: 40px;
+      box-shadow: 0 16px 64px #000c 0.16;
+      padding: 78px 40px 36px 40px;
+      max-width: 555px;
+      min-width: 222px;
+      text-align: center;
+      position: relative;
+    }
+    .creative-prompt {
+      font-weight: 555;
+      color: #fff4da;
+      margin: 33px 0 14px 0;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+      font-size: 1.51em;
+    }
+    .prompt-text {
+      font-size: 1.45em;
+      font-weight: 666;
+      color: #fff;
+      background: linear-gradient(90deg, #fff6b0 12%, #aef0ff 88%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-top: 7px;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+    }
+    .share-row { display:flex; gap:18px; justify-content:center; margin:44px 0 15px 0;}
+    .share-btn {
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+      border:none; border-radius:7px;
+      padding:24px 33px;
+      font-size:1.18em;
+      font-weight:555;
+      cursor:pointer;
+      transition: background 0.2s;
+      margin:0 1px;
+      outline:none;
+    }
+    .fb{background:#4267B2;color:#fff;}
+    .ig{background:#E1306C;color:#fff;}
+    .tt{background:#222;color:#fff;}
+    .aurora-tags {
+      font-size:1.15em;
+      color:#d6d0c0;
+      margin:18px 0 21px 0;
+      font-family: 'Brandon Grotesque', Arial, sans-serif;
+    }
+    .aurora-breadcrumb a {
+      color:#bdefff;
+      text-decoration:none;
+      font-size:1.18em;
+      font-family:'Brandon Grotesque', Arial, sans-serif;
+      transition:color 0.2s;
+      font-weight:555;
+    }
+    .aurora-breadcrumb a:hover { color: #fff7b7; }
+    @keyframes fadeIn { from { opacity:0;} to { opacity:1;}}
+    @media (max-width:888px){
+      .game-wrap, .aurora-modal{padding:24px 4vw 24px 4vw;max-width:99vw;}
+      .aurora-title{font-size:2.02em;}
+      .aurora-msg{font-size:1.22em;}
+      .question{font-size:1.1em;}
+      .creative-prompt{font-size:1.09em;}
+      .prompt-text{font-size:1.13em;}
+      button, .share-btn{font-size:1em;padding:14px 2vw;}
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrap" id="gameWrap">
+    <div class="aurora-glow"></div>
+    <div class="aurora-title">CREATE & INSPIRE!</div>
+    <div class="aurora-msg">“You’ve filled your heart with inspiration—now let’s see where your creativity leads.”</div>
+    <div id="quizArea">
+      <div class="question" id="questionText"></div>
+      <div id="inputArea"></div>
+      <button id="nextBtn">Next</button>
+      <div class="aurora-affirm" id="auroraAffirm"></div>
+    </div>
+  </div>
+  <div id="resultModalRoot"></div>
+<script>
+// -- 20 Inspirational Questions --
+const questions = [
+  "What place makes you feel most at peace?",
+  "What book changed your perspective?",
+  "What is your favorite time of day to create?",
+  "If you could travel anywhere in the world, where would you go?",
+  "Who is someone that inspires you?",
+  "What’s a small thing that made you smile recently?",
+  "What is your favorite season, and why?",
+  "What song lyric moves your heart?",
+  "What dream would you chase if you knew you couldn’t fail?",
+  "What colors make you feel energized?",
+  "What’s a hobby you’d love to try?",
+  "What is your favorite way to express yourself—art, music, writing, or something else?",
+  "What object on your desk (or in your room) tells a story about you?",
+  "What does your perfect creative day look like?",
+  "If you could learn any new skill instantly, what would it be?",
+  "What word feels magical to you?",
+  "What natural element (water, earth, fire, air) do you feel most drawn to?",
+  "What do you do when you want to feel inspired?",
+  "What advice would you give your younger self?",
+  "What is one wish you have for the world?"
+];
+  
+// -- Context-aware dictionary (grow this over time!) --
+const auroraDictionary = [
+  {
+    keywords: ["blue", "sky", "ocean", "lake", "water"],
+    responses: [
+      "Like the calm blue you love, your creativity flows and renews.",
+      "You are drawn to open spaces and gentle waves—let your ideas ripple outward.",
+      "Water inspires reflection; your thoughts have depth and clarity."
+    ]
+  },
+  {
+    keywords: ["green", "forest", "tree", "leaf", "nature", "garden"],
+    responses: [
+      "Nature’s green brings you peace; let your roots and dreams grow strong.",
+      "You are nourished by the living world—your creativity blossoms like a garden.",
+      "The forest of your imagination is vibrant and alive."
+    ]
+  },
+  {
+    keywords: ["moon", "night", "stars", "sky", "dream", "galaxy"],
+    responses: [
+      "The night sky listens to your quiet thoughts and turns them into constellations.",
+      "Your dreams orbit like stars, glowing softly in the infinite.",
+      "The moon keeps your secrets and lights the path of imagination."
+    ]
+  },
+   {
+    keywords: ["paris", "eiffel", "love", "romance", "light", "city"],
+    responses: [
+      "The City of Light reminds you—beauty begins with a spark of love.",
+      "Your dreams rise like the Eiffel Tower—delicate yet enduring.",
+      "Love is the true landmark that never fades."
+    ]
+  },
+  {
+    keywords: ["rome", "colosseum", "history", "strength", "empire", "legacy"],
+    responses: [
+      "The ruins whisper—greatness is not perfection, but persistence.",
+      "Your strength is timeless, carved into the story of who you are.",
+      "Even empires crumble, but purpose endures."
+    ]
+  },
+  {
+    keywords: ["kyoto", "temple", "zen", "cherry", "blossom", "peace"],
+    responses: [
+      "Peace blooms quietly, like cherry blossoms in your soul.",
+      "Every falling petal reminds you—nothing beautiful is ever wasted.",
+      "Stillness is your sanctuary; breathe and become the moment."
+    ]
+  },
+  {
+    keywords: ["cairo", "pyramid", "desert", "mystery", "ancient", "sun"],
+    responses: [
+      "The sands of time whisper—wisdom never truly disappears.",
+      "Your purpose is built stone by stone, patient as the pyramids.",
+      "Even in the vast desert, the sun always finds its way home."
+    ]
+  },
+  {
+    keywords: ["new york", "city", "skyline", "dream", "energy", "possibility"],
+    responses: [
+      "Every light in the skyline is a dream still believing in itself.",
+      "The city hums with the rhythm of resilience.",
+      "Your ambition is a skyscraper—rooted deep, reaching high."
+    ]
+  },
+  {
+    keywords: ["bali", "island", "ocean", "spirit", "sunrise", "healing"],
+    responses: [
+      "The ocean reminds you—release what no longer serves and flow freely.",
+      "Healing begins where the horizon meets your heart.",
+      "You are as infinite as the tide and as gentle as dawn."
+    ]
+  },
+  {
+    keywords: ["machu picchu", "mountain", "ancient", "journey", "sacred", "discovery"],
+    responses: [
+      "Climb toward your purpose—the view is worth every challenge.",
+      "What was once lost can still be found in the silence of the heights.",
+      "The sacred path always leads you back to yourself."
+    ]
+  },
+  {
+    keywords: ["santorini", "greece", "sea", "white", "sunset", "calm"],
+    responses: [
+      "Every sunset teaches the art of graceful endings.",
+      "Let your heart be as bright as Santorini’s whitewashed walls.",
+      "Calm is your truest color—paint your world with it."
+    ]
+  },
+  {
+    keywords: ["london", "bridge", "fog", "tradition", "time", "journey"],
+    responses: [
+      "Across every bridge is another version of you waiting to begin.",
+      "The city teaches that time is both teacher and traveler.",
+      "Legacy is built in quiet acts repeated with devotion."
+    ]
+  },
+  {
+    keywords: ["tokyo", "neon", "future", "motion", "dream", "technology"],
+    responses: [
+      "The future glows brighter when illuminated by imagination.",
+      "Innovation begins in the courage to dream differently.",
+      "Even in motion, find stillness in your purpose."
+    ]
+  },
+  {
+    keywords: ["fire", "light", "flame", "warmth", "sun", "spark"],
+    responses: [
+      "A spark of inspiration glows within you—small fires grow into radiant visions.",
+      "Your light does not burn; it guides, warms, and transforms.",
+      "The sun of your soul rises each time you create."
+    ]
+  },
+  {
+    keywords: ["beach", "ocean", "waves", "sand", "tide", "shells"],
+    responses: [
+      "The waves teach you—everything returns in its own time.",
+      "Let your worries dissolve like footprints in the sand.",
+      "You are both the tide and the shore—forever meeting, forever changing."
+    ]
+  },
+  {
+    keywords: ["forest", "trees", "green", "leaves", "roots", "nature"],
+    responses: [
+      "Among the trees, you remember what it means to breathe fully.",
+      "Stillness grows here, rooted in quiet wisdom.",
+      "Every leaf is a reminder that change can be gentle."
+    ]
+  },
+  {
+    keywords: ["mountain", "peak", "summit", "climb", "altitude", "path"],
+    responses: [
+      "Each step you take is a conversation with the sky.",
+      "The mountain waits not to be conquered, but understood.",
+      "From every height, perspective deepens your gratitude."
+    ]
+  },
+  {
+    keywords: ["river", "flow", "stream", "current", "journey", "reflection"],
+    responses: [
+      "Flow like the river—unhurried, steady, and sure of its course.",
+      "The river teaches surrender without loss.",
+      "Your reflection changes, but your depth remains."
+    ]
+  },
+  {
+    keywords: ["desert", "sand", "sun", "dune", "solitude", "mirage"],
+    responses: [
+      "In stillness, the desert becomes your mirror.",
+      "What seems empty is full of unseen life and quiet truth.",
+      "Even the hottest winds can carry the scent of transformation."
+    ]
+  },
+  {
+    keywords: ["lake", "mirror", "calm", "water", "stillness", "depth"],
+    responses: [
+      "The lake holds silence like a secret well kept.",
+      "Still waters reflect the peace you’ve been seeking.",
+      "Your depth is calm, waiting patiently beneath the surface."
+    ]
+  },
+  {
+    keywords: ["meadow", "flowers", "bloom", "grass", "sunlight", "peace"],
+    responses: [
+      "Joy grows wild when you stand where the sunlight lingers.",
+      "Every blossom knows the rhythm of renewal.",
+      "You are part of nature’s eternal bloom."
+    ]
+  },
+  {
+    keywords: ["island", "sea", "solitude", "escape", "paradise", "coconut"],
+    responses: [
+      "On the island of stillness, you rediscover your own voice.",
+      "Solitude is not emptiness—it’s a sanctuary for the soul.",
+      "The horizon becomes wider the moment you stop rushing."
+    ]
+  },
+  {
+    keywords: ["canyon", "rock", "wind", "depth", "erosion", "echo"],
+    responses: [
+      "Even silence leaves its mark in the canyon’s walls.",
+      "Patience carves beauty where force cannot.",
+      "You are shaped not by what passes quickly, but by what endures."
+    ]
+  },
+  {
+    keywords: ["valley", "path", "shadow", "light", "growth", "green"],
+    responses: [
+      "The valley teaches humility, and with it, peace.",
+      "Even shadows are softened by the promise of light.",
+      "Growth happens quietly between the peaks."
+    ]
+  },
+  {
+    keywords: ["waterfall", "cascade", "mist", "flow", "energy", "motion"],
+    responses: [
+      "Let your spirit fall freely and rise again as mist.",
+      "The waterfall reminds you—release is also creation.",
+      "Energy flows best when it’s allowed to move uncontained."
+    ]
+  },
+  {
+    keywords: ["rain", "storm", "cloud", "thunder", "sky", "refresh"],
+    responses: [
+      "After every storm, the air smells like forgiveness.",
+      "Rain writes renewal on every surface it touches.",
+      "Even thunder is a lullaby when you listen with trust."
+    ]
+  },
+  {
+    keywords: ["field", "wheat", "harvest", "gold", "earth", "abundance"],
+    responses: [
+      "What you nurture returns to you in quiet abundance.",
+      "The earth remembers every act of care and patience.",
+      "You are part of the harvest of your own devotion."
+    ]
+  },
+  {
+    keywords: ["cliff", "edge", "view", "freedom", "sky", "courage"],
+    responses: [
+      "Standing on the edge teaches you how vast trust can be.",
+      "Freedom begins where fear ends.",
+      "The view was always waiting for your courage."
+    ]
+  },
+  {
+    keywords: ["northern lights", "aurora", "sky", "magic", "night", "wonder"],
+    responses: [
+      "The sky dances to remind you that mystery is beauty in motion.",
+      "Even the coldest night holds a shimmer of wonder.",
+      "You are made of the same light that moves across the stars."
+    ]
+  },
+  
+  {
+    keywords: ["ocean", "wave", "sea", "water", "tide", "river"],
+    responses: [
+      "Creativity flows like a river—endlessly reshaping the world around it.",
+      "Let your thoughts drift like waves; they will return with treasures from the deep.",
+      "You are both the tide and the moon that pulls it."
+    ]
+  },
+  {
+    keywords: ["dawn", "morning", "sunrise", "light", "beginning", "hope"],
+    responses: [
+      "Dawn whispers that every ending becomes a new beginning.",
+      "The first light carries forgiveness for yesterday’s doubts.",
+      "Rise gently—today holds endless possibility."
+    ]
+  },
+  {
+    keywords: ["midday", "noon", "sun", "energy", "focus", "clarity"],
+    responses: [
+      "At the height of day, your purpose shines brightest.",
+      "The sun reminds you to stand tall and burn with intention.",
+      "Clarity is a gift of presence—stay awake to your own brilliance."
+    ]
+  },
+  {
+    keywords: ["afternoon", "heat", "rest", "pause", "reflection", "calm"],
+    responses: [
+      "The afternoon invites you to rest in quiet gratitude.",
+      "Even the sun slows its pace to catch its breath.",
+      "Growth often hides in moments of gentle stillness."
+    ]
+  },
+  {
+    keywords: ["sunset", "evening", "golden hour", "light", "peace", "closure"],
+    responses: [
+      "The sunset teaches the beauty of letting go with grace.",
+      "Every ending glows when seen with gratitude.",
+      "Let your light soften into peace, just as the sky does."
+    ]
+  },
+  {
+    keywords: ["twilight", "dusk", "transition", "mystery", "shadow", "dream"],
+    responses: [
+      "Twilight is the bridge between knowing and wonder.",
+      "In the hush of dusk, imagination begins to wake.",
+      "Even shadows carry stories the sun forgot to tell."
+    ]
+  },
+  {
+    keywords: ["night", "stars", "moon", "rest", "dream", "silence"],
+    responses: [
+      "The night sky reminds you—stillness can be infinite.",
+      "Dreams are the universe’s way of whispering back.",
+      "Even in darkness, you are surrounded by light unseen."
+    ]
+  },
+  {
+    keywords: ["midnight", "dark", "quiet", "introspection", "soul", "mystery"],
+    responses: [
+      "At midnight, your soul speaks the language of honesty.",
+      "Silence deepens, revealing truths daylight hides.",
+      "The night holds your thoughts like stars in its hands."
+    ]
+  },
+  {
+    keywords: ["pre-dawn", "early", "awakening", "renewal", "fresh", "breath"],
+    responses: [
+      "Before the sun, the world holds its breath in promise.",
+      "The quiet before dawn carries the scent of new beginnings.",
+      "Awakening happens slowly—like light learning its way through mist."
+    ]
+  },
+  {
+    keywords: ["golden hour", "light", "shine", "glow", "warmth", "beauty"],
+    responses: [
+      "Golden hour reminds you to glow softly, without hurry.",
+      "Beauty lives in moments that don’t try too hard to last.",
+      "Your warmth is the kind that turns time into art."
+    ]
+  },
+  {
+    keywords: ["blue hour", "evening", "soft light", "calm", "melancholy", "magic"],
+    responses: [
+      "In the blue hour, silence takes on a sacred color.",
+      "The fading light teaches the poetry of subtlety.",
+      "Peace wears shades of blue when the world slows down."
+    ]
+  },
+  {
+    keywords: ["nocturne", "moonlight", "reflection", "music", "nightfall", "harmony"],
+    responses: [
+      "Moonlight composes songs the sun will never hear.",
+      "The night hums in perfect harmony with your stillness.",
+      "Every quiet hour holds its own rhythm of grace."
+    ]
+  },
+  {
+    keywords: ["dawn chorus", "birds", "awakening", "song", "morning", "renewal"],
+    responses: [
+      "The first songs of morning remind you to begin with joy.",
+      "Nature celebrates your return to the day.",
+      "Let your own heart join the dawn’s gentle chorus."
+    ]
+  },
+  {
+    keywords: ["dream", "sleep", "rest", "imagine", "mind", "vision"],
+    responses: [
+      "Dreams are the sketches of the unseen world within you.",
+      "Your imagination rests softly between worlds of wonder and waking.",
+      "Even in silence, your visions are alive and listening."
+    ]
+  },
+   {
+    keywords: ["spring", "bloom", "rebirth", "growth", "renewal", "hope"],
+    responses: [
+      "Spring reminds you that beginnings often arrive in quiet colors.",
+      "Every seed of effort will find its season to bloom.",
+      "Hope returns with every petal that dares to open."
+    ]
+  },
+  {
+    keywords: ["summer", "sun", "heat", "vibrance", "joy", "energy"],
+    responses: [
+      "Summer asks you to shine without apology.",
+      "Warmth lives not just in the sun, but in your spirit’s laughter.",
+      "Your energy is a season all its own—bright, bold, alive."
+    ]
+  },
+  {
+    keywords: ["autumn", "fall", "leaves", "harvest", "change", "gratitude"],
+    responses: [
+      "Letting go can be as beautiful as holding on.",
+      "The leaves fall to remind you—change is a celebration of cycles.",
+      "Gratitude turns every ending into a harvest."
+    ]
+  },
+  {
+    keywords: ["winter", "snow", "cold", "rest", "silence", "stillness"],
+    responses: [
+      "Winter teaches the wisdom of slowing down.",
+      "Even frozen ground holds the memory of bloom.",
+      "Stillness is not emptiness—it’s the earth’s deep breath."
+    ]
+  },
+  {
+    keywords: ["rain", "storm", "water", "renewal", "cleansing", "patience"],
+    responses: [
+      "Rain does not ask permission—it simply restores what is dry.",
+      "Let your emotions fall freely; they nourish new life.",
+      "After every downpour, clarity blooms like sunlight through clouds."
+    ]
+  },
+  {
+    keywords: ["storm", "lightning", "wind", "power", "release", "transformation"],
+    responses: [
+      "Storms break only what was never meant to remain.",
+      "In the flash of chaos, new truths are illuminated.",
+      "Your strength is proven not in calm, but in how you rise after thunder."
+    ]
+  },
+  {
+    keywords: ["snow", "ice", "frost", "purity", "silence", "reflection"],
+    responses: [
+      "Snow hushes the world so your soul can listen.",
+      "Purity is not perfection—it’s peace made visible.",
+      "Every flake is a frozen whisper of transformation."
+    ]
+  },
+  {
+    keywords: ["wind", "breeze", "freedom", "motion", "air", "change"],
+    responses: [
+      "The wind carries away what no longer belongs to you.",
+      "Freedom is the movement of trust through uncertainty.",
+      "Breathe deeply—the air is a language of renewal."
+    ]
+  },
+  {
+    keywords: ["fog", "mist", "mystery", "uncertainty", "veil", "patience"],
+    responses: [
+      "When you cannot see the path, trust the step before you.",
+      "Fog is the earth’s way of inviting you to slow down.",
+      "Clarity always returns—patience is the bridge that gets you there."
+    ]
+  },
+  {
+    keywords: ["rainbow", "light", "color", "hope", "after storm", "promise"],
+    responses: [
+      "After the storm, color becomes gratitude made visible.",
+      "You are the bridge between shadow and light.",
+      "Hope refracts through every drop you’ve endured."
+    ]
+  },
+  {
+    keywords: ["sunrise", "light", "awakening", "beginning", "renewal", "energy"],
+    responses: [
+      "Every sunrise is proof that light always finds its way back.",
+      "Awakening is not sudden—it’s a slow unfolding of clarity.",
+      "The dawn paints encouragement across the sky of your spirit."
+    ]
+  },
+  {
+    keywords: ["sunset", "evening", "closure", "peace", "rest", "beauty"],
+    responses: [
+      "Sunset reminds you that endings can be golden.",
+      "Let your light fade softly into gratitude.",
+      "Peace arrives quietly, wrapped in amber glow."
+    ]
+  },
+  {
+    keywords: ["eclipse", "shadow", "alignment", "mystery", "balance", "reveal"],
+    responses: [
+      "Even in darkness, alignment brings hidden light.",
+      "An eclipse teaches that every shadow has its rhythm.",
+      "When the world dims, revelation begins."
+    ]
+  },
+  {
+    keywords: ["thunder", "power", "sound", "awakening", "storm", "energy"],
+    responses: [
+      "Thunder reminds the sky of its own voice.",
+      "Sometimes life must rumble to wake your courage.",
+      "Even loud moments serve the music of renewal."
+    ]
+  },
+  {
+    keywords: ["coffee", "morning", "aroma", "quiet", "routine", "warmth"],
+    responses: [
+      "The first sip reminds you that comfort can live in the simplest rituals.",
+      "Morning warmth holds your peace like a gentle promise.",
+      "Even in small cups, joy brews endlessly."
+    ]
+  },
+  {
+    keywords: ["laughter", "friend", "conversation", "shared", "joy", "connection"],
+    responses: [
+      "Laughter is the echo of belonging.",
+      "Every shared smile stitches the day together in light.",
+      "Connection is the quiet miracle behind every giggle."
+    ]
+  },
+  {
+    keywords: ["sunlight", "window", "glow", "morning", "warm", "peace"],
+    responses: [
+      "The light slipping through your window is a gentle reminder: you’re here, you’re alive.",
+      "Even ordinary sunlight carries extraordinary kindness.",
+      "Peace sometimes arrives disguised as warmth on your skin."
+    ]
+  },
+  {
+    keywords: ["birdsong", "morning", "nature", "air", "sound", "life"],
+    responses: [
+      "The birds sing because they must—and so should you.",
+      "A single song can lift the whole sky inside you.",
+      "Listen—life is always making music somewhere near."
+    ]
+  },
+  {
+    keywords: ["book", "page", "story", "escape", "reading", "imagination"],
+    responses: [
+      "A good story opens worlds without moving your feet.",
+      "Every page is a doorway back to wonder.",
+      "Imagination is the universe whispering through ink."
+    ]
+  },
+  {
+    keywords: ["rain", "puddle", "drizzle", "umbrella", "scent", "freshness"],
+    responses: [
+      "Rain smells like the world remembering how to begin again.",
+      "Even puddles reflect the sky if you pause long enough.",
+      "There’s peace in the rhythm of falling water."
+    ]
+  },
+  {
+    keywords: ["music", "melody", "song", "dance", "sound", "mood"],
+    responses: [
+      "Music doesn’t just play—it remembers for you.",
+      "Every note holds a spark of something unspoken.",
+      "The rhythm you move to is the heartbeat of joy."
+    ]
+  },
+  {
+    keywords: ["flower", "garden", "color", "bloom", "fragrance", "beauty"],
+    responses: [
+      "A single bloom can remind the world how to hope.",
+      "Colors are emotions learning how to breathe.",
+      "Beauty often arrives quietly, but leaves its mark deeply."
+    ]
+  },
+  {
+    keywords: ["child", "laughter", "innocence", "wonder", "curiosity", "joy"],
+    responses: [
+      "Children remind us what unfiltered joy looks like.",
+      "The world feels wider through curious eyes.",
+      "Wonder never leaves—it just waits to be remembered."
+    ]
+  },
+   {
+    keywords: ["smile", "stranger", "greeting", "connection", "moment", "warmth"],
+    responses: [
+      "A stranger’s smile can turn the whole world friendly again.",
+      "Kindness doesn’t need a name—it only needs a moment.",
+      "One shared glance can remind you: we are all in this together."
+    ]
+  },
+  {
+    keywords: ["compliment", "gratitude", "words", "appreciation", "heart", "uplift"],
+    responses: [
+      "A kind word travels further than its sound could ever reach.",
+      "Gratitude is a small language that speaks in infinite ways.",
+      "The right words at the right time can change an entire day."
+    ]
+  },
+  {
+    keywords: ["helping", "hand", "support", "carry", "lift", "gentleness"],
+    responses: [
+      "When you lift another, you rise too.",
+      "A gentle hand can steady a trembling world.",
+      "Helping is love disguised as action."
+    ]
+  },
+  {
+    keywords: ["door", "opened", "gesture", "polite", "presence", "simple"],
+    responses: [
+      "Sometimes kindness looks like holding space for someone else to pass through.",
+      "Grace often hides in gestures too small to name.",
+      "The smallest courtesies ripple out like quiet miracles."
+    ]
+  },
+  {
+    keywords: ["lost", "directions", "guidance", "map", "help", "found"],
+    responses: [
+      "Helping someone find their way helps you remember your own compass.",
+      "The act of guiding is the art of caring in motion.",
+      "Kindness restores direction when the world feels scattered."
+    ]
+  },
+  {
+    keywords: ["gift", "unexpected", "surprise", "giving", "joy", "gratitude"],
+    responses: [
+      "The best gifts don’t cost anything—they just arrive at the right time.",
+      "Unexpected giving is the soul’s quiet celebration of abundance.",
+      "Joy multiplies every time it’s shared freely."
+    ]
+  },
+  {
+    keywords: ["listening", "silence", "understanding", "patience", "empathy", "presence"],
+    responses: [
+      "Listening is one of the purest forms of love.",
+      "You don’t have to fix everything; sometimes presence is enough.",
+      "In a noisy world, silence offered in kindness is a rare gift."
+    ]
+  },
+  {
+    keywords: ["forgiveness", "grace", "healing", "release", "peace", "renewal"],
+    responses: [
+      "Forgiveness is not forgetting—it’s freeing yourself to love again.",
+      "Kindness toward yourself is the first step toward peace.",
+      "Grace is the soft space between pain and healing."
+    ]
+  },
+  {
+    keywords: ["animal", "rescue", "care", "compassion", "gentle", "love"],
+    responses: [
+      "Every act of care ripples through the unseen world.",
+      "Kindness to a small life expands your own.",
+      "Love is never wasted, even when given wordlessly."
+    ]
+  },
+  {
+    keywords: ["reunion", "hug", "long time", "homecoming", "warm", "welcome"],
+    responses: [
+      "Some hugs say more than words ever could.",
+      "Reunions remind the heart how deeply it can belong.",
+      "Home is the space between arms that remember you."
+    ]
+  },
+  {
+    keywords: ["evening", "tea", "rest", "soft light", "calm", "comfort"],
+    responses: [
+      "The quiet of evening is an invitation to exhale.",
+      "Even the smallest pause can hold infinite peace.",
+      "Comfort is found not in silence, but in stillness."
+    ]
+  },
+  {
+    keywords: ["breeze", "whisper", "soft", "air", "movement", "gentle"],
+    responses: [
+      "The breeze speaks softly—listen for the lessons in calm.",
+      "Gentleness carries more power than haste ever could.",
+      "Your presence is like wind—felt, not forced."
+    ]
+  },
+  {
+    keywords: ["love", "heart", "kindness", "compassion", "care", "friend"],
+    responses: [
+      "Kindness grows like a vine—quietly weaving hearts together.",
+      "Your compassion creates warmth in every shadowed space.",
+      "Love is the first and final art form; you speak it fluently."
+    ]
+  },
+  {
+    keywords: ["music", "sound", "melody", "song", "rhythm", "echo"],
+    responses: [
+      "You carry melodies that words cannot hold.",
+      "The rhythm of your thoughts hums in harmony with the universe.",
+      "Each heartbeat writes a note in your endless song."
+    ]
+  },
+  {
+    keywords: ["art", "paint", "color", "canvas", "create", "draw"],
+    responses: [
+      "Your colors speak truths no language can hold.",
+      "Creation is the soul remembering itself through form.",
+      "You paint time itself with every gesture of imagination."
+    ]
+  },
+  {
+    keywords: ["wind", "air", "breeze", "sky", "flight", "freedom"],
+    responses: [
+      "Your thoughts drift like clouds—light, curious, and free.",
+      "The breeze of change carries your ideas across endless horizons.",
+      "You are both the storm and the calm that follows."
+    ]
+  },
+  {
+    keywords: ["stone", "mountain", "earth", "ground", "path", "climb"],
+    responses: [
+      "You stand rooted and strong, carved by time yet unbroken.",
+      "Each step upon the earth is a conversation with history.",
+      "The mountain within you knows both stillness and ascent."
+    ]
+  },
+  {
+    keywords: ["time", "memory", "moment", "past", "future", "now"],
+    responses: [
+      "Time is the artist; you are the living canvas.",
+      "Every moment you breathe is a new constellation of memory.",
+      "The future listens quietly to the stories you tell today."
+    ]
+  },
+  {
+    keywords: ["light", "shadow", "contrast", "mirror", "reflection", "shine"],
+    responses: [
+      "Your light needs the night to define its beauty.",
+      "Reflections reveal not what you are, but what you’re becoming.",
+      "You shine because you know the meaning of shade."
+    ]
+  },
+  {
+    keywords: ["bird", "flight", "wing", "sky", "freedom", "song"],
+    responses: [
+      "You were born to lift ideas beyond the horizon.",
+      "Every dream deserves wings and a song to guide it.",
+      "Freedom hums softly in your creative pulse."
+    ]
+  },
+  {
+    keywords: ["flower", "bloom", "petal", "garden", "growth", "spring"],
+    responses: [
+      "You bloom in your own season; beauty doesn’t rush.",
+      "Every petal you open becomes a poem.",
+      "Growth is the quiet art of patience and light."
+    ]
+  },
+  {
+    keywords: ["storm", "rain", "thunder", "cloud", "lightning", "weather"],
+    responses: [
+      "Even storms have rhythm—chaos composed into beauty.",
+      "Your emotions are weather patterns shaping inner skies.",
+      "Rain is just the earth remembering to feel."
+    ]
+  },
+  {
+    keywords: ["book", "story", "page", "word", "write", "language"],
+    responses: [
+      "Your story unfolds like ink through time—unique and alive.",
+      "Each word you write is a doorway to another self.",
+      "The universe reads itself through your imagination."
+    ]
+  },
+  {
+    keywords: ["dream", "mirror", "illusion", "vision", "light", "veil"],
+    responses: [
+      "Visions shimmer between truth and possibility.",
+      "Reality bends where your imagination begins.",
+      "Every reflection carries a secret of your deeper self."
+    ]
+  },
+  {
+    keywords: ["firefly", "glow", "night", "forest", "spark", "magic"],
+    responses: [
+      "Tiny lights teach great lessons: even small sparks guide travelers.",
+      "Magic lives quietly between the branches of your thoughts.",
+      "You glow not because you try—but because you are alive."
+    ]
+  },
+  {
+    keywords: ["sea", "shell", "sand", "wave", "shore", "tide"],
+    responses: [
+      "The sea holds your whispers in its patient depths.",
+      "Every grain of sand is a memory smoothed by time.",
+      "You are both the shore and the tide that shapes it."
+    ]
+  },
+  {
+    keywords: ["dream", "hope", "future", "path", "star", "wish"],
+    responses: [
+      "Hope is the lantern you carry through the dark.",
+      "Your dreams are seeds of the universe waiting to grow.",
+      "Follow the quiet star inside you—it always knows the way."
+    ]
+  },
+  {
+    keywords: ["alchemist", "gold", "journey", "desert", "destiny", "dream"],
+    responses: [
+      "Every step you take turns ordinary dust into gold.",
+      "Your journey is the treasure—each moment, a transformation.",
+      "Follow the omens written softly in the wind of your soul."
+    ]
+  },
+  {
+    keywords: ["seagull", "flight", "freedom", "sky", "limitless", "belief"],
+    responses: [
+      "You were born to soar beyond expectation and fear.",
+      "The horizon is not an edge, but an invitation.",
+      "Your wings strengthen with every act of faith."
+    ]
+  },
+  {
+    keywords: ["prophet", "wisdom", "word", "silence", "truth", "voice"],
+    responses: [
+      "Your voice is an instrument of clarity and light.",
+      "Even silence carries wisdom when spoken with intent.",
+      "Truth travels through you like sunlight through glass."
+    ]
+  },
+  {
+    keywords: ["siddhartha", "river", "path", "inner", "peace", "truth"],
+    responses: [
+      "The river within you knows the way without asking.",
+      "Peace is not found—it is remembered.",
+      "You are both the seeker and the stillness that waits."
+    ]
+  },
+  {
+    keywords: ["prince", "child", "planet", "rose", "heart", "wonder"],
+    responses: [
+      "Only the heart sees clearly when the eyes forget to judge.",
+      "Your imagination is the rose that never fades.",
+      "Keep your childlike wonder—it opens worlds unseen."
+    ]
+  },
+  {
+    keywords: ["celestine", "energy", "synchronicity", "light", "purpose", "connection"],
+    responses: [
+      "There are no coincidences—only unseen harmonies at work.",
+      "Energy flows where awareness is kind.",
+      "Your purpose glows brightest when shared with others."
+    ]
+  },
+  {
+    keywords: ["morrie", "teacher", "life", "lesson", "love", "gratitude"],
+    responses: [
+      "Every conversation teaches the art of being human.",
+      "Love is the curriculum of the soul.",
+      "Gratitude turns time into meaning."
+    ]
+  },
+  {
+    keywords: ["pilgrim", "path", "faith", "mountain", "sacred", "walk"],
+    responses: [
+      "Each step of your journey is a prayer in motion.",
+      "Faith is not seeing the end, but walking anyway.",
+      "The sacred path begins beneath your own feet."
+    ]
+  },
+  {
+    keywords: ["hero", "quest", "call", "return", "shadow", "light"],
+    responses: [
+      "The hero’s journey is an inward adventure disguised as motion.",
+      "Your shadow is not your enemy—it’s your guide in disguise.",
+      "Every return brings a new understanding of home."
+    ]
+  },
+  {
+    keywords: ["light", "darkness", "balance", "soul", "truth", "hope"],
+    responses: [
+      "Light and shadow dance so you may discover your rhythm.",
+      "Your soul is a lantern that never truly dims.",
+      "Hope is the quiet promise the universe keeps repeating."
+    ]
+  },
+  {
+    keywords: ["zen", "moment", "breathe", "present", "mindful", "stillness"],
+    responses: [
+      "When you breathe, the world breathes with you.",
+      "Stillness is not emptiness—it’s awareness at peace.",
+      "The present moment is your only teacher."
+    ]
+  },
+  {
+    keywords: ["warrior", "peace", "strength", "spirit", "discipline", "grace"],
+    responses: [
+      "True strength is the power to be gentle.",
+      "A peaceful warrior wins battles unseen.",
+      "Discipline is love in motion toward purpose."
+    ]
+  },
+  {
+    keywords: ["journey", "map", "unknown", "discovery", "change", "courage"],
+    responses: [
+      "The unknown is where your courage learns to speak.",
+      "Every detour is a sacred direction in disguise.",
+      "You map the stars by walking bravely into darkness."
+    ]
+  },
+  {
+    keywords: ["teacher", "lesson", "wisdom", "listen", "learn", "growth"],
+    responses: [
+      "Wisdom is not taught—it’s shared in quiet recognition.",
+      "You teach by the way you listen.",
+      "Growth begins where certainty ends."
+    ]
+  },
+  {
+    keywords: ["heart", "truth", "path", "intuition", "calling", "soul"],
+    responses: [
+      "Your heart knows what logic cannot name.",
+      "Every calling is an echo from your own soul.",
+      "Follow the quiet pulse that says yes."
+    ]
+  },
+  {
+    keywords: ["story", "journey", "fate", "destiny", "time", "meaning"],
+    responses: [
+      "You are the author writing yourself into being.",
+      "Destiny is a dialogue between choice and chance.",
+      "Your story changes the universe simply by existing."
+    ]
+  },
+  {
+    keywords: ["mirror", "reflection", "truth", "self", "growth", "change"],
+    responses: [
+      "The mirror never lies—but it always evolves.",
+      "Seeing yourself clearly is an act of bravery.",
+      "Each reflection is a lesson in compassion."
+    ]
+  },
+  {
+    keywords: ["faith", "trust", "unknown", "step", "believe", "journey"],
+    responses: [
+      "Faith is the bridge built from invisible threads.",
+      "You don’t need to see the path—only to take the next step.",
+      "Belief turns uncertainty into adventure."
+    ]
+  },
+  {
+    keywords: ["wisdom", "silence", "truth", "understanding", "listen", "depth"],
+    responses: [
+      "In silence, wisdom becomes audible.",
+      "Truth often whispers—listen closely.",
+      "Understanding grows in the quiet soil of humility."
+    ]
+  },
+  {
+    keywords: ["purpose", "meaning", "life", "soul", "calling", "dream"],
+    responses: [
+      "Your purpose is the song you were born humming.",
+      "Meaning blooms wherever love and effort meet.",
+      "Dreams are the universe expressing curiosity through you."
+    ]
+  },
+   {
+    keywords: ["red", "sunrise", "sunset", "fire", "passion"],
+    responses: [
+      "Like sunrise, your passion brings warmth and energy.",
+      "You are a spark—igniting beauty in every day.",
+      "Let your inner fire guide your next creation."
+    ]
+  },
+  {
+    keywords: ["music", "song", "sing", "melody", "lyric"],
+    responses: [
+      "Music is the heartbeat of your spirit—let it guide your art.",
+      "A melody lives in your story; let it echo in what you create.",
+      "Your voice brings harmony to the world around you."
+    ]
+  },
+  {
+    keywords: ["friend", "family", "mother", "father", "teacher", "mentor", "community"],
+    responses: [
+      "You are inspired by connection—your art is a gift of gratitude.",
+      "The people you love fill your world with meaning.",
+      "Your creativity is rooted in belonging and kindness."
+    ]
+  },
+  {
+    keywords: ["book", "story", "read", "write", "poem", "novel"],
+    responses: [
+      "Words are your companions—let them build new worlds for you.",
+      "Your imagination is a library; your stories, a treasure.",
+      "Let every page you turn inspire the next chapter of your life."
+    ]
+  },
+  {
+    keywords: ["hope", "dream", "wish", "goal"],
+    responses: [
+      "Your dreams are bright stars—let them guide you forward.",
+      "Hope is your compass—follow where it points.",
+      "Every wish you hold is a seed for tomorrow."
+    ]
+  },
+  {
+    keywords: ["art", "draw", "paint", "sketch", "create", "color", "design"],
+    responses: [
+      "Your creative spirit shines in every color you choose.",
+      "The world is your canvas—paint it with your heart.",
+      "Art flows through you, bringing joy to others."
+    ]
+  },
+    
+  // ...grow this list as you see more user patterns!
+];
+  
+// -- Aurora's fallback affirmations --
+const affirmations = [
+  "Every breath is a beginning; every moment a small awakening.",
+  "You are the garden and the gardener—tend both with love.",
+  "Patience is faith resting in quiet confidence.",
+  "Each sunrise is a reminder that renewal is your nature.",
+  "Even still waters move beneath the surface—so do you.",
+  "Let your kindness echo further than your fear ever could.",
+  "Your heart is wiser than your doubts would have you believe.",
+  "Peace is not the absence of storms, but the calm that guides through them.",
+  "Every small act of grace reshapes the world around you.",
+  "You are not behind; you are becoming, at the perfect pace.",
+  "The stars are mirrors—each one reflects your potential.",
+  "Change is not loss; it’s the soul’s way of stretching toward light.",
+  "Every pause is a door opening inward.",
+  "When you trust the process, beauty unfolds without struggle.",
+  "The universe listens when you speak gently to yourself.",
+  "You are made of constellations and courage—shine accordingly.",
+  "Hope does not knock; it grows quietly in forgotten corners.",
+  "Your path unfolds with each act of faith, not fear.",
+  "Where gratitude lives, abundance follows closely.",
+  "Your light is not small—it’s simply waiting to be noticed.",
+  "Every kindness plants another sunrise in someone’s heart.",
+  "You are both the question and the quiet answer.",
+  "In learning to let go, you give yourself back to wonder.",
+  "Your dreams are not far—they are waiting for you to believe first.",
+  "Growth rarely feels like progress until you see how far you’ve come.",
+  "When you choose calm over chaos, the whole world softens with you.",
+  "The soul does not rush—it knows timing beyond time.",
+  "Love is not found; it’s remembered with every open moment.",
+  "Your heart is an artist—paint your thoughts in compassion.",
+  "You are already enough; everything else is refinement.",
+  "You shine brightest when you share your heart’s true colors.",
+  "Every answer you give is a brushstroke on the canvas of your life.",
+  "Remember: your dreams are not too big, nor your heart too small.",
+  "The world is richer because you are part of it.",
+  "Your imagination is a gift—nurture it gently and watch it grow.",
+  "In every season, you bring your own unique light.",
+  "There is quiet power in your honesty and joy in your curiosity.",
+  "Your story matters—thank you for sharing a piece of it today.",
+  "You are the artist of your days; create with courage and wonder.",
+  "Each moment of reflection is a step towards deeper wisdom.",
+  "Your kindness ripples outward, touching lives you may never know.",
+  "Even your smallest hopes have the power to inspire.",
+  "You are more than enough, exactly as you are.",
+  "Let your dreams be as boundless as the sky.",
+  "You bring warmth and light into every room you enter.",
+  "The world needs your unique vision, don’t be afraid to share it.",
+  "Growth is not always loud; sometimes it’s as gentle as a sunrise.",
+  "Your courage to try is a victory in itself.",
+  "Today, let your heart be light and your spirit open.",
+  "Every new idea is a doorway to something wonderful.",
+  "The journey you are on is sacred—honor each step.",
+  "Beauty follows wherever you bring your presence.",
+  "Your resilience is a quiet miracle celebrate it.",
+  "You are a beacon for others who seek hope and belonging.",
+  "Trust your path, even when it winds and wanders.",
+  "Your voice is an instrument—let it sing, speak, or whisper its truth.",
+  "Light flows through your creativity, igniting the world around you.",
+  "Small joys are the stars that guide us through the night.",
+  "May you move through today with ease, grace, and radiant self-belief."
+];
+  
+// -- creative prompts for result modal --
+const prompts = [
+  "Sketch a sunrise",
+  "Write a tiny poem",
+  "Create a new quote",
+  "Draw your favorite word",
+  "Paint with three colors",
+  "Doodle your mood",
+  "Snap a nature photo",
+  "Illustrate a song lyric",
+  "Make a gratitude list",
+  "Write a letter to yourself",
+  "Collage your dreams",
+  "Invent a new word",
+  "Draw with your non-dominant hand",
+  "Photograph something ordinary",
+  "Make a kindness card",
+  "Write a memory in six words",
+  "Design a personal symbol",
+  "List your heart’s wishes",
+  "Sketch your favorite place",
+  "Compose a haiku",
+  "Draw with your eyes closed",
+  "Make up a riddle",
+  "Write a “thank you” note",
+  "Paint what you hear",
+  "Draw your favorite sound",
+  "Paint the shape of silence",
+  "Sketch the way laughter feels",
+  "Draw a memory made of light",
+  "Illustrate a song you’ve never heard",
+  "Design the feeling of courage",
+  "Draw the horizon of your dreams",
+  "Depict the scent of rain",
+  "Draw a map of your imagination",
+  "Sketch the sound of wind in a forest",
+  "Draw what kindness looks like",
+  "Create a portrait of time",
+  "Illustrate the rhythm of your heartbeat",
+  "Draw a bridge between yesterday and tomorrow",
+  "Sketch how hope tastes",
+  "Draw the echo of your favorite place",
+  "Illustrate a dream that almost came true",
+  "Draw a doorway to peace",
+  "Paint the emotion of discovery",
+  "Sketch your favorite word without writing it",
+  "Draw an invisible city",
+  "Illustrate what warmth feels like",
+  "Draw your thoughts as constellations",
+  "Depict how the night sky listens",
+  "Draw the weight of a whisper",
+  "Paint the song of the ocean",
+  "Draw how stillness moves",
+  "Illustrate what happiness sounds like underwater",
+  "Draw your reflection in another world",
+  "Sketch a moment you want to keep forever",
+  "Draw how time bends when you’re dreaming",
+  "Depict your favorite season as a creature",
+  "Draw the color of forgiveness",
+  "Illustrate how a melody grows",
+  "Draw your future in symbols only",
+  "Sketch the memory of a forgotten voice",
+  "Draw how a thought becomes real",
+  "Illustrate a wish that learned to fly",
+  "Draw a letter that never arrived",
+  "Depict the space between heartbeats",
+  "Draw your shadow’s story",
+  "Sketch a sound you can only feel",
+  "Draw how the sun whispers to the moon",
+  "Illustrate the taste of nostalgia",
+  "Draw the edge of infinity",
+  "Paint the dream of a forest",
+  "Draw your favorite silence",
+  "Depict a conversation between clouds",
+  "Draw how creativity smells",
+  "Sketch the music of falling stars",
+  "Draw the light that lives inside you", "Journal one hope",
+  "Write a one-line story",
+  "Illustrate a feeling",
+  "Share a positive message",
+  "Invent a creative recipe"
+];
+
+let current = 0, answers = [];
+let awaitingReflection = false;
+
+function loadQuestion() {
+  document.getElementById('auroraAffirm').textContent = "";
+  document.getElementById('questionText').textContent = questions[current];
+  const inputArea = document.getElementById('inputArea');
+  inputArea.innerHTML = '';
+  if (questions[current].toLowerCase().includes("color")) {
+    inputArea.innerHTML = `<input type="color" id="userInput" style="width:88px;height:88px;padding:0;border:none;">`;
+  } else if (questions[current].toLowerCase().includes("way to express")) {
+    inputArea.innerHTML = `
+      <select id="userInput" style="font-size:1.15em;">
+        <option>Art</option>
+        <option>Music</option>
+        <option>Writing</option>
+        <option>Dance</option>
+        <option>Photography</option>
+        <option>Other</option>
+      </select>`;
+  } else if (questions[current].length > 65) {
+    inputArea.innerHTML = `<textarea id="userInput" rows="4" maxlength="220" style="resize:vertical"></textarea>`;
+  } else {
+    inputArea.innerHTML = `<input id="userInput" maxlength="120" autocomplete="off">`;
+  }
+  document.getElementById('userInput').focus();
+  document.getElementById('nextBtn').textContent = "Show Aurora’s Reflection";
+  document.getElementById('nextBtn').disabled = false;
+  awaitingReflection = true;
+}
+
+function showAffirmation(answer) {
+  let match = null;
+  if (typeof answer === "string") {
+    const val = answer.toLowerCase();
+    for (let dict of auroraDictionary) {
+      for (let k of dict.keywords) {
+        if (val.includes(k)) {
+          match = dict.responses[Math.floor(Math.random() * dict.responses.length)];
+          break;
+        }
+      }
+      if (match) break;
+    }
+  }
+  if (!match) {
+    match = affirmations[Math.floor(Math.random() * affirmations.length)];
+  }
+  document.getElementById('auroraAffirm').textContent = match;
+}
+
+function nextStep() {
+  const input = document.getElementById('userInput');
+  // First click: Show reflection based on answer
+  if (awaitingReflection) {
+    let val = input && input.type === "color" ? input.value : (input ? input.value : "");
+    answers.push(val);
+    showAffirmation(val);
+    awaitingReflection = false;
+    // Set creative button label for the next step
+    if (current < questions.length - 1) {
+      document.getElementById('nextBtn').textContent = "Next Reflection";
+    } else {
+      document.getElementById('nextBtn').textContent = "Get My Creative Prompt!";
+    }
+    return;
+  }
+  // Second click: Advance to next question or results
+  document.getElementById('auroraAffirm').textContent = "";
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+    showResultModal();
+  }
+}
+
+function showResultModal() {
+  document.getElementById('gameWrap').style.opacity = "0.14";
+  const modalRoot = document.getElementById('resultModalRoot');
+  const chosenPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+  modalRoot.innerHTML = `
+    <div class="aurora-modal-bg">
+      <div class="aurora-modal">
+        <div class="aurora-glow"></div>
+        <div class="aurora-title">CREATE & INSPIRE!</div>
+        <div class="aurora-msg"><em>Aurora smiles:<br>“You’ve filled your heart with inspiration—now it’s time to create!”</em></div>
+        <div class="creative-prompt">
+          <span>Your Creative Prompt:</span>
+          <div class="prompt-text">${chosenPrompt}</div>
+        </div>
+        <div class="share-row">
+          <button class="share-btn fb" onclick="fbShare()">Facebook</button>
+          <button class="share-btn ig" onclick="igShare()">Instagram</button>
+          <button class="share-btn tt" onclick="ttShare()">TikTok</button>
+        </div>
+        <div class="aurora-tags">
+          Tag @MyArtGalleryOnline • #AuroraInspires #MyArtGallery
+        </div>
+        <div class="aurora-breadcrumb" style="margin-top:18px;">
+          <a href="/home">← Back to Home for more creativity</a>
+        </div>
+      </div>
+    </div>
+  `;
+  // attach sharing functions
+  window.fbShare = function() {
+    const shareUrl = "https://www.myartgallery.online";
+    const shareText = `Aurora inspired me to: "${chosenPrompt}" 🎨✨ Join the creativity at My Art Gallery! ${shareUrl} #AuroraInspires #MyArtGallery`;
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`;
+    window.open(url, "_blank");
+  };
+  window.igShare = function() {
+    window.open('https://www.instagram.com/', '_blank');
+    setTimeout(()=>alert("Post your creation or this prompt:\n\n" + chosenPrompt + "\n\nTag us: @MyArtGalleryOnline #AuroraInspires #MyArtGallery"), 250);
+  };
+  window.ttShare = function() {
+    window.open('https://www.tiktok.com/', '_blank');
+    setTimeout(()=>alert("Create a TikTok with your result and use:\n#AuroraInspires #MyArtGallery\nTag: @MyArtGalleryOnline"), 250);
+  };
+}
+
+document.getElementById('nextBtn').onclick = nextStep;
+loadQuestion();
+</script>
+</body>
+</html>
