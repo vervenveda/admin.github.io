@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sovereign Short Stories Library</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* Your original styles unchanged — paste your full CSS here */
+    :root {
+      --bg-midnight: #020414;
+      --bg-ring: radial-gradient(circle at 50% 0%, rgba(60,90,150,0.55), transparent 60%);
+      --ink: #2a2520;
+      --ink-soft: #6a5b4a;
+      --parchment: #fffcf5;
+      --parchment-edge: #f0e4d2;
+      --gold: #d9b878;
+      --gold-deep: #b89252;
+      --accent-soft: rgba(255,255,255,0.05);
+      --radius-11: 11px;
+      --radius-24: 24px;
+      --shadow-soft: 0 24px 66px rgba(0,0,0,0.55);
+      --shadow-card: 0 14px 33px rgba(0,0,0,0.35);
+      --transition-fast: 0.2s ease-out;
+      --transition-med: 0.35s ease-out;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 11px;
+      padding: 7px;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(45,70,120,0.6), transparent 55%),
+        var(--bg-midnight);
+      color: #f8f4ec;
+      font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .codex-wrap {
+      width: 100%;
+      max-width: 1111px;
+      margin: 33px auto 72px;
+      padding: 0 21px 33px;
+    }
+
+    .codex-header {
+      text-align: center;
+      margin-bottom: 27px;
+    }
+
+    .codex-subtitle-top {
+      font-size: 14px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 4px;
+    }
+
+    .codex-title {
+      font-family: "Cinzel", serif;
+      font-size: 33px;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .codex-subtitle-main {
+      font-size: 15px;
+      max-width: 777px;
+      margin: 0 auto;
+      color: rgba(250,245,233,0.85);
+    }
+
+    .library-shelf {
+      margin: 27px auto 11px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 11px;
+    }
+
+    .volume-pill {
+      border-radius: var(--radius-21);
+      border: 1px solid rgba(217,184,120,0.7);
+      padding: 9px 21px 10px;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.08), rgba(5,10,22,0.95));
+      color: #fdf7ea;
+      font-size: 14px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 111px;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      box-shadow: 0 14px 24px rgba(0,0,0,0.45);
+      text-align: center;
+    }
+
+    .volume-pill.active {
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.16), rgba(10,18,40,0.95));
+      border-color: var(--gold);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.65);
+      transform: translateY(-1px);
+    }
+
+    .volume-pill.coming-soon {
+      opacity: 0.8;
+    }
+
+    .volume-pill:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+    }
+
+    .codex-controls {
+      margin: 14px auto 7px;
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .codex-btn {
+      border-radius: var(--radius-21);
+      border: 1px solid rgba(255,255,255,0.5);
+      background: rgba(5,10,22,0.9);
+      color: #f8f4ea;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      padding: 7px 18px 8px;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .codex-btn.gold {
+      border-color: var(--gold);
+      background: linear-gradient(135deg, #3b2a17, #674621);
+    }
+
+    .codex-btn:hover {
+      background: rgba(10,18,40,0.96);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    }
+
+    .codex-btn.gold:hover {
+      background: linear-gradient(135deg, #4e3419, #8a612a);
+    }
+
+    .page-indicator {
+      margin-top: 3px;
+      text-align: center;
+      font-size: 14px;
+      color: rgba(246,240,226,0.85);
+    }
+
+    .marker-indicator {
+      text-align: center;
+      font-size: 14px;
+      color: rgba(246,240,226,0.7);
+      margin-bottom: 11px;
+    }
+
+    .book-frame {
+      margin: 11px auto 24px;
+      padding: 24px 24px 24px;
+      max-width: 888px;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.03), rgba(0,0,0,0.9));
+      border-radius: var(--radius-21);
+      box-shadow: var(--shadow-soft);
+      border: 1px solid rgba(255,255,255,0.09);
+      position: relative;
+    }
+
+    .pages-wrap {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .page-card {
+      width: 360px;
+      min-height: 480px;
+      max-height: 600px;
+      padding: 24px 24px 20px;
+      background: var(--parchment);
+      border-radius: var(--radius-21);
+      box-shadow: var(--shadow-card);
+      border: 1px solid var(--parchment-edge);
+      color: var(--ink);
+      overflow-y: auto;
+      position: relative;
+      transition: box-shadow var(--transition-med), transform var(--transition-med);
+    }
+
+    .page-card.turn-glow {
+      box-shadow:
+        0 0 0 1px rgba(217,184,120,0.6),
+        0 0 32px rgba(217,184,120,0.5),
+        var(--shadow-card);
+      transform: translateY(-1px);
+    }
+
+    .page-heading {
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #aa8a52;
+      margin-bottom: 3px;
+    }
+
+    .page-title {
+      font-family: "Cinzel", serif;
+      font-size: 18px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      margin-bottom: 6px;
+      color: #3b2a17;
+    }
+
+    .page-meta {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #b19a7a;
+      margin-bottom: 10px;
+    }
+
+    .page-body {
+      font-size: 18px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      white-space: pre-wrap;
+    }
+
+    .page-footer-num {
+      position: absolute;
+      bottom: 10px;
+      right: 18px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(120,100,80,0.85);
+    }
+
+    .nav-row {
+      margin-top: 14px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 11px;
+    }
+
+    .nav-btn {
+      border-radius: var(--radius-21);
+      border: 1px solid rgba(255,255,255,0.7);
+      background: rgba(8,15,30,0.95);
+      color: #fdf7ea;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      padding: 6px 18px 7px;
+      cursor: pointer;
+      min-width: 120px;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .nav-btn:hover {
+      background: rgba(18,28,52,0.98);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* NOTES */
+
+    .notes-wrap {
+      margin:24px auto 0;
+      max-width:999px;
+      border-radius: 7px;
+      border: 1px solid rgba(217,184,120,0.7);
+      background: radial-gradient(circle at 0% 0%, rgba(255,255,255,0.05), rgba(0,0,0,0.85));
+      padding: 11px 14px 11px;
+      color: #FCFAF0;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.55);
+    }
+
+    .notes-title {
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(248,242,228,0.9);
+      margin-bottom: 7px;
+      text-align: left;
+    }
+
+    .notes-subtitle {
+      font-size: 14px;
+      color: rgba(240,232,214,0.9);
+      margin-bottom: 11px;
+    }
+
+    .notes-area {
+      width: 100%;
+      min-height: 99px;
+      border-radius: 7px;
+      border: 1px solid rgba(219,193,140,0.7);
+      background: rgba(5,10,20,0.92);
+      color: #FCFAF0;
+      padding: 11px 11px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .notes-foot {
+      margin-top: 7px;
+      font-size: 11px;
+      color: rgba(234,226,210,0.8);
+      text-align: right;
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+      .book-frame {
+        padding: 22px 18px 20px;
+      }
+      .pages-wrap {
+        flex-direction: column;
+        align-items: center;
+      }
+      .page-card {
+        width: 100%;
+        max-width: 555px;
+        min-height: 333px;
+        max-height: none;
+      }
+      .codex-title {
+        font-size: 24px;
+        letter-spacing: 0.26em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="codex-wrap">
+    <header class="codex-header">
+      <div class="codex-subtitle-top">Sovereign Library</div>
+      <div class="codex-title">Sci-Fi Short Stories</div>
+      <div class="codex-subtitle-main">
+        A curated collection of sovereign short stories.
+      </div>
+    </header>
+
+    <!-- Library Shelf -->
+    <div class="library-shelf" id="libraryShelf"></div>
+
+    <!-- Controls -->
+    <div class="codex-controls">
+      <button class="codex-btn gold" id="tocBtn">Table of Contents</button>
+    </div>
+
+    <div class="page-indicator" id="pageIndicator">Page 1 of 1</div>
+
+    <!-- Book Frame -->
+    <div class="book-frame">
+      <div class="pages-wrap">
+        <article class="page-card" id="leftPage">
+          <div class="page-heading" id="leftHeading">LOADING</div>
+          <div class="page-title" id="leftTitle">Loading Story...</div>
+          <div class="page-meta" id="leftMeta">—</div>
+          <div class="page-body" id="leftBody">Please wait.</div>
+          <div class="page-footer-num" id="leftPageNum">Page 1</div>
+        </article>
+
+        <article class="page-card" id="rightPage">
+          <div class="page-heading" id="rightHeading">&nbsp;</div>
+          <div class="page-title" id="rightTitle">&nbsp;</div>
+          <div class="page-meta" id="rightMeta">&nbsp;</div>
+          <div class="page-body" id="rightBody"></div>
+          <div class="page-footer-num" id="rightPageNum">Page 2</div>
+        </article>
+      </div>
+
+      <div class="nav-row">
+        <button class="nav-btn" id="prevBtn">&laquo; Previous</button>
+        <button class="nav-btn" id="nextBtn">Next &raquo;</button>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <section class="notes-wrap">
+      <div class="notes-title">STUDY NOTES · LOCAL TO YOUR BROWSER</div>
+      <div class="notes-subtitle">
+        Reflect and write about each story here.
+      </div>
+      <textarea class="notes-area" id="notesArea" placeholder="What thoughts or emotions does this story bring up?"></textarea>
+      <div class="notes-foot">Notes are saved locally in this browser only.</div>
+    </section>
+  </div>
+
+  <!-- Table of Contents Modal -->
+  <div class="toc-overlay" id="tocOverlay">
+    <div class="toc-modal">
+      <div class="toc-close" id="tocClose">CLOSE</div>
+      <div class="toc-title">TABLE OF CONTENTS</div>
+      <div class="toc-subtitle" id="tocBookLabel">Story Chapters</div>
+      <ul class="toc-list" id="tocList"></ul>
+    </div>
+  </div>
+
+<script>
+/***********************
+ * DATA
+ ***********************/
+const STORIES = [
+  {
+    id: "story1",
+    label: "Stars Went Silent",
+    title: "The Day the Stars Went Silent",
+    subtitle: "A Cosmic Mystery",
+    text: `In the year 2147, astronomers around the world were stunned when the night sky suddenly went dark.  Literally. Not just a cloudy night or a solar eclipse, but the stars themselves seemed to vanish. Every telescope pointed upward returned empty, blank patches where constellations had always been.
+
+The world was in a frenzy. Had some cosmic catastrophe swallowed the stars? Was it the end of light in the universe? People joked nervously about being stuck in eternal night.
+
+But then, the unexpected happened. A mysterious signal began pulsing from the heart of the Milky Way.  Something no one had ever detected before. It wasn’t random noise but an intelligent pattern, a message encoded in bursts of light frequencies, arriving at Earth like a cosmic Morse code.
+
+Scientists deciphered it bit by bit. The stars had not disappeared, they had been muted.
+
+The message came from an ancient, super-advanced alien civilization who had developed a way to dim stars across vast distances to shield themselves from a dangerous cosmic predator,  A dark energy creature that feeds on starlight and light-based life.
+
+The stars we see are like campfires in the dark forest of space. This alien race had dimmed the campfires to hide. But that predator was now moving closer and the dimming was spreading, threatening our own solar system next.
+
+Earth’s brightest minds had to work together like never before to send a message back, one that said, “We see you. We understand. We want to help.” Humanity raced to develop new technology to amplify starlight rather than just dim it, lighting up beacons to warn the predator away.
+
+And the stars? Slowly, one by one, they began to flicker back into the sky, brighter and more brilliant than ever.  Proof that sometimes even the darkest mysteries can bring out the brightest hope.`
+  },
+  {
+    id: "story2",
+    label: "The Last Light",
+    title: "The Last Light",
+    subtitle: "An Astral Tale",
+    text: `The last light of the dying star flickered weakly...`
+  }
+];
+
+/***********************
+ * STATE
+ ***********************/
+let currentStory = null;
+let pages = [];
+let currentPageIndex = 0;
+
+/***********************
+ * ELEMENTS
+ ***********************/
+const shelfEl = document.getElementById("libraryShelf");
+const leftHeadingEl = document.getElementById("leftHeading");
+const leftTitleEl = document.getElementById("leftTitle");
+const leftMetaEl = document.getElementById("leftMeta");
+const leftBodyEl = document.getElementById("leftBody");
+const leftPageNumEl = document.getElementById("leftPageNum");
+
+const rightHeadingEl = document.getElementById("rightHeading");
+const rightTitleEl = document.getElementById("rightTitle");
+const rightMetaEl = document.getElementById("rightMeta");
+const rightBodyEl = document.getElementById("rightBody");
+const rightPageNumEl = document.getElementById("rightPageNum");
+
+const pageIndicatorEl = document.getElementById("pageIndicator");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const notesArea = document.getElementById("notesArea");
+
+/***********************
+ * PAGINATION
+ ***********************/
+function paginateText(text, charsPerPage = 900) {
+  const words = text.split(" ");
+  const pages = [];
+  let buffer = "";
+
+  words.forEach(word => {
+    if ((buffer + word).length > charsPerPage) {
+      pages.push(buffer.trim());
+      buffer = word + " ";
+    } else {
+      buffer += word + " ";
+    }
+  });
+
+  if (buffer.trim()) pages.push(buffer.trim());
+  return pages;
+}
+
+/***********************
+ * RENDERING
+ ***********************/
+function renderSpread() {
+  const totalSpreads = Math.ceil(pages.length / 2);
+  const spreadIndex = Math.floor(currentPageIndex / 2) + 1;
+
+  const left = pages[currentPageIndex] || "";
+  const right = pages[currentPageIndex + 1] || "";
+
+  leftHeadingEl.textContent = "Story";
+  leftTitleEl.textContent = currentStory.title;
+  leftMetaEl.textContent = currentStory.subtitle;
+  leftBodyEl.textContent = left;
+  leftPageNumEl.textContent = `Page ${currentPageIndex + 1}`;
+
+  rightHeadingEl.textContent = "";
+  rightTitleEl.textContent = "";
+  rightMetaEl.textContent = "";
+  rightBodyEl.textContent = right;
+  rightPageNumEl.textContent = right ? `Page ${currentPageIndex + 2}` : "";
+
+  pageIndicatorEl.textContent = `Spread ${spreadIndex} of ${totalSpreads}`;
+
+  prevBtn.disabled = currentPageIndex === 0;
+  nextBtn.disabled = currentPageIndex >= pages.length - 2;
+}
+
+/***********************
+ * STORY LOADING
+ ***********************/
+function loadStory(story) {
+  currentStory = story;
+  pages = paginateText(story.text);
+  currentPageIndex = 0;
+
+  notesArea.value = localStorage.getItem(`notes_${story.id}`) || "";
+  renderSpread();
+
+  document.querySelectorAll(".volume-pill").forEach(p => p.classList.remove("active"));
+  document.getElementById(story.id).classList.add("active");
+}
+
+/***********************
+ * SHELF
+ ***********************/
+function buildShelf() {
+  STORIES.forEach(story => {
+    const pill = document.createElement("button");
+    pill.className = "volume-pill";
+    pill.id = story.id;
+    pill.textContent = story.label;
+    pill.onclick = () => loadStory(story);
+    shelfEl.appendChild(pill);
+  });
+}
+
+/***********************
+ * EVENTS
+ ***********************/
+prevBtn.onclick = () => {
+  if (currentPageIndex > 0) {
+    currentPageIndex -= 2;
+    renderSpread();
+  }
+};
+
+nextBtn.onclick = () => {
+  if (currentPageIndex < pages.length - 2) {
+    currentPageIndex += 2;
+    renderSpread();
+  }
+};
+
+notesArea.addEventListener("input", () => {
+  if (currentStory) {
+    localStorage.setItem(`notes_${currentStory.id}`, notesArea.value);
+  }
+});
+
+/***********************
+ * INIT
+ ***********************/
+buildShelf();
+loadStory(STORIES[0]);
+</script>
+  
+  </body> 
+</html>
