@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Verve N Veda — Begin a Collaboration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #000000;
+      --ink: #ffffff;
+      --ink-soft: #cccccc;
+      --line-soft: rgba(255,255,255,0.18);
+      --radius: 7px;
+      --shadow: 0 21px 40px rgba(0,0,0,0.72);
+      --accent: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    /* ===== Page Shell ===== */
+
+    .vv-collab-page {
+      min-height: 100vh;
+      padding: 54px 21px 66px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .vv-max {
+      width: 100%;
+      max-width: 888px; /* 8x111 */
+      margin: 0 auto;
+    }
+
+    /* ===== Breadcrumb ===== */
+
+    .vv-breadcrumb {
+      margin-bottom: 21px;
+      text-align: left;
+    }
+
+    .vv-breadcrumb-link {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #aaaaaa;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .vv-breadcrumb-link::before {
+      content: "←";
+      font-size: 12px;
+    }
+
+    .vv-breadcrumb-link:hover {
+      color: #ffffff;
+    }
+
+    /* ===== Top Brand + Hero ===== */
+
+    .vv-brand-mini {
+      font-family: "Cinzel", "Times New Roman", serif;
+      font-size: 14px;
+      letter-spacing: 0.21em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 21px;
+      color: #bbbbbb;
+    }
+
+    .vv-collab-hero {
+      text-align: center;
+      margin-bottom: 54px;
+    }
+
+    .vv-logo-wrap {
+      max-width: 144px;
+      margin: 0 auto 27px;
+    }
+
+    .vv-hero-title {
+      font-family: "Cinzel", "Times New Roman", serif;
+      font-size: 24px;
+      letter-spacing: 0.21em;
+      text-transform: uppercase;
+      margin: 0 0 14px;
+    }
+
+    .vv-hero-sub {
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 540px;
+      margin: 0 auto 27px;
+      color: var(--ink-soft);
+    }
+
+    .vv-hero-cta {
+      display: inline-block;
+      padding: 11px 27px;
+      border-radius: var(--radius);
+      border: 1px solid var(--accent);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 11px;
+      background: var(--accent);
+      color: #000000;
+      transition: all 180ms ease-out;
+    }
+
+    .vv-hero-cta:hover {
+      background: #f5f5f5;
+      transform: translateY(-1px);
+    }
+
+    /* ===== Sections ===== */
+
+    .vv-section {
+      margin-bottom: 54px;
+    }
+
+    .vv-section-title {
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      color: #e2e2e2;
+    }
+
+    .vv-section-sub {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.7;
+      max-width: 620px;
+      margin-bottom: 21px;
+    }
+
+    /* Cards grid */
+
+    .vv-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 21px;
+    }
+
+    .vv-card {
+      border-radius: 14px;
+      border: 1px solid var(--line-soft);
+      background: radial-gradient(circle at top left, #161616 0%, #050505 72%);
+      padding: 18px 21px 21px;
+      box-shadow: var(--shadow);
+    }
+
+    .vv-card-title {
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+      color: #f0f0f0;
+    }
+
+    .vv-card-body {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+    }
+
+    .vv-card-body ul {
+      margin: 9px 0 0;
+      padding-left: 18px;
+      font-size: 13px;
+    }
+
+    .vv-card-body li {
+      margin-bottom: 4px;
+    }
+
+    /* Single wide card */
+
+    .vv-card-wide {
+      border-radius: 14px;
+      border: 1px solid var(--line-soft);
+      background: radial-gradient(circle at top left, #141414 0%, #050505 72%);
+      padding: 18px 21px 21px;
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+    }
+
+    .vv-card-wide ul {
+      margin: 9px 0 0;
+      padding-left: 18px;
+    }
+
+    .vv-card-wide li {
+      margin-bottom: 4px;
+    }
+
+    /* ===== Form ===== */
+
+    .vv-form-shell {
+      border-radius: 21px;
+      border: 1px solid var(--line-soft);
+      background: #050505;
+      padding: 27px 27px 33px;
+      box-shadow: var(--shadow);
+      margin-bottom: 21px;
+    }
+
+    .vv-form-title {
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+      color: #f0f0f0;
+    }
+
+    .vv-form-note {
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-bottom: 21px;
+      line-height: 1.7;
+    }
+
+    .vv-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 18px 21px;
+      margin-bottom: 21px;
+    }
+
+    .vv-form-row-full {
+      margin-bottom: 18px;
+    }
+
+    .vv-label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+      color: #e0e0e0;
+    }
+
+    .vv-input,
+    .vv-textarea,
+    .vv-select {
+      width: 100%;
+      padding: 9px 11px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.25);
+      background: #000000;
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 150ms ease-out, box-shadow 150ms ease-out, background 150ms ease-out;
+    }
+
+    .vv-input::placeholder,
+    .vv-textarea::placeholder {
+      color: rgba(255,255,255,0.4);
+    }
+
+    .vv-input:focus,
+    .vv-textarea:focus,
+    .vv-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.36);
+      background: #050505;
+    }
+
+    .vv-textarea {
+      min-height: 108px;
+      resize: vertical;
+    }
+
+    .vv-select {
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #ffffff 50%),
+                        linear-gradient(135deg, #ffffff 50%, transparent 50%);
+      background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
+      background-size: 7px 7px, 7px 7px;
+      background-repeat: no-repeat;
+    }
+
+    .vv-consent-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      font-size: 12px;
+      color: var(--ink-soft);
+      margin-bottom: 21px;
+    }
+
+    .vv-checkbox {
+      margin-top: 3px;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .vv-submit-row {
+      text-align: right;
+    }
+
+    .vv-submit-btn {
+      padding: 11px 27px;
+      border-radius: var(--radius);
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #000000;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 180ms ease-out;
+    }
+
+    .vv-submit-btn:hover {
+      background: #f5f5f5;
+      transform: translateY(-1px);
+    }
+
+    .vv-availability {
+      font-size: 12px;
+      color: var(--ink-soft);
+      text-align: center;
+      max-width: 540px;
+      margin: 0 auto 9px;
+    }
+
+    .vv-contact-email {
+      font-size: 12px;
+      color: var(--ink-soft);
+      text-align: center;
+      max-width: 540px;
+      margin: 0 auto 33px;
+    }
+
+    .vv-contact-email a {
+      text-decoration: underline;
+    }
+
+    /* ===== Thank You State ===== */
+
+    .vv-thankyou {
+      display: none;
+      margin-top: 27px;
+    }
+
+    .vv-thankyou-card {
+      border-radius: 21px;
+      border: 1px solid var(--line-soft);
+      background: radial-gradient(circle at top left, #151515 0%, #050505 72%);
+      padding: 27px 27px 33px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .vv-thankyou-title {
+      font-size: 14px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      color: #f0f0f0;
+    }
+
+    .vv-thankyou-text {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      max-width: 540px;
+      margin: 0 auto 21px;
+    }
+
+    .vv-thankyou-home-btn {
+      display: inline-block;
+      padding: 11px 27px;
+      border-radius: var(--radius);
+      border: 1px solid var(--accent);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-size: 11px;
+      background: transparent;
+      color: #ffffff;
+      transition: all 180ms ease-out;
+    }
+
+    .vv-thankyou-home-btn:hover {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+    }
+
+    @media (max-width: 720px) {
+      .vv-grid {
+        grid-template-columns: minmax(0,1fr);
+      }
+      .vv-form-grid {
+        grid-template-columns: minmax(0,1fr);
+      }
+      .vv-form-shell {
+        padding: 21px 18px 27px;
+      }
+      .vv-thankyou-card {
+        padding: 21px 18px 27px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="vv-collab-page">
+    <div class="vv-max">
+
+      <!-- Breadcrumb back home -->
+      <div class="vv-breadcrumb">
+        <a href="https://www.vervenveda.com" class="vv-breadcrumb-link">
+          Back to Home
+        </a>
+      </div>
+
+      <!-- Brand + Hero -->
+      <div class="vv-brand-mini">Verve N Veda</div>
+
+      <section class="vv-collab-hero">
+        <div class="vv-logo-wrap">
+          <!-- Monogram icon: black background, white symbol, no text -->
+          <svg viewBox="0 0 288 288" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+            <title>Verve N Veda — Monogram Icon</title>
+            <rect width="288" height="288" fill="#000000"/>
+            <circle cx="144" cy="144" r="108" fill="none" stroke="#FFFFFF" stroke-width="7" />
+            <circle cx="144" cy="144" r="72"  fill="none" stroke="#FFFFFF" stroke-width="3" />
+            <line x1="144" y1="72" x2="144" y2="216" stroke="#FFFFFF" stroke-width="3" />
+            <rect x="133.5" y="133.5" width="21" height="21" fill="#FFFFFF" transform="rotate(45 144 144)" />
+          </svg>
+        </div>
+
+        <h1 class="vv-hero-title">Begin a Collaboration</h1>
+        <p class="vv-hero-sub">
+          For artists, educators, builders, and guardians of new worlds who want
+          a sovereign, intentional partner. Every collaboration begins with a real story,
+          not a template.
+        </p>
+        <a href="#vv-collab-form" class="vv-hero-cta">Share Your Project</a>
+      </section>
+
+      <!-- Ways We Can Work Together -->
+      <section class="vv-section">
+        <h2 class="vv-section-title">Ways We Can Work Together</h2>
+        <p class="vv-section-sub">
+          These are not packages, but pathways. Choose the one that feels closest —
+          we’ll shape the details together.
+        </p>
+
+        <div class="vv-grid">
+          <div class="vv-card">
+            <div class="vv-card-title">Creative Systems &amp; Platforms</div>
+            <div class="vv-card-body">
+              Interfaces, tools, and portals that feel alive and coherent.
+              <ul>
+                <li>Design / refine interactive tools and widgets</li>
+                <li>Wix pages aligned to sacred structure</li>
+                <li>Integration with existing ecosystems and apps</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="vv-card">
+            <div class="vv-card-title">Story &amp; Language</div>
+            <div class="vv-card-body">
+              Words that match the frequency of the work.
+              <ul>
+                <li>Naming, taglines, and core narrative</li>
+                <li>Poetic / narrative copy for pages and tools</li>
+                <li>Organizing your content into a living Codex</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="vv-card">
+            <div class="vv-card-title">Education &amp; Academy</div>
+            <div class="vv-card-body">
+              Learning experiences for children, youth, and adults.
+              <ul>
+                <li>Portals and tools for academies and programs</li>
+                <li>Interactive lessons, games, and trackers</li>
+                <li>Curriculum-attuned, humane design</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="vv-card">
+            <div class="vv-card-title">Law, Structure &amp; Architecture</div>
+            <div class="vv-card-body">
+              Clarity around how your world fits together.
+              <ul>
+                <li>Visual frameworks for your ecosystem</li>
+                <li>Pages that explain your structures with care</li>
+                <li>Support with frameworks and logic (not legal advice)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Is This You? -->
+      <section class="vv-section">
+        <h2 class="vv-section-title">Is This You?</h2>
+        <div class="vv-card-wide">
+          This page is for you if:
+          <ul>
+            <li>You are building something for children, families, artists, or communities.</li>
+            <li>You care about ethics, sovereignty, and depth — not just speed or trends.</li>
+            <li>You want a collaborator, not a generic service.</li>
+            <li>You’re ready to share honestly about your project’s state: messy, emerging, or already live.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Collaboration Principles -->
+      <section class="vv-section">
+        <h2 class="vv-section-title">Collaboration Principles</h2>
+        <div class="vv-card-wide">
+          Every collaboration rests on a few simple agreements:
+          <ul>
+            <li><strong>Sovereignty.</strong> We design in a way that protects your voice, your people, and your data.</li>
+            <li><strong>Honesty.</strong> If it’s not a fit — in timing, capacity, or scope — that will be named clearly.</li>
+            <li><strong>Depth over volume.</strong> Fewer, better collaborations, not a constant churn of projects.</li>
+            <li><strong>Care for capacity.</strong> Work moves at a sustainable pace. No burnout worship here.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Collaboration Form -->
+      <section class="vv-section" id="vv-collab-form">
+        <div class="vv-form-shell" id="vv-form-shell">
+          <div class="vv-form-title">Share Your Project</div>
+          <div class="vv-form-note">
+            This form begins a conversation — it is not a contract or a promise.
+            Share as much as feels right. You can always add more later.
+          </div>
+
+          <!-- Front-end only thank-you; wire to Wix form logic if you want real submissions -->
+          <form action="#" method="post" novalidate id="vv-collab-form-form">
+            <div class="vv-form-grid">
+              <div>
+                <label class="vv-label" for="vv-name">Name</label>
+                <input class="vv-input" type="text" id="vv-name" name="name" placeholder="Your name" />
+              </div>
+
+              <div>
+                <label class="vv-label" for="vv-email">Email</label>
+                <input class="vv-input" type="email" id="vv-email" name="email" placeholder="you@example.com" />
+              </div>
+
+              <div>
+                <label class="vv-label" for="vv-project-name">Project / Organization</label>
+                <input class="vv-input" type="text" id="vv-project-name" name="project_name" placeholder="Optional" />
+              </div>
+
+              <div>
+                <label class="vv-label" for="vv-location">Where are you in the world?</label>
+                <input class="vv-input" type="text" id="vv-location" name="location" placeholder="City, Country (optional)" />
+              </div>
+            </div>
+
+            <div class="vv-form-row-full">
+              <label class="vv-label" for="vv-story">What are you dreaming of building or evolving?</label>
+              <textarea
+                class="vv-textarea"
+                id="vv-story"
+                name="story"
+                placeholder="Tell the story in your own words. You can include links or context here."
+              ></textarea>
+            </div>
+
+            <div class="vv-form-grid">
+              <div>
+                <label class="vv-label" for="vv-lane">Which lane fits you best?</label>
+                <select class="vv-select" id="vv-lane" name="lane">
+                  <option value="">Select one</option>
+                  <option value="creative-systems">Creative Systems &amp; Platforms</option>
+                  <option value="story-language">Story &amp; Language</option>
+                  <option value="education-academy">Education &amp; Academy</option>
+                  <option value="law-structure">Law, Structure &amp; Architecture</option>
+                  <option value="not-sure">Not sure yet</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="vv-label" for="vv-stage">What stage are you in?</label>
+                <select class="vv-select" id="vv-stage" name="stage">
+                  <option value="">Select one</option>
+                  <option value="exploring">Just exploring ideas</option>
+                  <option value="pieces">I have pieces and need them organized</option>
+                  <option value="live-refine">I have something live and want to refine or expand</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="vv-label" for="vv-timeline">Ideal timeframe</label>
+                <select class="vv-select" id="vv-timeline" name="timeline">
+                  <option value="">Select one</option>
+                  <option value="flexible">Open / flexible</option>
+                  <option value="1-3-months">Within 1–3 months</option>
+                  <option value="3-6-months">3–6 months</option>
+                  <option value="longer">Longer / ongoing</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="vv-label" for="vv-budget">Budget range (optional)</label>
+                <input
+                  class="vv-input"
+                  type="text"
+                  id="vv-budget"
+                  name="budget"
+                  placeholder="Whatever language feels comfortable to you"
+                />
+              </div>
+            </div>
+
+            <div class="vv-form-row-full">
+              <label class="vv-label" for="vv-links">Relevant links</label>
+              <textarea
+                class="vv-textarea"
+                id="vv-links"
+                name="links"
+                placeholder="Websites, galleries, documents, or anything else you'd like me to see."
+              ></textarea>
+            </div>
+
+            <div class="vv-form-row-full">
+              <label class="vv-label" for="vv-most">What matters most to you in this collaboration?</label>
+              <textarea
+                class="vv-textarea"
+                id="vv-most"
+                name="most_important"
+                placeholder="Trust, sovereignty, clarity, playfulness, pace — or anything else you want to name."
+              ></textarea>
+            </div>
+
+            <div class="vv-consent-row">
+              <input class="vv-checkbox" type="checkbox" id="vv-consent" name="consent" />
+              <label for="vv-consent">
+                I understand that submitting this form does not guarantee a project,
+                but it does begin a real conversation.
+              </label>
+            </div>
+
+            <div class="vv-submit-row">
+              <button type="submit" class="vv-submit-btn">Send Collaboration Request</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Availability + direct email -->
+        <p class="vv-availability">
+          Currently welcoming new collaborations on a limited basis.
+          If our timing or scope is not aligned, I will let you know with care and honesty.
+        </p>
+
+        <p class="vv-contact-email">
+          Prefer email? You can reach me at
+          <a href="mailto:vervenveda@proton.me">vervenveda@proton.me</a>.
+        </p>
+
+        <!-- Thank-you state -->
+        <div class="vv-thankyou" id="vv-thankyou">
+          <div class="vv-thankyou-card">
+            <div class="vv-thankyou-title">Thank you for reaching out.</div>
+            <p class="vv-thankyou-text">
+              Your collaboration request has been received in this space.
+              I’m excited to connect, read through your story, and see how we might work together.
+            </p>
+            <a href="https://www.vervenveda.com" class="vv-thankyou-home-btn">
+              Return Home
+            </a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var form = document.getElementById('vv-collab-form-form');
+      var shell = document.getElementById('vv-form-shell');
+      var thank = document.getElementById('vv-thankyou');
+
+      if (!form || !shell || !thank) return;
+
+      form.addEventListener('submit', function (e) {
+        // Front-end confirmation only.
+        // In Wix, wire this to an actual handler if you want emails / storage.
+        e.preventDefault();
+        shell.style.display = 'none';
+        thank.style.display = 'block';
+
+        // Scroll to thank-you smoothly
+        var rect = thank.getBoundingClientRect();
+        var offsetTop = rect.top + window.pageYOffset - 72;
+        window.scrollTo({ top: offsetTop, behavior: 'smooth' });
+      });
+    })();
+  </script>
+</body>
+</html>
