@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Poemfolio™</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --midnight: #0b1020;
+      --parchment: #F5F5F5;
+      --gold: #d9b878;
+      --gold-deep: #b89252;
+      --gold-root: #7a5a28;
+      --card-shadow: 0 7px 21px rgba(0,0,0,0.21);
+      --admin-btn: #d94444;
+    }
+    body {
+      background: #FCFCFC;
+      font-family: 'Cormorant Garamond', serif;
+      color: #322b23;
+      margin: 0;
+      padding: 0;
+      min-height: 222vh;
+      display: flex;
+      flex-direction: row;
+    }
+    .sidebar {
+      width: 222px;
+      background: #EDEDED;
+      padding:66px 3px 11px;
+      border-right: 2px solid #9E9E9E;
+      box-shadow: 2px 0 7px #d9b87833;
+      height: 100vh;
+      overflow-y: auto;
+      position: fixed;
+    }
+    .poemfolio-wrap {
+      flex: 2;
+      margin-left: 222px;
+      padding: 7px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 44px;
+      color: var(--gold-root);
+      margin-bottom: 21px;
+    }
+    .toc-title {
+      font-family: 'Cinzel', serif;
+      font-size: 24px;
+      color: var(--gold-root);
+      margin-top: 24px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .toc-list {
+      list-style: none;
+      padding: 3px;
+      text-align: center;
+    }
+    .toc-list li {
+      margin: 11px 0;
+      font-size: 24px;
+      color: #7a5a28;
+      cursor: pointer;
+      font-weight: 600;
+      transition: color 0.15s, text-decoration 0.15s;
+    }
+    .toc-list li:hover {
+      color: var(--gold-deep);
+      text-decoration: underline;
+    }
+    .toc-list li.active {
+      color: var(--gold-deep);
+      text-decoration: underline;
+    }
+    .poem-display-window {
+      background: #EDEDED;
+      padding: 27px 21px;
+      border-radius: 7px;
+      box-shadow: var(--card-shadow);
+      margin-top: 24px;
+      text-align: center;
+      max-width: 666px;
+      min-height: 120px;
+    }
+    .poem-card { }
+    .poem-title {
+      font-family: 'Cinzel', serif;
+      font-size: 33px;
+      color: var(--gold-root);
+      font-weight: 666;
+      margin-bottom: 11px;
+    }
+    .poem-authors {
+      font-size: 20px;
+      color: var(--gold);
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+    .poem-text {
+      font-size: 22px;
+      line-height: 1.55;
+      color: #322b23;
+      text-align: center;
+      padding: 0 14px;
+      white-space: pre-wrap;
+    }
+    .admin-btn {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      width: 33px; height: 33px;
+      border-radius: 50%;
+      background: var(--admin-btn);
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 22px;
+      box-shadow: 0 3px 7px #b8925277;
+      border: none;
+      cursor: pointer;
+      z-index: 1002;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .admin-btn.active {
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--admin-btn);
+    }
+    .admin-panel {
+      display: none;
+      position: fixed;
+      top: 66px;
+      right: 18px;
+      background: #fff8;
+      padding: 18px 21px 21px;
+      border-radius: 21px;
+      box-shadow: 0 9px 21px #0b102077;
+      z-index: 1001;
+      min-width: 312px;
+      backdrop-filter: blur(4px);
+    }
+    .admin-panel.active { display: block; }
+    .admin-title {
+      font-family: 'Cinzel', serif;
+      color: #7a5a28;
+      font-size: 21px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .input, textarea {
+      width: 100%;
+      border: 1px solid #e8d5a4;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: 15px;
+      background: #FCFCFC;
+      font-family: 'Cormorant Garamond', serif;
+      margin-bottom: 9px;
+    }
+    .button {
+      border: none;
+      border-radius: 11px;
+      padding: 7px 21px;
+      font-size: 15px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-deep));
+      color: var(--midnight);
+      box-shadow: 0 3px 7px #b8925240;
+      cursor: pointer;
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      margin-top: 7px;
+      transition: box-shadow 0.21s, filter 0.21s;
+    }
+    .button:hover {
+      box-shadow: 0 7px 21px #d9b87840;
+      filter: brightness(1.09) saturate(1.12);
+    }
+    .button-danger {
+      background: linear-gradient(90deg,#d94444,#8b1d1d);
+      color:#fff;
+    }
+
+    /* Share bar */
+    .share-bar{
+      margin-top:18px;
+      font-size:14px;
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      justify-content:center;
+      align-items:center;
+    }
+    .share-label{
+      font-weight:600;
+      color:#7a5a28;
+      margin-right:4px;
+    }
+    .share-btn{
+      border:none;
+      border-radius:999px;
+      padding:4px 10px;
+      font-size:13px;
+      background:#f0e4cf;
+      color:#322b23;
+      cursor:pointer;
+      font-family:'Cormorant Garamond', serif;
+    }
+    .share-btn:hover{
+      background:#e4d3b4;
+    }
+  </style>
+</head>
+<body>
+  <!-- Admin toggle -->
+  <button class="admin-btn" id="adminToggle" title="Admin">★</button>
+
+  <!-- Admin panel -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-title">Poemfolio Admin</div>
+    <form id="poemForm" autocomplete="off">
+      <div style="display:flex;justify-content:center;gap:10px;font-size:13px;margin-bottom:6px;">
+        <label><input type="radio" name="poemMode" value="add" checked> Add new</label>
+        <label><input type="radio" name="poemMode" value="edit"> Edit current</label>
+      </div>
+      <input class="input" type="text" id="newTitle" placeholder="Poem Title" required>
+      <input class="input" type="text" id="newAuthors" placeholder="Authors (e.g. Hope & Jenny)" value="Hope & Jenny" required>
+      <textarea class="input" id="newText" rows="6" placeholder="Write your poem here..." required></textarea>
+      <button class="button" type="submit">Save Poem</button>
+    </form>
+    <button class="button" type="button" id="exportBtn" style="margin-right:4px;">Export Poems (JSON)</button>
+    <button class="button" type="button" id="exportTxtBtn" style="margin-right:4px;">Export Poems (Text)</button>
+    <button class="button" type="button" id="exportCodeBtn" style="margin-right:4px;">Export as Code (DEFAULT_POEMS)</button>
+    <button class="button button-danger" type="button" id="deleteBtn">Delete Current Poem</button>
+    <button class="button button-danger" type="button" id="resetBtn" style="margin-top:7px;">Reset Poemfolio (This Browser)</button>
+  </div>
+
+  <!-- Sidebar TOC -->
+  <div class="sidebar">
+    <div class="toc-title">Poem Titles</div>
+    <ul class="toc-list" id="tocList"></ul>
+  </div>
+
+  <!-- Main Poemfolio -->
+  <div class="poemfolio-wrap">
+    <h1 style="margin-top: 80px;">Poemfolio</h1>
+    <div class="poemfolio-intro" style="max-width: 640px;">
+      <strong>Daily Poems For the Soul</strong><br><br>
+      These poems are woven in love, pain, truth, determination, and humility.  <br>Created with intention and heart.<br><br>
+      Each with their own quiet light.
+    </div>
+    <div class="poem-display-window" id="poemDisplay"></div>
+  </div>
+
+  <script>
+    // --- Config ---
+    const POEMFOLIO_URL = 'https://www.vervenveda.com/poemfolio';
+
+    // --- Default poems (baked-in Codex) ---
+    const DEFAULT_POEMS = [
+      {
+        title: "Lantern for the Weary Heart",
+        authors: "Jenny Pearl",
+        text: `
+
+When the world grows heavy
+and sorrow gathers like rain,
+set down the burdens
+that do not belong to your spirit.
+Let the softest part of you rise,
+quiet as a candle’s flame
+in a room gone dim.
+
+You are not the sum of the stories
+that flicker across distant screens,
+nor the ache of a world
+that asks too much,
+too soon,
+too often.
+
+There is a meadow inside you
+where wildflowers open
+even on cloudy days,
+where the wind knows your name
+and sings it softly.
+Not to wake you,
+but to remind you
+that you are never alone.
+
+Let today be a day
+to tuck sorrow in,
+to cradle your heart with kindness.
+Turn your face toward the smallest light,
+the laughter of a child,
+the memory of sun on your shoulders,
+the song that lingers when all else goes quiet.
+
+Rest here, beloved soul.
+You are allowed to be tender,
+to retreat,
+to hope again.
+
+Tomorrow, the world will wait.
+But today, let your own heart
+be enough.`
+      },
+      {
+        title: "Stand Tall Like the Old Oaks",
+        authors: "Jenny Pearl",
+        text: `
+
+When the world is a field of thunder,
+when voices fracture and the roads split,
+remember:
+every great forest began with seeds
+who braved the winter.
+Every morning, a dark sky
+before it broke into gold.
+Stand like the old oaks.
+Uncertain, but shining anyway.
+You are not the only one
+aching to find healing,
+not the only one
+dreaming of peace in the noise.
+Bravery is not the absence of fear,
+but rising despite it.
+Reaching for the hand beside you
+and saying, "We will weather this together.
+We will carry the light,
+even if the night is long."
+If you tremble,
+let it be the trembling of bravery.
+At sunrise, awake,
+and ready yourself to become
+what your heart always yearned for:
+unyielding,
+strong, compassionate, holding the line
+together.`
+      }
+    ];
+
+    // --- Admin state ---
+    let adminMode = false;
+    const adminToggle = document.getElementById('adminToggle');
+    const adminPanel  = document.getElementById('adminPanel');
+
+    // --- Safe load / save helpers ---
+    function loadPoems() {
+      try {
+        const raw = localStorage.getItem('poemfolio');
+        if (!raw) return DEFAULT_POEMS.slice();
+        const data = JSON.parse(raw);
+        if (!Array.isArray(data)) return DEFAULT_POEMS.slice();
+        const cleaned = data.filter(p => p && p.title && p.authors && p.text);
+        return cleaned.length ? cleaned : DEFAULT_POEMS.slice();
+      } catch (e) {
+        return DEFAULT_POEMS.slice();
+      }
+    }
+
+    function savePoems() {
+      try {
+        localStorage.setItem('poemfolio', JSON.stringify(poems));
+      } catch (e) {
+        console.warn('Could not save poems:', e);
+      }
+    }
+
+    let poems = loadPoems();
+    savePoems(); // normalize storage
+
+    const tocList      = document.getElementById('tocList');
+    const display      = document.getElementById('poemDisplay');
+    const form         = document.getElementById('poemForm');
+    const deleteBtn    = document.getElementById('deleteBtn');
+    const exportBtn    = document.getElementById('exportBtn');
+    const exportTxtBtn = document.getElementById('exportTxtBtn');
+    const exportCodeBtn= document.getElementById('exportCodeBtn');
+    const resetBtn     = document.getElementById('resetBtn');
+
+    const modeInputs = document.querySelectorAll('input[name="poemMode"]');
+    const newTitle   = document.getElementById('newTitle');
+    const newAuthors = document.getElementById('newAuthors');
+    const newText    = document.getElementById('newText');
+
+    let currentIndex = 0;
+
+    function getFormMode(){
+      let mode = 'add';
+      modeInputs.forEach(input => {
+        if (input.checked) mode = input.value;
+      });
+      return mode;
+    }
+
+    function fillFormFromCurrent(){
+      if (currentIndex < 0 || !poems[currentIndex]) return;
+      const p = poems[currentIndex];
+      newTitle.value   = p.title   || '';
+      newAuthors.value = p.authors || '';
+      newText.value    = p.text    || '';
+    }
+
+    function resetFormToBlank(){
+      newTitle.value = '';
+      newAuthors.value = 'Hope & Jenny';
+      newText.value = '';
+    }
+
+    modeInputs.forEach(input => {
+      input.addEventListener('change', () => {
+        const mode = getFormMode();
+        if (mode === 'edit') {
+          fillFormFromCurrent();
+        } else {
+          resetFormToBlank();
+        }
+      });
+    });
+
+    adminToggle.onclick = () => {
+      adminMode = !adminMode;
+      adminPanel.classList.toggle('active', adminMode);
+      adminToggle.classList.toggle('active', adminMode);
+      if (adminMode) {
+        // default to edit current when opening
+        modeInputs.forEach(input => {
+          input.checked = (input.value === 'edit');
+        });
+        fillFormFromCurrent();
+      }
+    };
+
+    // --- Render functions ---
+    function renderPoemByIndex(index) {
+      if (!poems.length || index < 0 || index >= poems.length) {
+        display.innerHTML = '<div class="poem-text">No poems yet. Use the ★ button to add one.</div>';
+        currentIndex = -1;
+        deleteBtn.disabled = true;
+        Array.from(tocList.children).forEach(li => li.classList.remove('active'));
+        return;
+      }
+      currentIndex = index;
+      const poem = poems[index];
+
+      display.innerHTML = '';
+
+      const card = document.createElement('div');
+      card.className = 'poem-card';
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'poem-title';
+      titleEl.textContent = poem.title;
+
+      const authorsEl = document.createElement('div');
+      authorsEl.className = 'poem-authors';
+      authorsEl.textContent = poem.authors;
+
+      const textEl = document.createElement('div');
+      textEl.className = 'poem-text';
+      textEl.textContent = poem.text;
+
+      card.appendChild(titleEl);
+      card.appendChild(authorsEl);
+      card.appendChild(textEl);
+
+      // Share bar
+      const shareBar = document.createElement('div');
+      shareBar.className = 'share-bar';
+      shareBar.innerHTML = `
+        <span class="share-label">Share this poem:</span>
+        <button type="button" class="share-btn" data-net="copy">Copy link</button>
+        <button type="button" class="share-btn" data-net="facebook">Facebook</button>
+        <button type="button" class="share-btn" data-net="twitter">X / Twitter</button>
+        <button type="button" class="share-btn" data-net="native">Share…</button>
+      `;
+      card.appendChild(shareBar);
+
+      display.appendChild(card);
+
+      Array.from(tocList.children).forEach((li, i) => {
+        li.classList.toggle('active', i === index);
+      });
+
+      deleteBtn.disabled = poems.length === 0;
+    }
+
+    function updateTOC() {
+      tocList.innerHTML = '';
+      poems.forEach((poem, i) => {
+        const li = document.createElement('li');
+        li.textContent = poem.title;
+        li.addEventListener('click', () => renderPoemByIndex(i));
+        tocList.appendChild(li);
+      });
+    }
+
+    // --- Admin: add / edit poem ---
+    form.onsubmit = function(e) {
+      e.preventDefault();
+      const title   = newTitle.value.trim();
+      const authors = newAuthors.value.trim();
+      const text    = newText.value.trim();
+      if (!title || !authors || !text) return;
+
+      const mode = getFormMode();
+
+      if (mode === 'edit' && currentIndex >= 0) {
+        // update existing poem
+        poems[currentIndex] = { title, authors, text };
+        savePoems();
+        updateTOC();
+        renderPoemByIndex(currentIndex);
+      } else {
+        // add new poem at top
+        poems.unshift({ title, authors, text });
+        savePoems();
+        updateTOC();
+        renderPoemByIndex(0);
+      }
+
+      form.reset();
+      newAuthors.value = 'Hope & Jenny';
+
+      adminMode = false;
+      adminPanel.classList.remove('active');
+      adminToggle.classList.remove('active');
+    };
+
+    // --- Admin: delete current poem ---
+    deleteBtn.addEventListener('click', () => {
+      if (currentIndex < 0 || !poems.length) return;
+      const poem = poems[currentIndex];
+      const ok = confirm('Delete this poem?\n\n"' + poem.title + '"');
+      if (!ok) return;
+
+      poems.splice(currentIndex, 1);
+      savePoems();
+      updateTOC();
+
+      if (poems.length) {
+        const nextIndex = Math.min(currentIndex, poems.length - 1);
+        renderPoemByIndex(nextIndex);
+      } else {
+        renderPoemByIndex(-1);
+      }
+    });
+
+    // --- Admin: export poems as JSON ---
+    exportBtn.addEventListener('click', () => {
+      if (!poems.length) {
+        alert('No poems to export.');
+        return;
+      }
+      const dataStr = JSON.stringify(poems, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate(), 10).padStart(2, '0');
+
+      a.href = url;
+      a.download = 'poemfolio_export_' + yyyy + '-' + mm + '-' + dd + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // --- Admin: export poems as plain text (print-ready) ---
+    exportTxtBtn.addEventListener('click', () => {
+      if (!poems.length) {
+        alert('No poems to export.');
+        return;
+      }
+
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate(), 10).padStart(2, '0');
+      const dateStr = yyyy + '-' + mm + '-' + dd;
+
+      const lines = [];
+      lines.push('Poemfolio Export ' + dateStr);
+      lines.push('');
+      poems.forEach((p, i) => {
+        lines.push('=== Poem ' + (i + 1) + ' ===');
+        lines.push(p.title);
+        lines.push('by ' + p.authors);
+        lines.push('');
+        lines.push(p.text);
+        lines.push('');
+      });
+
+      const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'poemfolio_export_' + dateStr + '.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // --- Admin: export poems as DEFAULT_POEMS code snippet ---
+    exportCodeBtn.addEventListener('click', () => {
+      if (!poems.length) {
+        alert('No poems to export.');
+        return;
+      }
+
+      const snippet =
+        '// Paste this over your DEFAULT_POEMS in Poemfolio\n' +
+        'const DEFAULT_POEMS = ' +
+        JSON.stringify(poems, null, 2) +
+        ';\n';
+
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate(), 10).padStart(2, '0');
+      const filename = 'poemfolio_DEFAULT_POEMS_' + yyyy + '-' + mm + '-' + dd + '.txt';
+
+      const blob = new Blob([snippet], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // --- Admin: reset local storage to baked-in defaults ---
+    resetBtn.addEventListener('click', () => {
+      const ok = confirm(
+        'Reset Poemfolio in this browser?\n\n' +
+        'This will clear your saved poems here and restore the built-in defaults.\n' +
+        'If you want to keep your current poems, export them first.'
+      );
+      if (!ok) return;
+      try {
+        localStorage.removeItem('poemfolio');
+      } catch (e) {}
+      poems = DEFAULT_POEMS.slice();
+      savePoems();
+      updateTOC();
+      renderPoemByIndex(0);
+    });
+
+    // --- Sharing helpers ---
+    function fallbackCopy(text){
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      temp.style.position = 'fixed';
+      temp.style.left = '-9999px';
+      document.body.appendChild(temp);
+      temp.select();
+      try{
+        document.execCommand('copy');
+        alert('Link copied to clipboard.');
+      } catch(e){
+        alert('Copy this link:\n' + text);
+      }
+      document.body.removeChild(temp);
+    }
+
+    function sharePoem(network){
+      if (currentIndex < 0 || !poems[currentIndex]) return;
+      const poem = poems[currentIndex];
+      const url = POEMFOLIO_URL;
+      const shareTitle = poem.title || 'Poemfolio';
+      const shareText = '"' + poem.title + '" by ' + poem.authors;
+
+      if (network === 'copy') {
+        const toCopy = url;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(toCopy)
+            .then(() => alert('Link copied to clipboard.'))
+            .catch(() => fallbackCopy(toCopy));
+        } else {
+          fallbackCopy(toCopy);
+        }
+        return;
+      }
+
+      if (network === 'native' && navigator.share) {
+        navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url
+        }).catch(() => {});
+        return;
+      }
+
+      let shareUrl = '';
+      if (network === 'facebook') {
+        shareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' +
+          encodeURIComponent(url) + '&quote=' + encodeURIComponent(shareText);
+      } else if (network === 'twitter') {
+        shareUrl = 'https://twitter.com/intent/tweet?url=' +
+          encodeURIComponent(url) + '&text=' + encodeURIComponent(shareText);
+      }
+
+      if (shareUrl) {
+        window.open(shareUrl, '_blank', 'noopener,noreferrer');
+      }
+    }
+
+    // Event delegation for share buttons
+    display.addEventListener('click', function(e){
+      const btn = e.target.closest('.share-btn');
+      if (!btn) return;
+      const net = btn.getAttribute('data-net');
+      sharePoem(net);
+    });
+
+    // Initial render
+    updateTOC();
+    renderPoemByIndex(0);
+  </script>
+</body>
+</html>
