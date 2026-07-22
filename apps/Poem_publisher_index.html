@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Daily Poem Publisher — Admin</title>
+<style>
+  :root{
+    --bg:#141414;
+    --panel:#1b1b1b;
+    --ink:#f2f0ea;
+    --muted:#bdb8ad;
+    --line:rgba(255,255,255,.10);
+    --accent:#d8d0c2;
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:radial-gradient(1200px 800px at 20% 0%, #202020, var(--bg));
+    color:var(--ink);
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    letter-spacing:.01em;
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:28px 16px 40px}
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:18px}
+  h1{margin:0;font-weight:500;letter-spacing:.08em;text-transform:uppercase;font-size:16px;color:var(--accent)}
+  .sub{margin:6px 0 0;color:var(--muted);font-size:14px;font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial}
+  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+  @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:16px;
+    box-shadow:0 18px 60px rgba(0,0,0,.35);
+  }
+  .card h2{
+    margin:0 0 10px;
+    font-size:13px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    font-weight:600;
+  }
+  label{
+    display:block;
+    margin:10px 0 6px;
+    font-size:12px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--muted);
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  }
+  input, textarea{
+    width:100%;
+    background:#101010;
+    border:1px solid var(--line);
+    color:var(--ink);
+    border-radius:12px;
+    padding:10px 12px;
+    outline:none;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    font-size:14px;
+  }
+  textarea{min-height:180px;resize:vertical;font-family: ui-serif, Georgia, "Times New Roman", serif;font-size:16px;line-height:1.55}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media (max-width:600px){ .row{grid-template-columns:1fr} }
+
+  .hint{
+    margin-top:8px;
+    color:var(--muted);
+    font-size:13px;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    line-height:1.4;
+  }
+  .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+  button{
+    border:1px solid var(--line);
+    background:#0f0f0f;
+    color:var(--ink);
+    padding:10px 12px;
+    border-radius:12px;
+    cursor:pointer;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    font-weight:600;
+    letter-spacing:.03em;
+  }
+  button.primary{
+    background:linear-gradient(180deg, rgba(216,208,194,.22), rgba(216,208,194,.10));
+    border-color:rgba(216,208,194,.35);
+  }
+  button:active{transform:translateY(1px)}
+  .mono{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size:12.5px;
+  }
+  .out{
+    width:100%;
+    min-height:260px;
+    padding:12px;
+    border-radius:12px;
+    background:#0c0c0c;
+    border:1px dashed rgba(216,208,194,.35);
+    color:#f2f0ea;
+    white-space:pre;
+    overflow:auto;
+  }
+  .previewWrap{margin-top:14px}
+  iframe{border:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Daily Poem Publisher — Admin</h1>
+      <div class="sub">Write today’s poem + attach a song, then generate a <b>locked embed</b> for your public page.</div>
+    </div>
+    <div class="sub" style="text-align:right;max-width:340px">
+      Tip: On Wix, paste the output into an <b>Embed HTML</b> element. Visitors won’t be able to change it.
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Today’s Entry</h2>
+
+      <div class="row">
+        <div>
+          <label>Date</label>
+          <input id="date" type="date"/>
+        </div>
+        <div>
+          <label>Title (optional)</label>
+          <input id="title" type="text" placeholder="A quiet title…"/>
+        </div>
+      </div>
+
+      <label>Poem</label>
+      <textarea id="poem" placeholder="Write today’s poem here…"></textarea>
+
+      <div class="row">
+        <div>
+          <label>Signature / Author (optional)</label>
+          <input id="author" type="text" placeholder="— Jennifer / Eiren / Verve N Veda"/>
+        </div>
+        <div>
+          <label>Short footer line (optional)</label>
+          <input id="footer" type="text" placeholder="Daily Poem • Verve N Veda"/>
+        </div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
+
+      <h2>Song of the Day</h2>
+
+      <label>Option A: Paste an embed iframe (Spotify/YouTube/SoundCloud)</label>
+      <textarea id="embed" class="mono" style="min-height:96px" placeholder='<iframe style="border-radius:12px" src="…" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>'></textarea>
+
+      <label>Option B: Or use an audio URL (mp3/m4a/ogg) you host somewhere</label>
+      <input id="audioUrl" type="text" placeholder="https://example.com/song.mp3"/>
+
+      <div class="hint">
+        If you use <b>Embed</b>, it will show exactly as pasted. If you use <b>Audio URL</b>, the widget will render an elegant audio player.
+      </div>
+
+      <div class="btns">
+        <button class="primary" id="genBtn">Generate Locked Embed</button>
+        <button id="previewBtn">Preview Below</button>
+        <button id="copyBtn">Copy Output</button>
+        <button id="resetBtn">Reset Form</button>
+      </div>
+    </section>
+
+    <aside class="card">
+      <h2>Locked Embed Output</h2>
+      <div class="hint">
+        This is the <b>public</b> snippet. Paste it into your website. It’s “locked” because it contains only display code + your content data.
+      </div>
+      <div id="output" class="out mono" aria-label="Locked embed output"></div>
+
+      <div class="previewWrap">
+        <h2 style="margin-top:14px">Preview</h2>
+        <div id="preview"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (id)=>document.getElementById(id);
+
+  // set today's date by default
+  const d = new Date();
+  const pad = n => String(n).padStart(2,"0");
+  $("date").value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+
+  function esc(s=""){
+    return String(s)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function makePublicEmbed(data){
+    // Public widget: fully self-contained.
+    // Includes your content as JSON in a script tag, read-only for visitors.
+    const json = JSON.stringify(data);
+
+    return `<!-- DAILY POEM WIDGET (LOCKED) -->
+<div id="vv-daily-poem-root"></div>
+<script type="application/json" id="vv-daily-poem-data">${esc(json)}</script>
+<script>
+(function(){
+  const root = document.getElementById("vv-daily-poem-root");
+  const dataEl = document.getElementById("vv-daily-poem-data");
+  if(!root || !dataEl) return;
+  let data = {};
+  try{ data = JSON.parse(dataEl.textContent || "{}"); }catch(e){ data = {}; }
+
+  const css = \`
+  :root{
+    --vv-bg:#151515;
+    --vv-ink:#f2f0ea;
+    --vv-muted:#bdb8ad;
+    --vv-line:rgba(255,255,255,.12);
+    --vv-accent:#d8d0c2;
+    --vv-radius:18px;
+  }
+  .vvWrap{
+    max-width:780px;
+    margin:0 auto;
+    padding:18px 14px;
+    color:var(--vv-ink);
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+  }
+  .vvCard{
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border:1px solid var(--vv-line);
+    border-radius:var(--vv-radius);
+    padding:18px;
+    box-shadow:0 18px 60px rgba(0,0,0,.35);
+  }
+  .vvTop{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+    margin-bottom:10px;
+  }
+  .vvKicker{
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    font-size:12px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--vv-accent);
+    margin:0;
+  }
+  .vvDate{
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    font-size:12px;
+    color:var(--vv-muted);
+    margin-top:2px;
+    white-space:nowrap;
+  }
+  .vvTitle{
+    margin:10px 0 0;
+    font-size:20px;
+    font-weight:500;
+    letter-spacing:.02em;
+  }
+  .vvPoem{
+    margin-top:12px;
+    font-size:17px;
+    line-height:1.65;
+    white-space:pre-wrap;
+  }
+  .vvSig{
+    margin-top:14px;
+    font-style:italic;
+    color:var(--vv-muted);
+    font-size:14px;
+  }
+  .vvSong{
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid var(--vv-line);
+  }
+  .vvSongLabel{
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--vv-accent);
+    margin:0 0 10px;
+  }
+  .vvAudio{
+    width:100%;
+    border-radius:12px;
+  }
+  .vvFooter{
+    margin-top:14px;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+    font-size:12px;
+    color:var(--vv-muted);
+    letter-spacing:.04em;
+  }
+  \`;
+
+  // inject style only inside this widget (scoped-ish by prefix)
+  const style = document.createElement("style");
+  style.textContent = css;
+  root.appendChild(style);
+
+  const card = document.createElement("div");
+  card.className = "vvWrap";
+  card.innerHTML = \`
+    <div class="vvCard" style="background:var(--vv-bg);">
+      <div class="vvTop">
+        <div>
+          <p class="vvKicker">\${escapeHtml(data.kicker || "Daily Poem")}</p>
+          \${data.title ? \`<div class="vvTitle">\${escapeHtml(data.title)}</div>\` : ""}
+        </div>
+        <div class="vvDate">\${escapeHtml(data.dateLabel || "")}</div>
+      </div>
+
+      <div class="vvPoem">\${escapeHtml(data.poem || "")}</div>
+      \${data.author ? \`<div class="vvSig">\${escapeHtml(data.author)}</div>\` : ""}
+
+      \${(data.embedHtml || data.audioUrl) ? \`
+        <div class="vvSong">
+          <p class="vvSongLabel">Song of the Day</p>
+          \${data.embedHtml ? \`<div>\${data.embedHtml}</div>\` : ""}
+          \${(!data.embedHtml && data.audioUrl) ? \`<audio class="vvAudio" controls preload="none" src="\${escapeAttr(data.audioUrl)}"></audio>\` : ""}
+        </div>
+      \` : ""}
+
+      \${data.footer ? \`<div class="vvFooter">\${escapeHtml(data.footer)}</div>\` : ""}
+    </div>
+  \`;
+
+  root.appendChild(card);
+
+  function escapeHtml(s=""){
+    return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  }
+  function escapeAttr(s=""){
+    return String(s).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+  }
+})();
+<\/script>
+<!-- END DAILY POEM WIDGET -->`;
+  }
+
+  function buildData(){
+    const date = $("date").value || "";
+    const title = $("title").value.trim();
+    const poem = $("poem").value.trim();
+    const author = $("author").value.trim();
+    const footer = $("footer").value.trim();
+    const embedHtmlRaw = $("embed").value.trim();
+    const audioUrl = $("audioUrl").value.trim();
+
+    // date label: nice readable
+    let dateLabel = "";
+    if(date){
+      try{
+        const dt = new Date(date + "T00:00:00");
+        dateLabel = dt.toLocaleDateString(undefined, { weekday:"long", year:"numeric", month:"long", day:"numeric" });
+      }catch(e){ dateLabel = date; }
+    }
+
+    // allow embed HTML as-is (admin-controlled)
+    const embedHtml = embedHtmlRaw || "";
+
+    return {
+      kicker: "Daily Poem",
+      dateISO: date,
+      dateLabel,
+      title,
+      poem,
+      author,
+      footer: footer || "Verve N Veda • Daily Poem",
+      embedHtml,
+      audioUrl: embedHtml ? "" : audioUrl // if embed is present, ignore audio url
+    };
+  }
+
+  function renderPreview(embed){
+    $("preview").innerHTML = embed;
+  }
+
+  $("genBtn").onclick = () => {
+    const data = buildData();
+    if(!data.poem){
+      alert("Please enter today’s poem first.");
+      return;
+    }
+    const embed = makePublicEmbed(data);
+    $("output").textContent = embed;
+    renderPreview(embed);
+  };
+
+  $("previewBtn").onclick = () => {
+    const embed = $("output").textContent.trim();
+    if(!embed){ alert("Generate the embed first."); return; }
+    renderPreview(embed);
+  };
+
+  $("copyBtn").onclick = async () => {
+    const text = $("output").textContent.trim();
+    if(!text){ alert("Nothing to copy yet. Generate the embed first."); return; }
+    try{
+      await navigator.clipboard.writeText(text);
+      alert("Copied. Paste into your site’s HTML Embed element.");
+    }catch(e){
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      alert("Copied (fallback). Paste into your site’s HTML Embed element.");
+    }
+  };
+
+  $("resetBtn").onclick = () => {
+    if(!confirm("Reset the form?")) return;
+    $("title").value = "";
+    $("poem").value = "";
+    $("author").value = "";
+    $("footer").value = "";
+    $("embed").value = "";
+    $("audioUrl").value = "";
+    $("output").textContent = "";
+    $("preview").innerHTML = "";
+  };
+})();
+</script>
+</body>
+</html>
