@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FleaPit — Sovereign Media Aggregator</title>
+
+<!-- ===================== STYLES ===================== -->
+<style>
+/* ===================== ROOT & THEME ===================== */
+:root {
+  --bg: #f7f9fc;
+  --fg: #111;
+  --card: #ffffff;
+  --muted: #6b7280;
+  --accent: #1e40af;
+  --border: #e5e7eb;
+}
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --fg: #e5e7eb;
+  --card: #020617;
+  --muted: #94a3b8;
+  --accent: #60a5fa;
+  --border: #1e293b;
+}
+
+/* ===================== BASE ===================== */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+h1, h2, h3, h4 {
+  font-family: "Cinzel", "Trajan Pro", "Cormorant SC", serif;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button {
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--fg);
+  padding: 0.4rem 0.7rem;
+}
+
+/* ===================== HEADER ===================== */
+header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header h1 {
+  font-size: 1.5rem;
+}
+
+.header-controls {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ===================== MAIN ===================== */
+main {
+  max-width: 1400px;
+  margin: auto;
+  padding: 1rem;
+}
+
+/* ===================== TOGGLES ===================== */
+.toggle-bar {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.toggle-bar button.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* ===================== SEARCH ===================== */
+.search-bar {
+  margin-bottom: 1rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+/* ===================== TOGGLE GROUP ===================== */
+.toggle-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.toggle-group label {
+  font-size: 0.9rem;
+}
+
+/* ===================== GRID ===================== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.video-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-thumb {
+  background: #000;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.video-body {
+  padding: 0.7rem;
+}
+
+.video-title {
+  font-weight: bold;
+  margin-bottom: 0.3rem;
+}
+
+.video-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ===================== RESOURCES ===================== */
+.resources {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.resource-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem;
+}
+
+/* ===================== PANEL ===================== */
+.panel {
+  padding: 16px;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ===================== FOOTER ===================== */
+footer {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+  margin-top: 2rem;
+}
+</style>
+</head>
+
+<body data-theme="light">
+
+<header>
+  <h1>FleaPit</h1>
+
+  <div class="header-controls">
+    <button id="darkToggle">🌙 Dark</button>
+    <button id="importBtn">Import</button>
+    <button id="exportBtn">Export</button>
+  </div>
+</header>
+
+<main>
+
+  <div class="toggle-bar">
+    <button class="active" data-view="grid">Grid</button>
+    <button data-view="category">Category</button>
+    <button data-view="platform">Platform</button>
+    <button data-view="resources">Resources</button>
+  </div>
+  
+  <button id="addLinkBtn">Add Video Link</button>
+
+  <div class="search-bar">
+    <input id="searchInput" placeholder="Search videos or resources…" />
+  </div>
+  
+  <div class="toggle-group">
+    <label><input type="checkbox" id="toggleEmbeds" checked> External Embeds</label>
+    <label><input type="checkbox" id="togglePlaylists" checked> Playlists</label>
+    <label><input type="checkbox" id="toggleEditor" checked> Video Editor</label>
+    <label><input type="checkbox" id="toggleResources" checked> Resources</label>
+  </div>
+
+  <!-- GRID VIEW -->
+  <section id="gridView" class="grid"></section>
+  
+  <!-- IMPORT / EXPORT PANEL -->
+  <section id="importExportPanel" class="panel hidden">
+    <h2>Import / Export</h2>
+    <button onclick="exportData()">Export FleaPit Data</button>
+    <input type="file" id="importFile" accept="application/json">
+  </section>
+
+  <!-- RESOURCES VIEW -->
+  <section id="resourcesView" class="resources" hidden></section>
+
+</main>
+
+<footer>
+  FleaPit © VerveN Veda & Khaemenes Academy — All Rights Reserved 2025
+</footer>
+
+<!-- ===================== SCRIPT ===================== -->
+<script>
+/* ===================== STATE ===================== */
+let currentView = "grid";
+let videos = [];
+let resources = [
+  { name:"Archive.org", desc:"Public domain films & media", url:"https://archive.org" },
+  { name:"PBS", desc:"Public broadcasting", url:"https://pbs.org" },
+  { name:"American Archive of Public Broadcasting", desc:"Historic public TV & radio", url:"https://americanarchive.org" },
+  { name:"Alan Lomax Archive", desc:"Traditional music & field recordings", url:"https://archive.culturalequity.org" },
+
+  { name:"Tubi", desc:"Free movies & TV", url:"https://tubitv.com" },
+  { name:"Pluto TV", desc:"Free live TV & movies", url:"https://pluto.tv" },
+  { name:"The Roku Channel", desc:"Free movies, shows & live TV", url:"https://therokuchannel.roku.com" },
+  { name:"Crackle", desc:"Free movies & original series", url:"https://www.crackle.com" },
+  { name:"Plex", desc:"Free movies, TV & personal media hub", url:"https://plex.tv" },
+
+  { name:"YouTube", desc:"User and official channel videos", url:"https://www.youtube.com" },
+  { name:"Vimeo", desc:"Independent film & creative video", url:"https://vimeo.com" },
+  { name:"Dailymotion", desc:"Global video sharing platform", url:"https://www.dailymotion.com" },
+  { name:"TED", desc:"Talks on ideas worth spreading", url:"https://www.ted.com/talks" },
+  { name:"WatchDocumentaries", desc:"Free documentary films", url:"https://watchdocumentaries.com" },
+
+  { name:"Yidio", desc:"Streaming search & aggregation", url:"https://www.yidio.com" },
+  { name:"OVGuide", desc:"Online video directory", url:"https://www.ovguide.com" },
+  { name:"VideoSift", desc:"Community-curated videos", url:"https://www.videosift.com" },
+
+  { name:"SoundCloud", desc:"Independent music & podcasts", url:"https://soundcloud.com" },
+  { name:"Bandcamp", desc:"Artist-driven music marketplace", url:"https://bandcamp.com" },
+  { name:"Audiomack", desc:"Free hip-hop & global music", url:"https://audiomack.com" },
+  { name:"Mixcloud", desc:"DJ mixes & radio shows", url:"https://www.mixcloud.com" },
+
+  { name:"Spotify", desc:"Subscription music streaming", url:"https://www.spotify.com" },
+  { name:"Apple Music", desc:"Subscription music streaming", url:"https://music.apple.com" },
+  { name:"Amazon Music", desc:"Music streaming & purchases", url:"https://music.amazon.com" },
+  { name:"YouTube Music", desc:"Music streaming & official videos", url:"https://music.youtube.com" },
+  { name:"Tidal", desc:"High-fidelity music streaming", url:"https://tidal.com" },
+  { name:"Deezer", desc:"Global music streaming service", url:"https://www.deezer.com" },
+  { name:"Qobuz", desc:"Hi-res music streaming & downloads", url:"https://www.qobuz.com" },
+
+  { name:"Netflix", desc:"Subscription movies & TV originals", url:"https://www.netflix.com" },
+  { name:"Amazon Prime Video", desc:"Movies, TV & originals", url:"https://www.primevideo.com" },
+  { name:"Hulu", desc:"TV shows, movies & originals", url:"https://www.hulu.com" },
+  { name:"Disney+", desc:"Disney, Pixar, Marvel & Star Wars", url:"https://www.disneyplus.com" },
+  { name:"Max", desc:"HBO movies, series & originals", url:"https://www.max.com" },
+  { name:"Paramount+", desc:"Movies, TV & live sports", url:"https://www.paramountplus.com" },
+  { name:"Peacock", desc:"NBCUniversal streaming platform", url:"https://www.peacocktv.com" },
+  { name:"Apple TV+", desc:"Original films & series", url:"https://tv.apple.com" },
+
+  { name:"Reuters", desc:"Global news", url:"https://reuters.com" },
+  { name:"BBC News", desc:"International news coverage", url:"https://www.bbc.com/news" },
+  { name:"Al Jazeera", desc:"International news network", url:"https://aljazeera.com" },
+  { name:"CNN", desc:"Global news & video", url:"https://www.cnn.com" },
+  { name:"National Geographic Videos", desc:"Science, nature & culture", url:"https://www.nationalgeographic.com/videos" },
+  { name:"Stereogum", desc:"Indie music news & culture", url:"https://www.stereogum.com" }
+
+
+  // ... add other resources as needed
+];
+
+/* ===================== ELEMENTS ===================== */
+const gridView = document.getElementById("gridView");
+const resourcesView = document.getElementById("resourcesView");
+const searchInput = document.getElementById("searchInput");
+
+/* ===================== RENDER ===================== */
+function renderGrid(filter="") {
+  gridView.innerHTML = "";
+  videos
+    .filter(v => v.title?.toLowerCase().includes(filter))
+    .forEach(v => {
+      const card = document.createElement("div");
+      card.className = "video-card";
+      card.innerHTML = `
+        <div class="video-thumb">Video</div>
+        <div class="video-body">
+          <div class="video-title">${v.title || "Untitled"}</div>
+          <div class="video-meta">${v.platform || "Local"}</div>
+        </div>`;
+      gridView.appendChild(card);
+    });
+}
+
+function renderResources(filter="") {
+  resourcesView.innerHTML = "";
+  resources
+    .filter(r => (r.name + r.desc).toLowerCase().includes(filter))
+    .forEach(r => {
+      const card = document.createElement("div");
+      card.className = "resource-card";
+      card.innerHTML = `
+        <h4>${r.name}</h4>
+        <p>${r.desc}</p>
+        <a href="${r.url}" target="_blank">Visit →</a>`;
+      resourcesView.appendChild(card);
+    });
+}
+
+/* ===================== VIEW SWITCH ===================== */
+document.querySelectorAll(".toggle-bar button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".toggle-bar button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentView = btn.dataset.view;
+    updateView();
+  };
+});
+
+function updateView() {
+  gridView.hidden = currentView !== "grid";
+  resourcesView.hidden = currentView !== "resources";
+}
+
+/* ===================== SEARCH ===================== */
+searchInput.oninput = e => {
+  const q = e.target.value.toLowerCase();
+  if(currentView === "resources") renderResources(q);
+  else renderGrid(q);
+};
+
+/* ===================== DARK MODE ===================== */
+document.getElementById("darkToggle").onclick = () => {
+  document.body.dataset.theme =
+    document.body.dataset.theme === "dark" ? "light" : "dark";
+};
+
+/* ===================== IMPORT / EXPORT ===================== */
+document.getElementById("exportBtn").onclick = () => {
+  const data = { app: "FleaPit", version: "1.0", exported: new Date().toISOString(), videos, resources };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "fleapit-export.json";
+  a.click();
+};
+
+document.getElementById("importBtn").onclick = () => {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json";
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      const data = JSON.parse(reader.result);
+      videos = data.videos || videos;
+      resources = data.resources || resources;
+      renderGrid();
+      renderResources();
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+};
+
+/* ===================== VIDEO SHORTCUTS ===================== */
+document.addEventListener("keydown", e => {
+  const video = document.querySelector("video");
+  if (!video) return;
+  if (e.key === " ") { e.preventDefault(); video.paused ? video.play() : video.pause(); }
+  if (e.key === "ArrowRight") video.currentTime += 5;
+  if (e.key === "ArrowLeft") video.currentTime -= 5;
+});
+
+/* ===================== INIT ===================== */
+renderGrid();
+renderResources();
+updateView();
+</script>
+
+</body>
+</html>
