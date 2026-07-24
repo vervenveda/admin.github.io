@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SixBit Bun™ — Nibble your files down.</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:wght@700;400&display=swap">
+  <style>
+    :root {
+      --header-bg: #23201b;
+      --accent: #ffe398;
+      --text: #f7f3e6;
+      --shadow: 0 8px 32px rgba(0,0,0,0.19);
+      --card-bg: #fffdf9;
+      --radius: 20px;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background: var(--header-bg);
+      margin: 0;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .header-wrap {
+      width: 100%;
+      max-width: 500px;
+      margin: 38px auto 10px auto;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 38px 26px 28px 26px;
+      text-align: center;
+      position: relative;
+    }
+    .mascot-img {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: #fff5d7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+      margin: 0 auto 12px auto;
+      overflow: hidden;
+    }
+    .mascot-img img {
+      width: 86px;
+      height: 86px;
+      object-fit: contain;
+    }
+    .brand-title {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: #2d1e13;
+      margin: 0;
+    }
+    .tagline {
+      font-size: 1.2rem;
+      margin: 6px 0 16px 0;
+      color: #8b652d;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+    .desc {
+      color: #3b2917;
+      font-size: 1.02rem;
+      margin: 0 0 14px 0;
+      line-height: 1.6;
+      text-align: left;
+    }
+    .desc b {
+      color: #4a3219;
+    }
+    .feature-list,
+    .howto-list {
+      margin: 0 0 12px 0;
+      padding-left: 18px;
+      text-align: left;
+      color: #49301a;
+      font-size: 0.99rem;
+      line-height: 1.5;
+    }
+    .section-label {
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: #815827;
+      text-align: left;
+    }
+    .attribution {
+      color: #b8a26d;
+      font-size: 0.95rem;
+      margin-top: 13px;
+      font-family: 'Inter',sans-serif;
+    }
+
+    /* Launch badge under the card, now linked */
+    .launch-badge {
+      margin: 4px auto 40px auto;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px dashed rgba(255, 227, 152, 0.7);
+      background: rgba(0, 0, 0, 0.28);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.35);
+      text-align: center;
+    }
+    .launch-badge a {
+      color: var(--accent);
+      font-size: 0.93rem;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-decoration: none;
+      display: block;
+    }
+    .launch-badge a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .header-wrap { padding: 18px 6vw 20px 6vw; }
+      .brand-title { font-size: 1.9rem; }
+      .mascot-img { width: 80px; height: 80px; }
+      .mascot-img img { width: 72px; height: 72px; }
+      .launch-badge { margin-bottom: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header-wrap">
+    <div class="mascot-img">
+      <!-- Replace with your mascot image path -->
+      <img src="sixbit-bun-mascot.png" alt="SixBit Bun Mascot">
+    </div>
+
+    <h1 class="brand-title">SixBit Bun™</h1>
+    <div class="tagline">Nibble your images down to pure code.</div>
+
+    <p class="desc">
+      <b>SixBit Bun™</b> is your friendly, sovereign
+      <b>batch image → base64 converter</b> — created for
+      illustrators, web designers, teachers, and developers who want
+      clean embeds without ever uploading files to a server.
+      Everything runs <b>100% in your browser</b> on your own device.
+    </p>
+
+    <div class="section-label">What SixBit Bun can do:</div>
+    <ul class="feature-list">
+      <li>Convert many images at once (PNG, JPG, GIF, WebP, SVG) into ready-to-embed <b>base64 code</b>.</li>
+      <li>Optionally <b>resize</b> images by max width and adjust <b>JPEG quality</b> for lighter pages.</li>
+      <li><b>Strip the data: prefix</b> when you only need the raw base64 string.</li>
+      <li><b>Minify SVG</b> (remove comments/extra spaces) for compact, clean vector code.</li>
+      <li>Choose whether to <b>wrap lines</b> for easier reading and copy/paste.</li>
+      <li>Use per-image buttons to <b>Copy</b>, <b>Download</b> (<code>.b64.txt</code>), or create a tiny
+        <b>BunLink</b> (<code>.sbbun.json</code>) file.</li>
+      <li>Keep a simple <b>History</b> of your recent conversions (this browser session only).</li>
+    </ul>
+
+    <div class="section-label">How to use this page:</div>
+    <ul class="howto-list">
+      <li><b>1.</b> Scroll down to the SixBit Bun app, then drag in images or click the drop area to choose files.</li>
+      <li><b>2.</b> Set optional resize width / JPEG quality, and toggle strip prefix, minify SVG, or wrap lines.</li>
+      <li><b>3.</b> Click <b>Convert All</b>. A card appears for each image with its preview and base64 code.</li>
+      <li><b>4.</b> Use <b>Copy</b> to put base64 on your clipboard, <b>Download</b> to save a text file, or
+          <b>BunLink</b> to create a small JSON file that you can bundle into
+          <b>KhaeZip™ Sovereign archives</b> or other Pearls Gamut tools.</li>
+      <li><b>5.</b> Nothing is ever uploaded or stored on our servers. Your images and code stay with you.</li>
+    </ul>
+
+    <p class="desc">
+      SixBit Bun™ is part of the <b>My Art Gallery &amp; Khaemenes Academy</b> tool family and is designed
+      to play nicely with <b>KhaeZip™</b>, Prose™, ARSHIF, and the wider Pearls Gamut ecosystem.
+    </p>
+
+    <div class="attribution">
+      © 2025 Jenny Pearl • SixBit Bun™ — All Rights Reserved.
+    </div>
+  </div>
+
+  <!-- Linked badge -->
+  <div class="launch-badge">
+    <a href="#sixbit-app">Launch SixBit Bun Nebula App ↓</a>
+  </div>
+
+  <!-- Your embedded app section should look something like this: -->
+  <!--
+  <div id="sixbit-app">
+    ...embed the Nebula SixBit Bun app iframe or HTML block here...
+  </div>
+  -->
+
+</body>
+</html>
