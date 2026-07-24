@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Ohmic CAD Foundry — Sovereign Local Studio</title>
+<style>
+:root{
+  --bg:#090d14;--panel:#111824;--panel2:#162130;--line:#26364a;--text:#eaf1f8;
+  --muted:#90a2b6;--accent:#5fd6c7;--accent2:#e2b86c;--danger:#ef7d7d;
+  --shadow:0 12px 30px rgba(0,0,0,.28);--radius:12px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font:14px/1.35 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+button,input,select,textarea{font:inherit}
+button{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:8px;padding:8px 10px;cursor:pointer}
+button:hover{border-color:var(--accent);filter:brightness(1.08)}
+button.active{background:var(--accent);color:#06110f;border-color:var(--accent);font-weight:800}
+button.danger{color:#ffdede;border-color:#6b3535}
+button.ghost{background:transparent}
+input,select,textarea{width:100%;background:#0b121c;color:var(--text);border:1px solid var(--line);border-radius:7px;padding:7px}
+input[type=color]{padding:2px;height:35px}
+label{color:var(--muted);font-size:12px}
+kbd{border:1px solid #41556c;border-bottom-width:2px;border-radius:5px;padding:1px 5px;color:#cbd8e5;background:#101a27}
+.app{display:grid;grid-template-rows:52px 1fr 28px;height:100%}
+.topbar{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--line);background:#0d141e;z-index:10}
+.brand{display:flex;align-items:center;gap:9px;min-width:245px}
+.mark{width:32px;height:32px;border:1px solid var(--accent);border-radius:8px;display:grid;place-items:center;color:var(--accent);font-weight:900}
+.brand strong{display:block;letter-spacing:.04em}
+.brand small{color:var(--muted)}
+.spacer{flex:1}
+.workspace{display:grid;grid-template-columns:76px minmax(300px,1fr) 310px;min-height:0}
+.toolbar{border-right:1px solid var(--line);background:#0e1621;padding:8px;overflow:auto}
+.tool{width:100%;display:grid;place-items:center;gap:3px;margin-bottom:7px;min-height:52px;padding:6px 2px;font-size:11px}
+.tool b{font-size:18px}
+.stage-wrap{position:relative;overflow:hidden;background:#080c12}
+#stage{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair;background:#0b1018}
+.hud{position:absolute;left:12px;bottom:12px;background:rgba(12,19,29,.88);border:1px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--muted);pointer-events:none}
+.crosshair{position:absolute;pointer-events:none;display:none}
+.crosshair:before,.crosshair:after{content:"";position:absolute;background:rgba(95,214,199,.5)}
+.crosshair:before{width:1px;height:100vh;top:-50vh;left:0}
+.crosshair:after{height:1px;width:100vw;left:-50vw;top:0}
+.sidebar{border-left:1px solid var(--line);background:#0e1621;overflow:auto;padding:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:10px;margin-bottom:10px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 9px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#dce8f4}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.row{display:flex;gap:7px;align-items:center}
+.row>*{min-width:0}
+.stack{display:grid;gap:7px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 7px;border-radius:999px;background:#142333;color:#a9bfd2;font-size:11px}
+.list{display:grid;gap:5px;max-height:170px;overflow:auto}
+.list button{display:flex;justify-content:space-between;text-align:left}
+.layer-row{display:grid;grid-template-columns:28px 1fr 28px;gap:5px;align-items:center}
+.statusbar{display:flex;align-items:center;gap:18px;padding:0 10px;background:#0d141e;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+.statusbar .right{margin-left:auto}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.62);display:none;place-items:center;z-index:50}
+.modal.open{display:grid}
+.dialog{width:min(760px,92vw);max-height:84vh;overflow:auto;background:#111a26;border:1px solid #34475d;border-radius:14px;padding:18px;box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.dialog h2{margin-top:0}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.notice{border-left:3px solid var(--accent2);padding:9px 10px;background:#1b1b18;color:#ead9b6;border-radius:6px}
+.empty{color:var(--muted);padding:8px;text-align:center;border:1px dashed var(--line);border-radius:7px}
+@media(max-width:950px){.workspace{grid-template-columns:64px 1fr}.sidebar{position:absolute;right:0;top:52px;bottom:28px;width:min(330px,88vw);z-index:20;transform:translateX(100%);transition:.2s}.sidebar.open{transform:none}.brand{min-width:auto}.brand small{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><div class="mark">Ω</div><div><strong>OHMIC CAD FOUNDRY</strong><small>Sovereign local 2D design studio</small></div></div>
+  <button id="newBtn">New</button><button id="saveBtn">Save</button><button id="openBtn">Projects</button>
+  <button id="undoBtn" title="Undo (Ctrl+Z)">↶</button><button id="redoBtn" title="Redo (Ctrl+Y)">↷</button>
+  <span class="spacer"></span>
+  <button id="gridBtn" class="active">Grid</button><button id="snapBtn" class="active">Snap</button>
+  <select id="unitSelect" style="width:90px"><option value="mm">mm</option><option value="cm">cm</option><option value="in">inches</option><option value="ft">feet</option></select>
+  <button id="exportBtn">Export ▾</button><button id="helpBtn">Help</button><button id="sideBtn">☰</button>
+</header>
+
+<div class="workspace">
+<nav class="toolbar" id="toolbar">
+  <button class="tool active" data-tool="select"><b>➤</b>Select</button>
+  <button class="tool" data-tool="pan"><b>✥</b>Pan</button>
+  <button class="tool" data-tool="line"><b>╱</b>Line</button>
+  <button class="tool" data-tool="wall"><b>▰</b>Wall</button>
+  <button class="tool" data-tool="rect"><b>▭</b>Room</button>
+  <button class="tool" data-tool="door"><b>◔</b>Door</button>
+  <button class="tool" data-tool="window"><b>═</b>Window</button>
+  <button class="tool" data-tool="dimension"><b>↔</b>Measure</button>
+  <button class="tool" data-tool="text"><b>T</b>Text</button>
+  <button class="tool" data-tool="symbol"><b>⌂</b>Symbol</button>
+  <button class="tool danger" data-action="delete"><b>⌫</b>Delete</button>
+</nav>
+
+<main class="stage-wrap" id="stageWrap">
+  <canvas id="stage" width="1600" height="900"></canvas>
+  <div class="crosshair" id="crosshair"></div>
+  <div class="hud" id="hud">Ready · Select tool</div>
+</main>
+
+<aside class="sidebar" id="sidebar">
+  <section class="card">
+    <h3>Project</h3>
+    <div class="stack">
+      <label>Name<input id="projectName" value="Untitled Project"></label>
+      <div class="grid2"><label>Sheet width<input id="sheetW" type="number" min="100" value="1200"></label><label>Sheet height<input id="sheetH" type="number" min="100" value="800"></label></div>
+      <div class="grid2"><label>Grid<input id="gridSize" type="number" min="1" value="25"></label><label>Scale<input id="scaleText" value="1:50"></label></div>
+      <button id="applySheet">Apply sheet</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Properties</h3>
+    <div id="noSelection" class="empty">Select an element to edit it.</div>
+    <div id="props" class="stack" hidden>
+      <label>Label<input id="pLabel"></label>
+      <div class="grid2"><label>X<input id="pX" type="number"></label><label>Y<input id="pY" type="number"></label></div>
+      <div class="grid2"><label>Width / X2<input id="pW" type="number"></label><label>Height / Y2<input id="pH" type="number"></label></div>
+      <div class="grid2"><label>Stroke<input id="pStroke" type="color"></label><label>Fill<input id="pFill" type="color"></label></div>
+      <div class="grid2"><label>Line width<input id="pLineWidth" type="number" min=".2" step=".2"></label><label>Rotation<input id="pRotation" type="number"></label></div>
+      <button id="applyProps">Apply properties</button>
+      <button id="duplicateBtn">Duplicate</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>CAD Library</h3>
+    <label>Category<select id="symbolCategory"><option>Architectural</option><option>Bathhouse</option><option>Landscape</option><option>Furniture</option><option>Utilities</option></select></label>
+    <label>Symbol<select id="symbolType"></select></label>
+    <button id="placeSymbolBtn">Use selected symbol</button>
+  </section>
+
+  <section class="card">
+    <h3>Layers</h3>
+    <div id="layers" class="list"></div>
+    <div class="row"><input id="newLayerName" placeholder="New layer"><button id="addLayerBtn">+</button></div>
+  </section>
+
+  <section class="card">
+    <h3>Objects</h3>
+    <div id="objectList" class="list"></div>
+  </section>
+
+  <section class="card">
+    <h3>View</h3>
+    <div class="grid2"><button id="zoomIn">Zoom +</button><button id="zoomOut">Zoom −</button></div>
+    <button id="fitBtn">Fit drawing</button>
+    <button id="clearBtn" class="danger">Clear drawing</button>
+  </section>
+</aside>
+</div>
+
+<footer class="statusbar">
+ <span id="coord">X 0 · Y 0</span><span id="zoomStatus">Zoom 100%</span><span id="objectCount">0 objects</span><span class="right">Local-only · no network required</span>
+</footer>
+</div>
+
+<div class="modal" id="projectModal"><div class="dialog"><div class="row"><h2 style="flex:1">Local Projects</h2><button data-close="projectModal">Close</button></div><div id="projectList" class="list"></div></div></div>
+<div class="modal" id="exportModal"><div class="dialog"><div class="row"><h2 style="flex:1">Export</h2><button data-close="exportModal">Close</button></div>
+<div class="grid2">
+<button data-export="json">Project JSON</button><button data-export="svg">Vector SVG</button>
+<button data-export="png">PNG image</button><button data-export="dxf">Basic DXF</button>
+</div><hr style="border-color:#26364a"><label>Import project JSON<input id="importInput" type="file" accept=".json,application/json"></label>
+<div class="notice">DXF export contains basic lines, rectangles and text. Complex symbols are exported as bounding geometry.</div></div></div>
+<div class="modal" id="helpModal"><div class="dialog"><div class="row"><h2 style="flex:1">Quick Guide</h2><button data-close="helpModal">Close</button></div>
+<div class="help-grid"><div><h3>Draw</h3><p>Choose a tool, click-drag on the sheet, then release. Doors, windows, text and library symbols are click-to-place.</p><h3>Edit</h3><p>Use Select, click an item, drag to move it, or edit precise values in Properties.</p></div>
+<div><h3>Navigation</h3><p>Mouse wheel zooms. Middle mouse or Pan tool moves the view. <kbd>Delete</kbd> removes selection.</p><h3>Storage</h3><p>Save writes project data only to this browser's localStorage. Export JSON for portable backups.</p></div></div>
+<div class="notice">This is a capable browser-based 2D CAD foundation, not a certified engineering, BIM, parametric-solid, or manufacturing CAD system. Verify dimensions before construction.</div></div></div>
+
+<script>
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const canvas=$("#stage"), ctx=canvas.getContext("2d"), wrap=$("#stageWrap");
+const state={
+  version:"1.0", name:"Untitled Project", units:"mm", scale:"1:50",
+  sheet:{w:1200,h:800}, grid:25, showGrid:true, snap:true,
+  camera:{x:120,y:70,zoom:.75}, tool:"select", selected:null,
+  layers:[{id:"walls",name:"Walls",visible:true},{id:"openings",name:"Doors & Windows",visible:true},{id:"fixtures",name:"Fixtures",visible:true},{id:"annotations",name:"Annotations",visible:true},{id:"landscape",name:"Landscape",visible:true}],
+  activeLayer:"walls", objects:[]
+};
+let history=[], future=[], drawing=null, dragging=null, panning=null, mouse={x:0,y:0,wx:0,wy:0};
+const uid=()=>crypto.randomUUID?.()||("id_"+Date.now()+"_"+Math.random().toString(16).slice(2));
+const clone=o=>JSON.parse(JSON.stringify(o));
+function pushHistory(){history.push(JSON.stringify(state));if(history.length>80)history.shift();future=[];updateUI()}
+function restore(s){Object.assign(state,JSON.parse(s));syncControls();render();updateUI()}
+function undo(){if(history.length<2)return;future.push(history.pop());restore(history.at(-1))}
+function redo(){if(!future.length)return;const s=future.pop();history.push(s);restore(s)}
+function worldToScreen(x,y){return{x:state.camera.x+x*state.camera.zoom,y:state.camera.y+y*state.camera.zoom}}
+function screenToWorld(x,y){return{x:(x-state.camera.x)/state.camera.zoom,y:(y-state.camera.y)/state.camera.zoom}}
+function snap(v){return state.snap?Math.round(v/state.grid)*state.grid:v}
+function layerVisible(id){return state.layers.find(l=>l.id===id)?.visible!==false}
+function resize(){const r=wrap.getBoundingClientRect(),dpr=devicePixelRatio||1;canvas.width=Math.max(1,r.width*dpr);canvas.height=Math.max(1,r.height*dpr);canvas.style.width=r.width+"px";canvas.style.height=r.height+"px";ctx.setTransform(dpr,0,0,dpr,0,0);render()}
+new ResizeObserver(resize).observe(wrap);
+
+function render(){
+ const r=wrap.getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);ctx.save();
+ ctx.translate(state.camera.x,state.camera.y);ctx.scale(state.camera.zoom,state.camera.zoom);
+ ctx.fillStyle="#f7f8fa";ctx.fillRect(0,0,state.sheet.w,state.sheet.h);
+ if(state.showGrid){
+  const step=state.grid;ctx.lineWidth=1/state.camera.zoom;
+  for(let x=0;x<=state.sheet.w;x+=step){ctx.strokeStyle=x%(step*5)===0?"#c7d0da":"#e7ebef";ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,state.sheet.h);ctx.stroke()}
+  for(let y=0;y<=state.sheet.h;y+=step){ctx.strokeStyle=y%(step*5)===0?"#c7d0da":"#e7ebef";ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(state.sheet.w,y);ctx.stroke()}
+ }
+ ctx.strokeStyle="#26364a";ctx.lineWidth=2/state.camera.zoom;ctx.strokeRect(0,0,state.sheet.w,state.sheet.h);
+ state.objects.filter(o=>layerVisible(o.layer)).forEach(drawObject);
+ if(drawing)drawObject({...drawing,preview:true});
+ ctx.restore();
+ $("#zoomStatus").textContent=`Zoom ${Math.round(state.camera.zoom*100)}%`;
+ $("#objectCount").textContent=`${state.objects.length} object${state.objects.length===1?"":"s"}`;
+}
+function applyStyle(o){
+ ctx.lineWidth=(o.lineWidth||3)/state.camera.zoom;ctx.strokeStyle=o.stroke||"#162536";ctx.fillStyle=o.fill||"transparent";
+ ctx.lineCap="round";ctx.lineJoin="round";
+}
+function drawObject(o){
+ ctx.save();applyStyle(o);
+ if(o.type==="line"||o.type==="wall"){
+   ctx.lineWidth=((o.type==="wall"?12:(o.lineWidth||3))/state.camera.zoom);
+   ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(o.x2,o.y2);ctx.stroke();
+ } else if(o.type==="rect"){
+   if(o.fill&&o.fill!=="#00000000"){ctx.fillRect(o.x,o.y,o.w,o.h)}
+   ctx.strokeRect(o.x,o.y,o.w,o.h);
+ } else if(o.type==="door"){
+   ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(o.x+o.w,o.y);ctx.stroke();
+   ctx.beginPath();ctx.arc(o.x,o.y,Math.abs(o.w),o.w>=0?0:Math.PI,o.w>=0?Math.PI/2:Math.PI*1.5);ctx.stroke();
+ } else if(o.type==="window"){
+   ctx.lineWidth=2/state.camera.zoom;for(const dy of [-4,4]){ctx.beginPath();ctx.moveTo(o.x,o.y+dy);ctx.lineTo(o.x+o.w,o.y+dy);ctx.stroke()}
+ } else if(o.type==="dimension"){
+   ctx.lineWidth=1/state.camera.zoom;ctx.beginPath();ctx.moveTo(o.x,o.y);ctx.lineTo(o.x2,o.y2);ctx.stroke();
+   const a=Math.atan2(o.y2-o.y,o.x2-o.x),len=Math.hypot(o.x2-o.x,o.y2-o.y);
+   for(const [x,y] of [[o.x,o.y],[o.x2,o.y2]]){ctx.beginPath();ctx.moveTo(x+Math.cos(a+2.6)*10,y+Math.sin(a+2.6)*10);ctx.lineTo(x,y);ctx.lineTo(x+Math.cos(a-2.6)*10,y+Math.sin(a-2.6)*10);ctx.stroke()}
+   ctx.save();ctx.translate((o.x+o.x2)/2,(o.y+o.y2)/2);ctx.rotate(a);ctx.fillStyle="#162536";ctx.font=`${13/state.camera.zoom}px sans-serif`;ctx.textAlign="center";ctx.fillText(`${len.toFixed(1)} ${state.units}`,0,-7/state.camera.zoom);ctx.restore();
+ } else if(o.type==="text"){
+   ctx.fillStyle=o.stroke||"#162536";ctx.font=`${(o.fontSize||18)/state.camera.zoom}px sans-serif`;ctx.fillText(o.text||"Label",o.x,o.y);
+ } else if(o.type==="symbol"){drawSymbol(o)}
+ if(state.selected===o.id){const b=bounds(o);ctx.setLineDash([7/state.camera.zoom,5/state.camera.zoom]);ctx.lineWidth=1.5/state.camera.zoom;ctx.strokeStyle="#00a88f";ctx.strokeRect(b.x-5/state.camera.zoom,b.y-5/state.camera.zoom,b.w+10/state.camera.zoom,b.h+10/state.camera.zoom);ctx.setLineDash([])}
+ ctx.restore();
+}
+function drawSymbol(o){
+ const x=o.x,y=o.y,w=o.w||60,h=o.h||60,t=o.symbol;
+ ctx.save();ctx.translate(x+w/2,y+h/2);ctx.rotate((o.rotation||0)*Math.PI/180);ctx.translate(-w/2,-h/2);
+ ctx.strokeRect(0,0,w,h);
+ ctx.font=`${Math.max(11,Math.min(w,h)*.22)/state.camera.zoom}px sans-serif`;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillStyle=o.stroke||"#162536";
+ const icon={Toilet:"WC",Sink:"SINK",Shower:"SHWR",Tub:"TUB",Bench:"BENCH",Plant:"✦",Tree:"TREE",Closet:"CLST",Table:"TABLE",Chair:"CHAIR",Stairs:"STAIR",Electrical:"ELEC",Plumbing:"PIPE"}[t]||t;
+ ctx.fillText(icon,w/2,h/2);ctx.restore();
+}
+function bounds(o){
+ if(["line","wall","dimension"].includes(o.type)){return{x:Math.min(o.x,o.x2),y:Math.min(o.y,o.y2),w:Math.abs(o.x2-o.x)||1,h:Math.abs(o.y2-o.y)||1}}
+ if(o.type==="text")return{x:o.x,y:o.y-24,w:(o.text||"Label").length*10,h:28};
+ return{x:o.x,y:o.y,w:o.w||60,h:o.h||60}
+}
+function hitTest(x,y){
+ const tol=10/state.camera.zoom;
+ for(let i=state.objects.length-1;i>=0;i--){const o=state.objects[i];if(!layerVisible(o.layer))continue;const b=bounds(o);if(x>=b.x-tol&&x<=b.x+b.w+tol&&y>=b.y-tol&&y<=b.y+b.h+tol)return o}
+ return null;
+}
+function defaultLayer(type){return type==="wall"||type==="rect"?"walls":type==="door"||type==="window"?"openings":type==="text"||type==="dimension"?"annotations":type==="symbol"?(["Plant","Tree"].includes($("#symbolType").value)?"landscape":"fixtures"):state.activeLayer}
+function addObject(o){o.id=uid();o.layer=defaultLayer(o.type);o.stroke=o.stroke||"#162536";o.fill=o.fill||"#ffffff";o.lineWidth=o.lineWidth||3;state.objects.push(o);state.selected=o.id;pushHistory();render();refreshPanels()}
+
+function pointerPos(e){const r=canvas.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+canvas.addEventListener("pointerdown",e=>{
+ canvas.setPointerCapture(e.pointerId);const p=pointerPos(e),w=screenToWorld(p.x,p.y);mouse={...p,wx:w.x,wy:w.y};
+ if(e.button===1||state.tool==="pan"){panning={x:p.x,y:p.y,cx:state.camera.x,cy:state.camera.y};return}
+ const x=snap(w.x),y=snap(w.y);
+ if(state.tool==="select"){
+   const o=hitTest(w.x,w.y);state.selected=o?.id||null;dragging=o?{id:o.id,x:w.x,y:w.y,orig:clone(o)}:null;refreshPanels();render();return
+ }
+ if(["door","window","text","symbol"].includes(state.tool)){
+   if(state.tool==="door")addObject({type:"door",x,y,w:90,h:10});
+   if(state.tool==="window")addObject({type:"window",x,y,w:120,h:12});
+   if(state.tool==="text"){const text=prompt("Text label:","Room");if(text)addObject({type:"text",x,y,text,fontSize:18})}
+   if(state.tool==="symbol")addObject({type:"symbol",x,y,w:70,h:55,symbol:$("#symbolType").value,rotation:0});
+   return;
+ }
+ drawing={type:state.tool,x,y,x2:x,y2:y,w:0,h:0,stroke:"#162536",fill:"#ffffff",lineWidth:3,layer:defaultLayer(state.tool)};
+});
+canvas.addEventListener("pointermove",e=>{
+ const p=pointerPos(e),w=screenToWorld(p.x,p.y);mouse={...p,wx:w.x,wy:w.y};$("#coord").textContent=`X ${w.x.toFixed(1)} · Y ${w.y.toFixed(1)}`;
+ const ch=$("#crosshair");ch.style.display="block";ch.style.left=p.x+"px";ch.style.top=p.y+"px";
+ if(panning){state.camera.x=panning.cx+(p.x-panning.x);state.camera.y=panning.cy+(p.y-panning.y);render();return}
+ if(dragging){const o=state.objects.find(q=>q.id===dragging.id),dx=snap(w.x-dragging.x),dy=snap(w.y-dragging.y);Object.assign(o,clone(dragging.orig));o.x+=dx;o.y+=dy;if("x2"in o){o.x2+=dx;o.y2+=dy}render();refreshPanels();return}
+ if(drawing){const x=snap(w.x),y=snap(w.y);drawing.x2=x;drawing.y2=y;drawing.w=x-drawing.x;drawing.h=y-drawing.y;render();
+ $("#hud").textContent=`${Math.hypot(x-drawing.x,y-drawing.y).toFixed(1)} ${state.units}`;
+ }
+});
+canvas.addEventListener("pointerup",e=>{
+ if(panning){panning=null;return}
+ if(dragging){dragging=null;pushHistory();return}
+ if(!drawing)return;
+ const o=clone(drawing);drawing=null;if(o.type==="rect"){if(o.w<0){o.x+=o.w;o.w*=-1}if(o.h<0){o.y+=o.h;o.h*=-1}}
+ if(["line","wall","dimension"].includes(o.type)&&Math.hypot(o.x2-o.x,o.y2-o.y)<2)return;
+ if(o.type==="rect"&&(Math.abs(o.w)<2||Math.abs(o.h)<2))return;
+ addObject(o);$("#hud").textContent="Ready";
+});
+canvas.addEventListener("wheel",e=>{e.preventDefault();const p=pointerPos(e),before=screenToWorld(p.x,p.y),factor=e.deltaY<0?1.12:.89;state.camera.zoom=Math.max(.12,Math.min(6,state.camera.zoom*factor));const after=worldToScreen(before.x,before.y);state.camera.x+=p.x-after.x;state.camera.y+=p.y-after.y;render()},{passive:false});
+
+function setTool(t){state.tool=t;$$(".tool[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===t));$("#hud").textContent=`${t[0].toUpperCase()+t.slice(1)} tool`;canvas.style.cursor=t==="pan"?"grab":"crosshair"}
+$("#toolbar").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.tool)setTool(b.dataset.tool);if(b.dataset.action==="delete")deleteSelected()});
+function deleteSelected(){if(!state.selected)return;state.objects=state.objects.filter(o=>o.id!==state.selected);state.selected=null;pushHistory();render();refreshPanels()}
+function selected(){return state.objects.find(o=>o.id===state.selected)}
+function refreshProperties(){
+ const o=selected();$("#noSelection").hidden=!!o;$("#props").hidden=!o;if(!o)return;
+ $("#pLabel").value=o.text||o.symbol||o.label||o.type;$("#pX").value=o.x??0;$("#pY").value=o.y??0;
+ $("#pW").value=("x2"in o)?o.x2:(o.w??0);$("#pH").value=("y2"in o)?o.y2:(o.h??0);
+ $("#pStroke").value=o.stroke||"#162536";$("#pFill").value=/^#[0-9a-f]{6}$/i.test(o.fill||"")?o.fill:"#ffffff";
+ $("#pLineWidth").value=o.lineWidth||3;$("#pRotation").value=o.rotation||0;
+}
+$("#applyProps").onclick=()=>{const o=selected();if(!o)return;o.x=+$("#pX").value;o.y=+$("#pY").value;
+ if("x2"in o){o.x2=+$("#pW").value;o.y2=+$("#pH").value}else{o.w=+$("#pW").value;o.h=+$("#pH").value}
+ o.stroke=$("#pStroke").value;o.fill=$("#pFill").value;o.lineWidth=+$("#pLineWidth").value;o.rotation=+$("#pRotation").value;
+ if(o.type==="text")o.text=$("#pLabel").value;else o.label=$("#pLabel").value;pushHistory();render();refreshPanels()};
+$("#duplicateBtn").onclick=()=>{const o=selected();if(!o)return;const c=clone(o);c.id=uid();c.x+=state.grid;c.y+=state.grid;if("x2"in c){c.x2+=state.grid;c.y2+=state.grid}state.objects.push(c);state.selected=c.id;pushHistory();render();refreshPanels()};
+
+const symbolMap={Architectural:["Stairs","Closet"],Bathhouse:["Toilet","Sink","Shower","Tub","Bench"],Landscape:["Plant","Tree"],Furniture:["Table","Chair","Bench"],Utilities:["Electrical","Plumbing"]};
+function updateSymbols(){const arr=symbolMap[$("#symbolCategory").value];$("#symbolType").innerHTML=arr.map(x=>`<option>${x}</option>`).join("")}
+$("#symbolCategory").onchange=updateSymbols;updateSymbols();$("#placeSymbolBtn").onclick=()=>setTool("symbol");
+
+function renderLayers(){
+ $("#layers").innerHTML=state.layers.map(l=>`<div class="layer-row"><button data-vis="${l.id}">${l.visible?"◉":"○"}</button><button data-layer="${l.id}" class="${state.activeLayer===l.id?"active":""}">${esc(l.name)}</button><button data-del-layer="${l.id}">×</button></div>`).join("");
+}
+$("#layers").onclick=e=>{const b=e.target.closest("button");if(!b)return;
+ if(b.dataset.vis){const l=state.layers.find(x=>x.id===b.dataset.vis);l.visible=!l.visible;renderLayers();render()}
+ if(b.dataset.layer){state.activeLayer=b.dataset.layer;renderLayers()}
+ if(b.dataset.delLayer){if(state.layers.length<=1)return alert("At least one layer is required.");if(state.objects.some(o=>o.layer===b.dataset.delLayer))return alert("Move or delete objects on this layer first.");state.layers=state.layers.filter(l=>l.id!==b.dataset.delLayer);state.activeLayer=state.layers[0].id;pushHistory();renderLayers()}
+};
+$("#addLayerBtn").onclick=()=>{const name=$("#newLayerName").value.trim();if(!name)return;const id="layer_"+uid();state.layers.push({id,name,visible:true});state.activeLayer=id;$("#newLayerName").value="";pushHistory();renderLayers()};
+function renderObjects(){const el=$("#objectList");el.innerHTML=state.objects.length?state.objects.map(o=>`<button data-object="${o.id}" class="${state.selected===o.id?"active":""}"><span>${esc(o.label||o.text||o.symbol||o.type)}</span><small>${esc(o.layer)}</small></button>`).join(""):`<div class="empty">No objects yet.</div>`}
+$("#objectList").onclick=e=>{const b=e.target.closest("[data-object]");if(!b)return;state.selected=b.dataset.object;refreshPanels();render()};
+function refreshPanels(){refreshProperties();renderLayers();renderObjects();updateUI()}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function syncControls(){
+ $("#projectName").value=state.name;$("#unitSelect").value=state.units;$("#sheetW").value=state.sheet.w;$("#sheetH").value=state.sheet.h;$("#gridSize").value=state.grid;$("#scaleText").value=state.scale;
+ $("#gridBtn").classList.toggle("active",state.showGrid);$("#snapBtn").classList.toggle("active",state.snap);refreshPanels()
+}
+function updateUI(){$("#undoBtn").disabled=history.length<2;$("#redoBtn").disabled=!future.length}
+$("#applySheet").onclick=()=>{state.name=$("#projectName").value.trim()||"Untitled Project";state.sheet.w=Math.max(100,+$("#sheetW").value);state.sheet.h=Math.max(100,+$("#sheetH").value);state.grid=Math.max(1,+$("#gridSize").value);state.scale=$("#scaleText").value;pushHistory();render()};
+$("#unitSelect").onchange=e=>{state.units=e.target.value;pushHistory();render()};
+$("#gridBtn").onclick=()=>{state.showGrid=!state.showGrid;syncControls();render()};$("#snapBtn").onclick=()=>{state.snap=!state.snap;syncControls()};
+$("#undoBtn").onclick=undo;$("#redoBtn").onclick=redo;
+$("#zoomIn").onclick=()=>{state.camera.zoom=Math.min(6,state.camera.zoom*1.2);render()};$("#zoomOut").onclick=()=>{state.camera.zoom=Math.max(.12,state.camera.zoom/1.2);render()};
+$("#fitBtn").onclick=fit;function fit(){const r=wrap.getBoundingClientRect(),pad=55;state.camera.zoom=Math.min((r.width-pad*2)/state.sheet.w,(r.height-pad*2)/state.sheet.h);state.camera.x=(r.width-state.sheet.w*state.camera.zoom)/2;state.camera.y=(r.height-state.sheet.h*state.camera.zoom)/2;render()}
+$("#clearBtn").onclick=()=>{if(confirm("Clear all drawing objects?")){state.objects=[];state.selected=null;pushHistory();render();refreshPanels()}};
+
+const STORE="ohmic_cad_projects_v1";
+function allProjects(){try{return JSON.parse(localStorage.getItem(STORE)||"{}")}catch{return{}}}
+function saveProject(){state.name=$("#projectName").value.trim()||"Untitled Project";const all=allProjects();all[state.name]={savedAt:new Date().toISOString(),data:clone(state)};localStorage.setItem(STORE,JSON.stringify(all));alert(`Saved locally: ${state.name}`);renderProjects()}
+function renderProjects(){const all=allProjects(),names=Object.keys(all).sort((a,b)=>all[b].savedAt.localeCompare(all[a].savedAt));$("#projectList").innerHTML=names.length?names.map(n=>`<div class="row"><button style="flex:1" data-load="${esc(n)}"><span>${esc(n)}</span></button><button data-remove="${esc(n)}">Delete</button></div>`).join(""):`<div class="empty">No locally saved projects.</div>`}
+$("#projectList").onclick=e=>{const b=e.target.closest("button");if(!b)return;const all=allProjects();if(b.dataset.load){Object.assign(state,clone(all[b.dataset.load].data));history=[JSON.stringify(state)];future=[];syncControls();fit();closeModal("projectModal")}if(b.dataset.remove&&confirm(`Delete "${b.dataset.remove}"?`)){delete all[b.dataset.remove];localStorage.setItem(STORE,JSON.stringify(all));renderProjects()}};
+$("#saveBtn").onclick=saveProject;$("#openBtn").onclick=()=>{renderProjects();openModal("projectModal")};
+$("#newBtn").onclick=()=>{if(!confirm("Start a new project? Unsaved changes will be lost."))return;state.name="Untitled Project";state.objects=[];state.selected=null;state.layers.forEach(l=>l.visible=true);history=[JSON.stringify(state)];future=[];syncControls();fit()};
+function openModal(id){$("#"+id).classList.add("open")}function closeModal(id){$("#"+id).classList.remove("open")}
+$$("[data-close]").forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
+$("#exportBtn").onclick=()=>openModal("exportModal");$("#helpBtn").onclick=()=>openModal("helpModal");$("#sideBtn").onclick=()=>$("#sidebar").classList.toggle("open");
+
+function download(name,blob){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function safeName(){return(state.name||"ohmic-cad").replace(/[^a-z0-9_-]+/gi,"_")}
+function exportJSON(){download(safeName()+".json",new Blob([JSON.stringify(state,null,2)],{type:"application/json"}))}
+function exportSVG(){
+ let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${state.sheet.w}" height="${state.sheet.h}" viewBox="0 0 ${state.sheet.w} ${state.sheet.h}"><rect width="100%" height="100%" fill="white"/>`;
+ for(const o of state.objects.filter(o=>layerVisible(o.layer))){
+  const stroke=o.stroke||"#111",sw=o.type==="wall"?12:(o.lineWidth||3);
+  if(["line","wall","dimension"].includes(o.type))s+=`<line x1="${o.x}" y1="${o.y}" x2="${o.x2}" y2="${o.y2}" stroke="${stroke}" stroke-width="${sw}"/>`;
+  else if(o.type==="rect")s+=`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" fill="${o.fill||"none"}" stroke="${stroke}" stroke-width="${sw}"/>`;
+  else if(o.type==="text")s+=`<text x="${o.x}" y="${o.y}" font-size="${o.fontSize||18}" fill="${stroke}">${esc(o.text||"Label")}</text>`;
+  else{const b=bounds(o);s+=`<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="none" stroke="${stroke}" stroke-width="${sw}"/><text x="${b.x+b.w/2}" y="${b.y+b.h/2}" text-anchor="middle" dominant-baseline="middle" fill="${stroke}">${esc(o.symbol||o.type)}</text>`}
+ }s+="</svg>";download(safeName()+".svg",new Blob([s],{type:"image/svg+xml"}))
+}
+function exportPNG(){
+ const off=document.createElement("canvas");off.width=state.sheet.w;off.height=state.sheet.h;const ox=ctx,old=canvas;
+ const prev=clone(state.camera);state.camera={x:0,y:0,zoom:1};const temp=canvas.width;const r=wrap.getBoundingClientRect();
+ const out=off.getContext("2d");out.fillStyle="white";out.fillRect(0,0,off.width,off.height);
+ // render via SVG for reliable export
+ let svg;const listener=URL.createObjectURL(new Blob([(()=>{let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${state.sheet.w}" height="${state.sheet.h}"><rect width="100%" height="100%" fill="white"/>`;for(const o of state.objects){const b=bounds(o),st=o.stroke||"#111";if(["line","wall","dimension"].includes(o.type))s+=`<line x1="${o.x}" y1="${o.y}" x2="${o.x2}" y2="${o.y2}" stroke="${st}" stroke-width="${o.type==="wall"?12:(o.lineWidth||3)}"/>`;else if(o.type==="rect")s+=`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" fill="${o.fill||"none"}" stroke="${st}"/>`;else s+=`<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" fill="none" stroke="${st}"/>`}return s+"</svg>"})()],{type:"image/svg+xml"}));
+ const im=new Image();im.onload=()=>{out.drawImage(im,0,0);URL.revokeObjectURL(listener);off.toBlob(b=>download(safeName()+".png",b),"image/png")};im.src=listener;state.camera=prev;render();
+}
+function exportDXF(){
+ const L=["0","SECTION","2","ENTITIES"];
+ const line=(x1,y1,x2,y2,layer="0")=>L.push("0","LINE","8",layer,"10",String(x1),"20",String(-y1),"11",String(x2),"21",String(-y2));
+ for(const o of state.objects){if(["line","wall","dimension"].includes(o.type))line(o.x,o.y,o.x2,o.y2,o.layer);else{const b=bounds(o);line(b.x,b.y,b.x+b.w,b.y,o.layer);line(b.x+b.w,b.y,b.x+b.w,b.y+b.h,o.layer);line(b.x+b.w,b.y+b.h,b.x,b.y+b.h,o.layer);line(b.x,b.y+b.h,b.x,b.y,o.layer)}}
+ L.push("0","ENDSEC","0","EOF");download(safeName()+".dxf",new Blob([L.join("\n")],{type:"application/dxf"}))
+}
+$("[data-export='json']").onclick=exportJSON;$("[data-export='svg']").onclick=exportSVG;$("[data-export='png']").onclick=exportPNG;$("[data-export='dxf']").onclick=exportDXF;
+$("#importInput").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const d=JSON.parse(await f.text());if(!d.sheet||!Array.isArray(d.objects))throw Error();Object.assign(state,d);history=[JSON.stringify(state)];future=[];syncControls();fit();closeModal("exportModal")}catch{alert("That file is not a valid OHMIC CAD project.")}};
+
+document.addEventListener("keydown",e=>{
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="s"){e.preventDefault();saveProject()}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="z"){e.preventDefault();e.shiftKey?redo():undo()}
+ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="y"){e.preventDefault();redo()}
+ if(e.key==="Delete"||e.key==="Backspace"){if(!["INPUT","TEXTAREA"].includes(document.activeElement.tagName)){e.preventDefault();deleteSelected()}}
+ if(e.key==="Escape"){drawing=null;dragging=null;panning=null;render()}
+});
+pushHistory();syncControls();setTimeout(fit,50);
+</script>
+</body>
+</html>
