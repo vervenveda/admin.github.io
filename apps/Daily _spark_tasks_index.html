@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Daily Spark — Make Tasks Fun</title>
+<style>
+  :root{
+    --bg:#071025; --card:#0b1220; --muted:#9aa4b2; --accent:#6ee7b7; --accent-2:#60a5fa;
+    --glass: rgba(255,255,255,0.04);
+    --radius:12px; --gap:12px; --ink:#e6eef6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:99%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;color:var(--ink);background:linear-gradient(180deg,#041029 0%,#061124 40%, #021018 100%);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:20px auto;padding:18px}
+  header{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  h1{font-size:20px;margin:0;letter-spacing:-0.01em}
+  .sub{color:var(--muted);font-size:13px}
+  .card{background:linear-gradient(180deg,var(--card),#071026);border-radius:var(--radius);padding:14px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 30px rgba(2,6,11,0.7)}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .col{flex:1;min-width:180px}
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+  input[type="text"], input[type="number"], select{width:100%;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:var(--glass);color:var(--ink)}
+  button{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:none;padding:8px 10px;border-radius:10px;color:#052226;cursor:pointer;font-weight:600}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--ink)}
+  .small{font-size:13px;padding:6px 8px;border-radius:8px}
+  #taskInputRow{align-items:end}
+  #tasks{margin-top:12px}
+  .task{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));margin-bottom:8px}
+  .left{display:flex;align-items:center;gap:12px;min-width:0}
+  .chk{width:20px;height:20px;border-radius:6px;border:2px solid rgba(255,255,255,0.06);display:inline-block;flex:0 0 20px;cursor:pointer}
+  .name{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .meta{font-size:12px;color:var(--muted);margin-top:6px}
+  .actions{display:flex;gap:8px;align-items:center}
+  .pill{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:999px;font-size:13px;color:var(--muted);}
+  .progressWrap{display:flex;align-items:center;gap:12px}
+  .bar{height:12px;background:rgba(255,255,255,0.04);border-radius:8px;overflow:hidden;width:180px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%}
+  .stats{display:flex;gap:8px;align-items:center}
+  .badge{background:linear-gradient(180deg,#1d293b,#0e1622);padding:6px 8px;border-radius:10px;font-size:12px;color:var(--muted)}
+  .footer{margin-top:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .templates{position:relative}
+  .dropdown{position:absolute;right:0;top:46px;background:#071227;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);width:320px;max-width:calc(100vw - 40px);z-index:40}
+  .tpl-item{display:flex;gap:8px;align-items:center;padding:6px;border-radius:8px}
+  .tpl-item label{flex:1;color:var(--ink)}
+  .mini{font-size:12px;color:var(--muted)}
+  /* confetti canvas */
+  #c{position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;z-index:100}
+  /* responsive */
+  @media(max-width:720px){
+    .row{flex-direction:column}
+    .bar{width:120px}
+    header{align-items:flex-start}
+  }
+  /* print */
+  @media print{
+    button, .templates, .footer, .mini, header .sub {display:none}
+    body{background:#fff;color:#000}
+    .card{box-shadow:none;border:none;background:#fff}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="row">
+    <div>
+      <h1>Daily Spark ✨</h1>
+      <div class="sub">Turn your daily list into small wins — XP, streaks, and tiny celebrations.</div>
+    </div>
+    <div class="card" style="display:flex;gap:12px;align-items:center">
+      <div style="min-width:170px">
+        <div class="mini">Today's theme</div>
+        <div id="theme" class="pill" style="margin-top:6px">—</div>
+      </div>
+      <div style="min-width:140px">
+        <div class="mini">Level / XP</div>
+        <div class="progressWrap" style="margin-top:6px">
+          <div class="bar" title="Level progress"><i id="xpBar"></i></div>
+          <div id="lvl" class="pill">Lv0</div>
+        </div>
+      </div>
+      <div>
+        <div class="mini">Streak</div>
+        <div id="streak" class="badge" style="margin-top:6px">0 🔥</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="card" style="margin-top:14px">
+    <div class="row" id="taskInputRow">
+      <div class="col">
+        <label for="taskName">Add a task</label>
+        <input id="taskName" type="text" placeholder="e.g., Call vendor, Tidy desk, Write 200 words" />
+      </div>
+      <div style="width:140px">
+        <label for="taskCat">Category</label>
+        <select id="taskCat">
+          <option value="work">Work / Professional</option>
+          <option value="household">Household</option>
+          <option value="personal">Personal</option>
+          <option value="health">Health</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <button id="btnAdd">Add</button>
+        <button id="btnQuick" class="ghost small">Tiny Win</button>
+      </div>
+      <div class="templates" aria-hidden="true" style="margin-left:auto">
+        <button id="btnTemplates" class="ghost small">Templates ▾</button>
+        <div id="tplDrop" class="dropdown" style="display:none">
+          <div class="mini" style="margin-bottom:8px">Quick add common tasks</div>
+          <div id="tplList" style="max-height:220px;overflow:auto"></div>
+          <div style="text-align:right;margin-top:8px">
+            <button id="btnAddSelected" class="ghost small">Add selected</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tasks" style="margin-top:12px"></div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="mini">Today's progress</div>
+        <div class="bar" style="width:220px"><i id="dayBar"></i></div>
+        <div id="dayText" class="mini" style="margin-left:8px">0 / 0</div>
+      </div>
+
+      <div class="stats" style="gap:10px">
+        <div id="badges" class="pill mini">Badges: —</div>
+        <div class="mini" id="motivation">—</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button id="btnDecide" class="ghost small">🔮 Decide for me</button>
+      <button id="btnExport" class="ghost small">Export JSON</button>
+      <button id="btnPrint" class="ghost small">Print checklist</button>
+      <button id="btnShare" class="ghost small">Share app</button>
+      <div style="margin-left:auto" class="mini">Tip: check a task to earn XP & confetti ✨</div>
+    </div>
+  </section>
+
+  <section style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+    <div class="card" style="flex:1;min-width:260px">
+      <div style="font-size:14px;font-weight:700">Daily Challenges</div>
+      <div id="challenges" class="mini" style="margin-top:8px">—</div>
+    </div>
+    <div class="card" style="width:260px;min-width:200px">
+      <div style="font-size:14px;font-weight:700">Quick stats</div>
+      <div style="margin-top:8px">
+        <div class="mini">Total XP: <strong id="xpTotal">0</strong></div>
+        <div class="mini">Tasks done today: <strong id="doneToday">0</strong></div>
+        <div class="mini">All-time completed: <strong id="doneAll">0</strong></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<canvas id="c"></canvas>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---------- Utilities ----------
+  const uid = ()=> Math.floor(Math.random()*1e9).toString(36);
+  const rand = (min,max) => {
+    const lo = Math.min(min,max), hi = Math.max(min,max);
+    if(window.crypto && crypto.getRandomValues){
+      const a = new Uint32Array(1); crypto.getRandomValues(a);
+      return lo + (a[0] % (hi - lo + 1));
+    }
+    return lo + Math.floor(Math.random()*(hi-lo+1));
+  };
+
+  // ---------- Data & Storage ----------
+  const STORAGE = "DAILY_SPARK_V1";
+  const templates = {
+    work: [
+      "Email client: deliverables update",
+      "Draft project outline",
+      "Process 10 inbox messages",
+      "Prepare slides for meeting",
+      "Review PRs / code review",
+      "Schedule client call",
+      "Update project roadmap",
+      "Write 200 words for draft"
+    ],
+    household: ["Dishes", "Laundry (wash/dry)", "Tidy living room", "Take out trash", "Wipe counters", "Water plants"],
+    personal: ["Brush & floss", "Journal 5 mins", "Read 15 mins", "Skincare", "Meditate 5 mins"],
+    health: ["10-min stretch", "30-min walk", "Prepare healthy meal", "Drink water"]
+  };
+
+  const themes = [
+    {name:"Focus Flow", note:"A calm, steady day. Prioritize the 1–2 things that matter."},
+    {name:"Sprint & Shine", note:"Short bursts — pick quick wins and move fast."},
+    {name:"Slow & Deep", note:"Longer focus blocks — one thoughtful task at a time."},
+    {name:"Kind Momentum", note:"Small acts of care count. Start with something kind for you."},
+    {name:"Creative Burst", note:"Try a small creative task — a paragraph, a sketch, a new idea."}
+  ];
+
+  // load / init state
+  const state = (() => {
+    try {
+      const raw = localStorage.getItem(STORAGE);
+      if(raw) return JSON.parse(raw);
+    } catch(e){}
+    return {
+      tasks: [], // {id,name,cat,createdAt,doneAt,xp}
+      xp: 0,
+      streak: 0,
+      lastDoneDay: null, // yyyy-mm-dd
+      doneAllTime: 0,
+      badges: []
+    };
+  })();
+
+  // ---------- DOM ----------
+  const els = {
+    taskName: document.getElementById("taskName"),
+    taskCat: document.getElementById("taskCat"),
+    btnAdd: document.getElementById("btnAdd"),
+    btnQuick: document.getElementById("btnQuick"),
+    btnTemplates: document.getElementById("btnTemplates"),
+    tplDrop: document.getElementById("tplDrop"),
+    tplList: document.getElementById("tplList"),
+    btnAddSelected: document.getElementById("btnAddSelected"),
+    tasks: document.getElementById("tasks"),
+    xpBar: document.getElementById("xpBar"),
+    lvl: document.getElementById("lvl"),
+    streak: document.getElementById("streak"),
+    dayBar: document.getElementById("dayBar"),
+    dayText: document.getElementById("dayText"),
+    btnDecide: document.getElementById("btnDecide"),
+    btnExport: document.getElementById("btnExport"),
+    btnPrint: document.getElementById("btnPrint"),
+    btnShare: document.getElementById("btnShare"),
+    xpTotal: document.getElementById("xpTotal"),
+    doneToday: document.getElementById("doneToday"),
+    doneAll: document.getElementById("doneAll"),
+    badges: document.getElementById("badges"),
+    motivation: document.getElementById("motivation"),
+    theme: document.getElementById("theme"),
+    challenges: document.getElementById("challenges")
+  };
+
+  // ---------- Helpers ----------
+  function todayKey(d=new Date()){
+    return d.toISOString().slice(0,10); // yyyy-mm-dd
+  }
+
+  function save(){
+    try{
+      localStorage.setItem(STORAGE, JSON.stringify(state));
+    }catch(e){}
+    render();
+  }
+
+  // compute level & display
+  function computeLevel(xp){
+    const level = Math.floor(xp / 100);
+    const progress = xp % 100;
+    return {level, progress};
+  }
+
+  // add a task
+  function addTask(name, cat){
+    if(!name || !name.trim()) return;
+    const t = { id: uid(), name: name.trim(), cat: cat||"work", createdAt: Date.now(), doneAt: null, xp: rand(8,18) };
+    state.tasks.unshift(t);
+    save();
+  }
+
+  // bulk add from templates (list of strings) with category
+  function addMany(arr, cat){
+    arr.forEach(item => addTask(item, cat));
+  }
+
+  // mark done/undo
+  function toggleDone(id){
+    const t = state.tasks.find(x=>x.id===id);
+    if(!t) return;
+    if(!t.doneAt){
+      t.doneAt = Date.now();
+      state.xp += t.xp;
+      state.doneAll += 1;
+      // streak handling
+      const today = todayKey();
+      const last = state.lastDoneDay;
+      if(last === today){
+        // already did today -> streak unchanged
+      } else {
+        const yesterday = (new Date(Date.now() - 86400000)).toISOString().slice(0,10);
+        if(last === yesterday) state.streak = (state.streak || 0) + 1;
+        else state.streak = 1;
+        state.lastDoneDay = today;
+      }
+      // badges
+      checkBadges();
+      // confetti & micro message
+      burstConfetti();
+      showMotivation(randomChoice([
+        "Nice! Tiny win.",
+        "Momentum! Keep the flow.",
+        "Sovereign move. Well done.",
+        "You earned XP — feel that lift!",
+        "A win for future-you."
+      ]));
+      // optional: level up sound or whatever later
+    } else {
+      // undo
+      t.doneAt = null;
+      state.xp = Math.max(0, state.xp - t.xp);
+    }
+    save();
+  }
+
+  function checkBadges(){
+    const total = state.doneAll || 0;
+    const b = new Set(state.badges || []);
+    if(total >= 1) b.add("First ✅");
+    if(total >= 5) b.add("Rising ⭐");
+    if(total >= 20) b.add("Streaks & Glory 🏆");
+    state.badges = Array.from(b);
+  }
+
+  // random choice util
+  function randomChoice(arr){ return arr[rand(0, arr.length-1)]; }
+
+  // ---------- Render ----------
+  function render(){
+    // tasks list
+    const frag = document.createDocumentFragment();
+    state.tasks.forEach(t=>{
+      const div = document.createElement("div"); div.className="task";
+      const left = document.createElement("div"); left.className="left";
+      const chk = document.createElement("div"); chk.className="chk"; chk.tabIndex=0;
+      chk.setAttribute("role","button"); chk.title = t.doneAt ? "Undo" : "Mark done";
+      if(t.doneAt) chk.style.background = "linear-gradient(90deg,#6ee7b7,#60a5fa)";
+      chk.addEventListener("click", ()=> toggleDone(t.id));
+      chk.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" ") { e.preventDefault(); toggleDone(t.id); } });
+
+      const txt = document.createElement("div"); txt.style.minWidth="0";
+      const name = document.createElement("div"); name.className="name"; name.textContent = t.name;
+      const meta = document.createElement("div"); meta.className="meta"; meta.textContent = `${t.cat} • XP ${t.xp}`;
+      txt.appendChild(name); txt.appendChild(meta);
+
+      left.appendChild(chk); left.appendChild(txt);
+      div.appendChild(left);
+
+      const actions = document.createElement("div"); actions.className="actions";
+      const del = document.createElement("button"); del.className="ghost small"; del.textContent="✕"; del.addEventListener("click", ()=>{
+        if(confirm("Delete task?")) {
+          state.tasks = state.tasks.filter(x=>x.id!==t.id);
+          save();
+        }
+      });
+      actions.appendChild(del);
+      div.appendChild(actions);
+
+      frag.appendChild(div);
+    });
+    els.tasks.innerHTML = "";
+    els.tasks.appendChild(frag);
+
+    // XP / level
+    const lvl = computeLevel(state.xp || 0);
+    els.lvl.textContent = `Lv ${lvl.level}`;
+    els.xpBar.style.width = (lvl.progress) + "%";
+    els.xpTotal.textContent = state.xp || 0;
+
+    // streak & badges
+    els.streak.textContent = `${state.streak || 0} 🔥`;
+    els.badges.textContent = state.badges && state.badges.length ? state.badges.join(" • ") : "—";
+
+    // day progress: count tasks and done today
+    const today = todayKey();
+    const totalToday = state.tasks.filter(t=> t.createdAt && (new Date(t.createdAt)).toISOString().slice(0,10) === today).length;
+    const doneToday = state.tasks.filter(t => t.doneAt && (new Date(t.doneAt)).toISOString().slice(0,10) === today).length;
+    const totalVisible = state.tasks.length || 0;
+    const doneVisible = state.tasks.filter(t=>t.doneAt).length;
+
+    els.dayBar.style.width = ((totalToday===0)?0: Math.round((doneToday/ Math.max(1,totalToday))*100)) + "%";
+    els.dayText.textContent = `${doneToday} / ${totalToday}`;
+    els.doneToday.textContent = doneToday;
+    els.doneAll.textContent = state.doneAll || 0;
+
+    // tasks done (visible)
+    els.motivation.textContent = state.tasks.length ? `${state.tasks.length} items` : "No tasks yet — add one!";
+    // challenges & theme
+    renderThemeAndChallenges();
+  }
+
+  // theme rotate daily
+  function renderThemeAndChallenges(){
+    const day = (new Date()).toISOString().slice(0,10);
+    const idx = Array.from(day).map(c=>c.charCodeAt(0)).reduce((a,b)=>a+b,0) % themes.length;
+    const theme = themes[idx];
+    els.theme.textContent = theme.name;
+    els.challenges.innerHTML = `${theme.note}<div class="mini" style="margin-top:8px">Try: ${randomChoice([
+      "Finish a 10-minute focused block",
+      "Batch 3 quick replies",
+      "Do 1 tiny act of care",
+      "Tidy one workspace surface"
+    ])}</div>`;
+  }
+
+  // ---------- Confetti ----------
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext && canvas.getContext('2d');
+  let confettiParticles = [];
+  function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+
+  function burstConfetti(){
+    if(!ctx) return;
+    const count = 40;
+    const now = Date.now();
+    for(let i=0;i<count;i++){
+      confettiParticles.push({
+        x: window.innerWidth/2 + rand(-200,200),
+        y: window.innerHeight/3 + rand(-80,80),
+        vx: (rand(-800,800))/500,
+        vy: (rand(-600,0))/100,
+        size: rand(6,12),
+        rot: Math.random()*360,
+        color: ["#6ee7b7","#60a5fa","#fbbf24","#f472b6","#a78bfa"][rand(0,4)],
+        life: now + rand(800,1600)
+      });
+    }
+    if(!window.confettiTicker) runConfetti();
+  }
+
+  function runConfetti(){
+    if(!ctx) return;
+    let last = Date.now();
+    function frame(){
+      const now = Date.now();
+      const dt = now - last;
+      last = now;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      confettiParticles = confettiParticles.filter(p=> p.life > now);
+      confettiParticles.forEach(p=>{
+        p.x += p.vx * dt/16;
+        p.y += p.vy * dt/16 + 0.3 * (dt/16);
+        p.vy += 0.02 * (dt/16);
+        p.rot += 6 * (dt/16);
+        ctx.save();
+        ctx.translate(p.x,p.y);
+        ctx.rotate(p.rot * Math.PI / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+        ctx.restore();
+      });
+      if(confettiParticles.length) window.confettiTicker = requestAnimationFrame(frame);
+      else { cancelAnimationFrame(window.confettiTicker); window.confettiTicker = null; }
+    }
+    if(!window.confettiTicker) window.confettiTicker = requestAnimationFrame(frame);
+  }
+
+  // ---------- UI wiring ----------
+  els.btnAdd.addEventListener("click", ()=>{
+    const name = els.taskName.value.trim();
+    if(!name){ els.taskName.focus(); return; }
+    addTask(name, els.taskCat.value);
+    els.taskName.value = "";
+    els.taskName.focus();
+  });
+
+  els.btnQuick.addEventListener("click", ()=>{
+    // add a tiny win for chosen category
+    const cat = els.taskCat.value;
+    const pick = randomChoice(templates[cat] || templates.work);
+    addTask(pick, cat);
+  });
+
+  // templates dropdown
+  document.getElementById("btnTemplates").addEventListener("click", (e)=>{
+    const drop = document.getElementById("tplDrop");
+    drop.style.display = drop.style.display === "none" ? "block" : "none";
+    // render items
+    renderTemplates();
+  });
+
+  function renderTemplates(){
+    const list = document.getElementById("tplList");
+    list.innerHTML = "";
+    Object.keys(templates).forEach(cat=>{
+      const h = document.createElement("div"); h.className="mini"; h.style.margin="6px 0 4px"; h.textContent = cat.toUpperCase(); list.appendChild(h);
+      templates[cat].forEach((t, i)=>{
+        const row = document.createElement("div"); row.className="tpl-item";
+        const cb = document.createElement("input"); cb.type="checkbox"; cb.value = JSON.stringify({t,cat});
+        const lbl = document.createElement("label"); lbl.textContent = t;
+        row.appendChild(cb); row.appendChild(lbl);
+        list.appendChild(row);
+      });
+    });
+  }
+
+  document.getElementById("btnAddSelected").addEventListener("click", ()=>{
+    const boxes = Array.from(document.querySelectorAll("#tplList input[type='checkbox']:checked"));
+    if(!boxes.length) return alert("Select at least one template to add.");
+    boxes.forEach(b => {
+      try{
+        const obj = JSON.parse(b.value);
+        addTask(obj.t, obj.cat);
+      }catch(e){}
+    });
+    document.getElementById("tplDrop").style.display = "none";
+  });
+
+  // decide (choose an appropriate task)
+  els.btnDecide.addEventListener("click", ()=>{
+    const undone = state.tasks.filter(t=>!t.doneAt);
+    if(!undone.length) return alert("No unfinished tasks.");
+    const energy = 3; // heuristic — could read from UI
+    // score: prefer moderate XP & not too heavy (simple heuristic)
+    let best = undone[0], bestScore = 1e9;
+    undone.forEach(t=>{
+      const demand = (t.xp/12);
+      const score = Math.abs(demand - energy)*1.1 + (t.xp/100);
+      if(score < bestScore){ bestScore = score; best = t; }
+    });
+    alert("Try this next: " + best.name);
+  });
+
+  // export
+  els.btnExport.addEventListener("click", ()=>{
+    const data = JSON.stringify(state, null, 2);
+    const blob = new Blob([data], {type:"application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "daily-spark-tasks.json"; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+  });
+
+  // print: create printable list of unfinished tasks
+  els.btnPrint.addEventListener("click", ()=>{
+    const items = state.tasks.filter(t=>!t.doneAt);
+    const title = "Daily Spark — Checklist";
+    const now = new Date().toLocaleString();
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
+      <style>body{font-family:system-ui,Arial;color:#111;padding:24px}h1{margin-bottom:6px}ul{list-style:none;padding:0}li{margin:10px 0;padding:10px;border:1px solid #ddd;border-radius:8px} .box{display:inline-block;width:18px;height:18px;border:1px solid #333;margin-right:10px;vertical-align:middle}</style>
+      </head><body><h1>${title}</h1><div style="color:#666;font-size:13px;margin-bottom:10px">Generated: ${now}</div><ul>${items.map(i=>`<li><span class="box"></span>${i.name} <small style="color:#666">— ${i.cat}</small></li>`).join("")}</ul></body></html>`;
+    const w = window.open("", "_blank");
+    if(!w) return alert("Popup blocked — allow popups to print.");
+    w.document.open(); w.document.write(html); w.document.close();
+    w.focus();
+    setTimeout(()=> w.print(), 400);
+  });
+
+  // share app
+  els.btnShare.addEventListener("click", ()=>{
+    const url = location.href;
+    const title = "Daily Spark — tiny win task handler";
+    if(navigator.share){
+      navigator.share({title, url}).catch(()=>{});
+    } else if(navigator.clipboard){
+      navigator.clipboard.writeText(url).then(()=> alert("Link copied to clipboard!"));
+    } else prompt("Copy this link:", url);
+  });
+
+  // ---------- small UX & startup ----------
+  function showMotivation(txt){
+    els.motivation.textContent = txt;
+    setTimeout(()=> render(), 1200);
+  }
+
+  function init(){
+    // sample welcome tasks if empty
+    if(!state.tasks.length){
+      addMany(["Plan top 3 priorities","Answer 5 emails","Tidy workspace"], "work");
+    }
+    // compute last theme/challenge
+    render();
+  }
+
+  // add keyboard Enter on input
+  els.taskName.addEventListener("keydown", (e)=>{ if(e.key==="Enter"){ e.preventDefault(); els.btnAdd.click(); } });
+
+  // initial render & save
+  init();
+  save();
+
+})();
+</script>
+</body>
+</html>
