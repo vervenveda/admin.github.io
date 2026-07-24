@@ -1,0 +1,2611 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FleaPit — Sovereign Media Aggregator</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f6f9;
+    --panel:#ffffff;
+    --ink:#0e1116;
+    --muted:#6b7280;
+    --accent:#13c2c2;
+    --danger:#ef4444;
+    --shadow: 0 18px 40px rgba(0,0,0,.08);
+    --r: 16px;
+    --fontScale: 1.15; /* overridden by JS */
+    --fontBase: 16px;
+    --gap: 14px;
+  }
+  body.dark{
+    --bg:#070b12;
+    --panel:#0b1220;
+    --ink:#f3f4f6;
+    --muted:#a8b0c2;
+    --shadow: 0 18px 40px rgba(0,0,0,.45);
+  }
+
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:linear-gradient(180deg,var(--bg), color-mix(in srgb, var(--bg), #ffffff 6%));
+    color:var(--ink);
+    font-size: calc(var(--fontBase) * var(--fontScale));
+  }
+  *{box-sizing:border-box}
+  a{color:inherit}
+
+  .app{
+    max-width: 1280px;
+    margin: 18px auto;
+    padding: 0 14px 40px;
+    display:grid;
+    grid-template-columns: 1.6fr .85fr;
+    gap: var(--gap);
+  }
+
+  header{
+    grid-column:1/-1;
+    background:var(--panel);
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
+    padding: 14px;
+    display:flex;
+    gap: 12px;
+    align-items:center;
+    flex-wrap:wrap;
+    justify-content:space-between;
+  }
+  .brand{display:flex; align-items:center; gap:12px}
+  .logo{
+    width:44px;height:44px;border-radius:14px;
+    background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--accent), #fff 35%), var(--accent));
+    box-shadow: 0 10px 22px rgba(19,194,194,.25);
+  }
+  .brand h1{margin:0; font-size: 1.1rem}
+  .brand small{display:block; color:var(--muted); font-size:.82rem; margin-top:2px}
+
+  .toolbar{
+    display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  input[type="text"], select{
+    font:inherit;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border:1px solid color-mix(in srgb, var(--muted), transparent 70%);
+    background: color-mix(in srgb, var(--panel), #000 0%);
+    color:var(--ink);
+    outline:none;
+    min-width: 220px;
+  }
+  select{min-width: 190px}
+  .btn{
+    font:inherit;
+    border:1px solid color-mix(in srgb, var(--muted), transparent 70%);
+    background: color-mix(in srgb, var(--panel), #000 0%);
+    color:var(--ink);
+    padding: 10px 12px;
+    border-radius: 12px;
+    cursor:pointer;
+    user-select:none;
+    transition:.15s transform, .15s opacity, .15s border-color;
+    display:inline-flex; align-items:center; gap:8px;
+    white-space:nowrap;
+  }
+  .btn:hover{transform: translateY(-1px)}
+  .btn:active{transform: translateY(0px); opacity:.9}
+  .btn.primary{
+    border-color: color-mix(in srgb, var(--accent), transparent 35%);
+    background: color-mix(in srgb, var(--accent), #000 86%);
+    color: color-mix(in srgb, var(--accent), #fff 85%);
+  }
+  body.dark .btn.primary{
+    background: color-mix(in srgb, var(--accent), #000 78%);
+    color: #eaffff;
+  }
+  .btn.danger{
+    border-color: color-mix(in srgb, var(--danger), transparent 35%);
+    background: color-mix(in srgb, var(--danger), #000 88%);
+    color: #ffecec;
+  }
+  .btn.small{padding:8px 10px; border-radius: 11px; font-size:.92rem}
+  .btn.active{outline:2px solid color-mix(in srgb, var(--accent), transparent 55%)}
+
+  .viewRow{
+    grid-column:1/-1;
+    display:flex; gap:10px; flex-wrap:wrap;
+  }
+
+  .panel{
+    background:var(--panel);
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
+    padding: 14px;
+  }
+
+  .highlight{
+    display:grid;
+    gap: 12px;
+  }
+  .highlightTop{
+    display:flex; gap: 12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+  }
+  .highlightMeta h2{margin:0; font-size:1.1rem}
+  .highlightMeta .sub{color:var(--muted); font-size:.9rem; margin-top:4px; line-height:1.25}
+  .pillRow{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+  .pill{
+    font-size:.82rem;
+    padding:6px 10px;
+    border-radius: 999px;
+    border:1px solid color-mix(in srgb, var(--muted), transparent 70%);
+    color:var(--muted);
+    background: color-mix(in srgb, var(--panel), #000 3%);
+  }
+
+  .videoWrap{
+    border-radius: 16px;
+    overflow:hidden;
+    border:1px solid color-mix(in srgb, var(--muted), transparent 75%);
+    background:#000;
+  }
+  video.main{
+    width:100%;
+    height: clamp(220px, 32vh, 420px);
+    object-fit: cover;
+    background:#000;
+    display:block;
+  }
+
+  .resumeBar{
+    display:none;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border:1px dashed color-mix(in srgb, var(--accent), transparent 45%);
+    background: color-mix(in srgb, var(--accent), transparent 92%);
+  }
+  .resumeBar small{color:var(--muted)}
+  .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+  .chips{
+    display:flex; gap:10px; flex-wrap:wrap;
+  }
+  .chip{
+    font-size:.9rem;
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor:pointer;
+    user-select:none;
+    border:1px solid color-mix(in srgb, var(--muted), transparent 70%);
+    color:var(--muted);
+  }
+  .chip.active{
+    border-color: color-mix(in srgb, var(--accent), transparent 40%);
+    color: color-mix(in srgb, var(--accent), #fff 40%);
+    background: color-mix(in srgb, var(--accent), transparent 92%);
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 12px;
+  }
+  @media (max-width: 1080px){
+    .app{grid-template-columns: 1fr}
+    .grid{grid-template-columns: repeat(2, minmax(0,1fr))}
+  }
+  @media (max-width: 640px){
+    input[type="text"], select{min-width: 0; width: 100%}
+    .grid{grid-template-columns: 1fr}
+  }
+
+  .video-card{
+    border-radius: 16px;
+    overflow:hidden;
+    border:1px solid color-mix(in srgb, var(--muted), transparent 76%);
+    background: color-mix(in srgb, var(--panel), #000 2%);
+    display:flex;
+    flex-direction:column;
+    min-height: 220px;
+    position:relative;
+  }
+  .video-card.drag-over{outline:2px dashed color-mix(in srgb, var(--accent), transparent 45%)}
+  .video-card.dragging{opacity:.55}
+  .video-card video, .video-card img{
+    width:100%;
+    height: 130px;
+    object-fit: cover;
+    background:#000;
+    display:block;
+  }
+  .info{padding: 12px; display:flex; flex-direction:column; gap:10px}
+  .info h4{margin:0; font-size:1rem; line-height:1.15}
+  .info small{color:var(--muted); line-height:1.2}
+  .controls{display:flex; gap:8px; flex-wrap:wrap}
+  .controls button{
+    font:inherit;
+    border:1px solid color-mix(in srgb, var(--muted), transparent 72%);
+    background: color-mix(in srgb, var(--panel), #000 2%);
+    color:var(--ink);
+    padding: 8px 10px;
+    border-radius: 12px;
+    cursor:pointer;
+    font-size:.9rem;
+  }
+  .controls button.del{border-color: color-mix(in srgb, var(--danger), transparent 55%); color: color-mix(in srgb, var(--danger), #fff 40%)}
+  .controls button.favorite{border-color: color-mix(in srgb, #fbbf24, transparent 55%)}
+  .controls button.edit{border-color: color-mix(in srgb, #a78bfa, transparent 55%)}
+
+  /* Sidebar */
+  .side h3{margin:.2rem 0 .6rem}
+  .side small{color:var(--muted)}
+  .playlistBox{
+    border:1px solid color-mix(in srgb, var(--muted), transparent 75%);
+    border-radius: 14px;
+    overflow:hidden;
+    margin-top: 10px;
+  }
+  .playlistTop{padding:12px; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .playlistItems{
+    max-height: 360px;
+    overflow:auto;
+    padding: 6px;
+    background: color-mix(in srgb, var(--panel), #000 1%);
+  }
+  .playlist-item{
+    display:flex; gap:10px; align-items:center;
+    padding: 10px 10px;
+    border-radius: 12px;
+    cursor:pointer;
+    user-select:none;
+    border:1px solid transparent;
+  }
+  .playlist-item:hover{background: color-mix(in srgb, var(--accent), transparent 93%)}
+  .playlist-item.active{
+    border-color: color-mix(in srgb, var(--accent), transparent 55%);
+    background: color-mix(in srgb, var(--accent), transparent 90%);
+  }
+  .playlist-item.dragging{opacity:.6}
+  .playlist-item.drag-over{outline:2px dashed color-mix(in srgb, var(--accent), transparent 45%)}
+  .handle{opacity:.6}
+  .title{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+  .sectionCard{
+    background: color-mix(in srgb, var(--panel), #000 2%);
+    border:1px solid color-mix(in srgb, var(--muted), transparent 78%);
+    border-radius: 16px;
+    padding: 12px;
+  }
+
+  /* Channels */
+  #channelsPanel{display:none}
+  .channelGrid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 12px;
+  }
+  @media (max-width: 720px){ .channelGrid{grid-template-columns:1fr} }
+
+  .channelCard{
+    border:1px solid color-mix(in srgb, var(--muted), transparent 78%);
+    border-radius: 16px;
+    padding: 12px;
+    background: color-mix(in srgb, var(--panel), #000 2%);
+  }
+  .channelCard h4{margin:.1rem 0 .4rem}
+  .channelCard p{margin:.2rem 0 .7rem; color:var(--muted); line-height:1.25}
+  .miniRow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px}
+
+  /* Channel Feeds (18 tiles) */
+  .feedsGrid{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 12px;
+  }
+  @media (max-width: 1080px){ .feedsGrid{grid-template-columns: repeat(2, minmax(0,1fr))} }
+  @media (max-width: 640px){ .feedsGrid{grid-template-columns: 1fr} }
+
+  .feedTile{
+    border:1px solid color-mix(in srgb, var(--muted), transparent 78%);
+    border-radius: 16px;
+    overflow:hidden;
+    background:#000;
+    position:relative;
+    min-height: 210px;
+  }
+  .feedTile video{
+    width:100%;
+    height: 210px;
+    object-fit: cover;
+    display:block;
+    background:#000;
+    filter: saturate(1.05);
+  }
+  .feedOverlay{
+    position:absolute; inset:auto 0 0 0;
+    padding: 10px 10px 12px;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,.70));
+    color:#fff;
+  }
+  .feedOverlay b{display:block; font-size:.98rem; line-height:1.15}
+  .feedOverlay small{opacity:.85}
+  .feedTopPill{
+    position:absolute; top:10px; left:10px;
+    background: rgba(0,0,0,.55);
+    border:1px solid rgba(255,255,255,.20);
+    color:#fff;
+    padding:6px 10px;
+    border-radius: 999px;
+    font-size:.82rem;
+    display:flex; gap:8px; align-items:center;
+  }
+  .dotLive{
+    width:8px;height:8px;border-radius:999px;background:#22c55e; box-shadow:0 0 0 3px rgba(34,197,94,.20);
+  }
+  .feedActions{
+    position:absolute; right:10px; top:10px;
+    display:flex; gap:8px;
+  }
+  .feedActions button{
+    font:inherit;
+    font-size:.82rem;
+    padding: 7px 10px;
+    border-radius: 999px;
+    border:1px solid rgba(255,255,255,.22);
+    background: rgba(0,0,0,.45);
+    color:#fff;
+    cursor:pointer;
+  }
+
+  /* Free feeds wall */
+  .clipsGrid{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap: 12px;
+  }
+  @media (max-width: 1080px){ .clipsGrid{grid-template-columns: repeat(2, minmax(0,1fr))} }
+  @media (max-width: 640px){ .clipsGrid{grid-template-columns: 1fr} }
+
+  .clipTile{
+    border:1px solid color-mix(in srgb, var(--muted), transparent 78%);
+    border-radius: 16px;
+    overflow:hidden;
+    background:#000;
+    cursor:pointer;
+    position:relative;
+  }
+  .clipTile video{
+    width:100%;
+    height: 160px;
+    object-fit: cover;
+    display:block;
+    background:#000;
+  }
+  .cap{
+    padding: 10px 10px 12px;
+    color:#fff;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,.72));
+    position:absolute; inset:auto 0 0 0;
+  }
+  .cap b{display:block; font-size:.95rem}
+  .cap small{opacity:.85}
+
+
+
+  /* Sovereign resources + platform directory */
+  .resourceHero{
+    grid-column:1/-1;
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+  .resourceHero h3{margin:.1rem 0 .35rem; font-size:1.05rem}
+  .resourceHero p{margin:.1rem 0; color:var(--muted); line-height:1.35}
+  .resourceCard{
+    border:1px solid color-mix(in srgb, var(--muted), transparent 76%);
+    border-radius:16px;
+    background:color-mix(in srgb, var(--panel), #000 2%);
+    padding:14px;
+    min-height:170px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .resourceCard h4{margin:.05rem 0 .2rem; font-size:1rem; line-height:1.2}
+  .resourceCard p{margin:0; color:var(--muted); line-height:1.3; font-size:.92rem}
+  .resourceMeta{display:flex; gap:7px; flex-wrap:wrap; margin-top:auto}
+  .resourceBadge{
+    font-size:.78rem;
+    border:1px solid color-mix(in srgb, var(--muted), transparent 72%);
+    color:var(--muted);
+    border-radius:999px;
+    padding:5px 8px;
+  }
+  .resourceActions{display:flex; gap:8px; flex-wrap:wrap; margin-top:2px}
+  .appFooter{
+    max-width:1280px;
+    margin:0 auto 22px;
+    padding:0 14px;
+    color:var(--muted);
+    font-size:.82rem;
+    text-align:center;
+  }
+
+  /* Toast */
+  #toast{
+    position:fixed;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    max-width: 980px;
+    margin: 0 auto;
+    background: color-mix(in srgb, var(--panel), #000 3%);
+    border:1px solid color-mix(in srgb, var(--muted), transparent 72%);
+    box-shadow: var(--shadow);
+    border-radius: 16px;
+    padding: 12px;
+    display:none;
+    z-index: 50;
+  }
+  #toast .row{justify-content:space-between}
+  #toastMsg{color:var(--ink)}
+  #toastActions{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+  #toastActions button{font:inherit}
+
+  /* Mini player dock */
+  #miniPlayer{
+    position:fixed;
+    right: 14px;
+    bottom: 86px;
+    width: min(360px, calc(100vw - 28px));
+    background: #000;
+    border-radius: 16px;
+    overflow:hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+    display:none;
+    z-index: 60;
+    border:1px solid rgba(255,255,255,.15);
+  }
+  #miniBar{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,.65);
+    color:#fff;
+    font-size:.9rem;
+  }
+  #miniBar b{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width: 260px}
+  #miniClose{background:transparent; border:1px solid rgba(255,255,255,.25); color:#fff; border-radius: 999px; padding:6px 10px; cursor:pointer}
+  #miniVideo{width:100%; height: 200px; object-fit:cover; display:block; background:#000}
+</style>
+</head>
+<body>
+  <div class="app">
+
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>FleaPit — Sovereign Media Aggregator</h1>
+          <small id="nowLabel">Library · Channels · Platforms · Resources</small>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input id="searchInput" type="text" placeholder="Search title / category / tags…" />
+        <select id="contentRuleSel" title="Content rule">
+          <option value="All">Content: All</option>
+          <option value="News">Content: News only</option>
+          <option value="Movie">Content: Movie only</option>
+        </select>
+        <button class="btn" id="fontMinus" title="Smaller text">A−</button>
+        <button class="btn" id="fontPlus" title="Larger text">A+</button>
+        <button class="btn" id="contrastBtn" title="High contrast">Contrast</button>
+        <button class="btn" id="darkModeToggle" title="Toggle dark mode">Dark</button>
+        <button class="btn" id="kidsModeBtn" title="Kids Mode">Kids Mode: OFF</button>
+      </div>
+    </header>
+
+    <div class="viewRow">
+      <button class="btn primary active" data-view="grid">Library Grid</button>
+      <button class="btn" data-view="category">By Category</button>
+      <button class="btn" data-view="fleepit">My Library (FleaPit)</button>
+      <button class="btn" data-view="channels">Channels</button>
+      <button class="btn" data-view="platform">Platform Directory</button>
+      <button class="btn" data-view="resources">Resources</button>
+    </div>
+
+    <!-- MAIN -->
+    <main class="panel">
+      <div class="highlight" id="topHighlight">
+        <div class="highlightTop">
+          <div class="highlightMeta">
+            <h2 id="highlightTitle">—</h2>
+            <div class="sub">
+              <div id="highlightCat">—</div>
+              <div id="highlightTags">tags: —</div>
+              <div id="highlightMode" style="margin-top:6px;color:var(--muted)">Library</div>
+            </div>
+            <div class="pillRow">
+              <span class="pill" id="historyHint">History: —</span>
+              <span class="pill" id="currentPlaying">Playing: —</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn small" id="pipBtn">PiP</button>
+            <button class="btn small" id="castBtn">Cast</button>
+            <button class="btn small" id="popWinBtn">Pop-out</button>
+          </div>
+        </div>
+
+        <div class="videoWrap">
+          <video id="highlightPlayer" class="main" controls playsinline></video>
+        </div>
+
+        <div class="resumeBar" id="resumeBar">
+          <small id="resumeText">Continue Watching…</small>
+          <div class="row">
+            <button class="btn small primary" id="resumeBtn">Resume</button>
+            <button class="btn small" id="restartBtn">Restart</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="chips" id="tagChips"></div>
+        </div>
+        <div class="row">
+          <div class="chips" id="watchedChips"></div>
+        </div>
+      </div>
+
+      <!-- Channels panel -->
+      <div id="channelsPanel" class="sectionCard" style="margin-top:12px">
+        <div class="row" style="justify-content:space-between; align-items:flex-end">
+          <div>
+            <b style="font-size:1.05rem">Channels Mode</b><br>
+            <small style="color:var(--muted)">18 rotating “Channel Feeds” previews + channel tuning + schedule blocks. Global Content Rule applies everywhere.</small>
+          </div>
+          <div class="row">
+            <button class="btn small" id="autoScheduleBtn">Auto Schedule: OFF</button>
+            <button class="btn small" id="bumperBtn">Bumpers: OFF</button>
+            <button class="btn small primary" id="editScheduleBtn">Add Schedule Block</button>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:12px; justify-content:space-between">
+          <div class="row">
+            <input id="kidsPass" type="text" placeholder="Kids passcode (optional)" style="min-width:220px" />
+            <button class="btn small" id="saveKidsPass">Save</button>
+            <button class="btn small danger" id="clearKidsPass">Clear</button>
+          </div>
+          <div class="row">
+            <button class="btn small" id="feedsRefreshBtn">Rotate Feeds Now</button>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <b>Channel Feeds (18 live previews)</b>
+          <div id="channelFeedsGrid" class="feedsGrid" style="margin-top:10px"></div>
+        </div>
+
+        <div style="margin-top:14px">
+          <b>Channels</b>
+          <div id="channelGrid" class="channelGrid" style="margin-top:10px"></div>
+        </div>
+
+        <div style="margin-top:14px">
+          <b>Schedule Blocks</b>
+          <div id="scheduleList" style="margin-top:10px; display:grid; gap:10px"></div>
+        </div>
+
+        <div style="margin-top:14px">
+          <b>Channel Catalog (opens external sites)</b>
+          <div class="row" style="margin-top:10px">
+            <select id="catalogRegion"></select>
+            <select id="catalogTopic"></select>
+            <button class="btn small" id="catalogReset">Reset</button>
+          </div>
+          <div id="catalogList" style="margin-top:10px; display:grid; gap:10px"></div>
+        </div>
+      </div>
+
+      <!-- Aggregator grid -->
+      <div id="aggregator" class="grid" style="margin-top:12px"></div>
+
+      <!-- Free Feeds -->
+      <div id="freeFeedsSection" class="sectionCard" style="margin-top:14px">
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <b>Free Feeds Wall</b><br>
+            <small style="color:var(--muted)">Rotating public MP4 clips (muted previews). Respects Kids Mode and the Content Rule.</small>
+          </div>
+          <button class="btn small" id="clipsRefresh">Refresh Wall</button>
+        </div>
+        <div id="clipsGrid" class="clipsGrid" style="margin-top:10px"></div>
+      </div>
+
+    </main>
+
+    <!-- SIDEBAR -->
+    <aside class="panel side">
+      <h3>Playlists</h3>
+      <small>Drag to reorder items inside a playlist. “Channel Queue” is built when you Tune In.</small>
+
+      <div class="playlistBox">
+        <div class="playlistTop">
+          <select id="playlistSelector"></select>
+          <button class="btn small" id="prevBtn">⏮</button>
+          <button class="btn small primary" id="playPauseBtn">▶️ Play</button>
+          <button class="btn small" id="nextBtn">⏭</button>
+          <button class="btn small" id="shuffleBtn">🔀</button>
+          <button class="btn small danger" id="clearOldHistoryBtn">Clear 30d History</button>
+        </div>
+        <div id="playlistItems" class="playlistItems"></div>
+      </div>
+
+      <div class="sectionCard" style="margin-top:12px">
+        <b>Create / Manage playlists</b>
+        <div class="row" style="margin-top:10px">
+          <input id="newPlaylistName" type="text" placeholder="New playlist name" />
+          <button class="btn small primary" id="addPlaylistBtn">Add</button>
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn small" id="renamePlaylistBtn">Rename</button>
+          <button class="btn small danger" id="deletePlaylistBtn">Delete</button>
+        </div>
+      </div>
+
+      <div class="sectionCard" style="margin-top:12px">
+        <b>Add a direct video URL</b><br>
+        <small style="color:var(--muted)">Direct links only: mp4/webm/m4v/mov</small>
+        <div class="row" style="margin-top:10px">
+          <input id="addTitle" type="text" placeholder="Title" />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <input id="addURL" type="text" placeholder="https://… .mp4" />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <input id="addCategory" type="text" placeholder='Category | tags: nature,history  (or #tags)' />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <select id="addToPlaylist"></select>
+          <button class="btn small primary" id="addBtn">Add</button>
+        </div>
+      </div>
+
+      <div class="sectionCard" style="margin-top:12px">
+        <b>Local files (session only)</b><br>
+        <small style="color:var(--muted)">These don’t persist after refresh.</small>
+        <div class="row" style="margin-top:10px">
+          <input id="localFiles" type="file" accept="video/*" multiple />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button class="btn small danger" id="clearLocal">Clear Local Session</button>
+        </div>
+      </div>
+
+      <div class="sectionCard" style="margin-top:12px">
+        <b>Backup / Restore</b><br>
+        <small style="color:var(--muted)">Export JSON anytime to back up your library, playlists, schedule, and progress.</small>
+        <div class="row" style="margin-top:10px">
+          <button class="btn small primary" id="exportBtn">Export JSON</button>
+          <input id="importFile" type="file" accept="application/json" />
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <footer class="appFooter">
+    FleaPit © VerveN Veda & Khaemenes Academy — Sovereign media library, channel tuner, and resource directory.
+  </footer>
+
+  <!-- Mini Dock -->
+  <div id="miniPlayer">
+    <div id="miniBar">
+      <b id="miniTitle">Playing…</b>
+      <button id="miniClose">Close</button>
+    </div>
+    <video id="miniVideo" playsinline controls></video>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast">
+    <div class="row">
+      <div id="toastMsg">—</div>
+      <div id="toastActions">
+        <button class="btn small" id="toastUndo" style="display:none">Undo</button>
+        <button class="btn small primary" id="toastOk">OK</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ===========================
+   Flea Pit — Channels Premium
+   =========================== */
+
+/* ---------- Helpers ---------- */
+const $ = (id)=>document.getElementById(id);
+const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
+const now = ()=>Date.now();
+const msDay = 86400000;
+
+const memoryStore = new Map();
+function storageAvailable(){
+  try{
+    const k = "__fleepit_storage_test__";
+    localStorage.setItem(k, "1");
+    localStorage.removeItem(k);
+    return true;
+  }catch{
+    return false;
+  }
+}
+const canUseStorage = storageAvailable();
+function getStored(key){
+  try{
+    return canUseStorage ? localStorage.getItem(key) : (memoryStore.has(key) ? memoryStore.get(key) : null);
+  }catch{
+    return memoryStore.has(key) ? memoryStore.get(key) : null;
+  }
+}
+function setStored(key, value){
+  try{
+    if(canUseStorage) localStorage.setItem(key, value);
+    else memoryStore.set(key, value);
+  }catch{
+    memoryStore.set(key, value);
+  }
+}
+function removeStored(key){
+  try{
+    if(canUseStorage) localStorage.removeItem(key);
+    memoryStore.delete(key);
+  }catch{
+    memoryStore.delete(key);
+  }
+}
+function safeJSON(key, fallback){
+  try{
+    const raw = getStored(key);
+    return raw == null ? fallback : JSON.parse(raw);
+  }
+  catch{ return fallback; }
+}
+function setJSON(key, val){ setStored(key, JSON.stringify(val)); }
+function escapeHTML(value){
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+}
+
+function toast(msg, {undoText="Undo", onUndo=null} = {}){
+  const t = $("toast");
+  $("toastMsg").textContent = msg;
+  t.style.display = "block";
+  $("toastUndo").style.display = onUndo ? "inline-block" : "none";
+  $("toastUndo").textContent = undoText;
+  $("toastOk").onclick = ()=>{ t.style.display="none"; };
+  $("toastUndo").onclick = ()=>{
+    try{ onUndo && onUndo(); }catch{}
+    t.style.display="none";
+  };
+  clearTimeout(toast._tm);
+  toast._tm = setTimeout(()=>{ t.style.display="none"; }, 9500);
+}
+function fmtTime(s){
+  s = Math.max(0, Math.floor(s||0));
+  const m = Math.floor(s/60), r = s%60;
+  return `${m}:${String(r).padStart(2,"0")}`;
+}
+function parseTagsFromCategory(input){
+  const raw = (input||"").trim();
+  const parts = raw.split("|").map(x=>x.trim()).filter(Boolean);
+  let category = parts[0] || "Uncategorized";
+  let tags = [];
+  const tagPart = parts.find(p=>/^tags\s*:/i.test(p));
+  if(tagPart){
+    tags = tagPart.replace(/^tags\s*:/i,"").split(",").map(t=>t.trim().toLowerCase()).filter(Boolean);
+  }
+  const hashTags = raw.match(/#([a-z0-9_]+)/ig);
+  if(hashTags){
+    hashTags.forEach(h=>tags.push(h.replace("#","").toLowerCase()));
+  }
+  tags = [...new Set(tags)].slice(0,18);
+  return {category, tags};
+}
+function keyFor(v){
+  return String(v.id ?? v.src ?? v.title ?? Math.random());
+}
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+function includesAny(text, words){
+  const t = (text||"").toLowerCase();
+  return words.some(w=>t.includes(w));
+}
+function dedupeByKey(list){
+  const seen = new Set();
+  const out = [];
+  for(const it of list){
+    const k = keyFor(it);
+    if(seen.has(k)) continue;
+    seen.add(k);
+    out.push(it);
+  }
+  return out;
+}
+
+/* ---------- Settings ---------- */
+let darkMode = safeJSON("fleepit_dark", false);
+let highContrast = safeJSON("fleepit_contrast", false);
+let fontScale = safeJSON("fleepit_fontScale", 1.15);
+let kidsMode = safeJSON("fleepit_kidsMode", false);
+let kidsPass = getStored("fleepit_kidsPass") || "";
+let contentRule = safeJSON("fleepit_contentRule", "All"); // All | News | Movie
+
+// “Kid-safe mode” blocks
+const BLOCKED_KIDS_WORDS = [
+  "war","killed","kill","murder","shoot","shooting","gun","guns","weapon","blood","terror",
+  "rape","sexual","porn","drugs","cocaine","heroin","meth","overdose","suicide","dead","death"
+];
+const SPICY_TAGS = ["truecrime","crime","war","violence","adult","nsfw","politics-hot","gore"];
+
+/* ---------- State: Libraries ---------- */
+let videos = [
+  {id:"sample1", title:"Sample Video 1", src:"https://www.w3schools.com/html/mov_bbb.mp4", category:"Music", tags:["music"]},
+  {id:"sample2", title:"Sample Video 2", src:"https://www.w3schools.com/html/movie.mp4", category:"Movie", tags:["movie"]},
+  {id:"sample_news1", title:"Sample News Clip (Demo)", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", category:"News", tags:["news","headlines","demo"]},
+];
+let fleepitVideos = safeJSON("fleepitVideos", []);
+let fleepitOrder  = safeJSON("fleepitOrder", []);
+let localVideos = []; // session-only
+
+function syncOrder(){
+  const ids = fleepitVideos.map(v=>String(v.id));
+  fleepitOrder = fleepitOrder.filter(id=>ids.includes(String(id)));
+  ids.forEach(id=>{ if(!fleepitOrder.includes(id)) fleepitOrder.push(id); });
+  setJSON("fleepitOrder", fleepitOrder);
+}
+syncOrder();
+
+/* ---------- Playlists + History + Resume ---------- */
+let playlists = safeJSON("playlists", {"Favorites":[], "History":[]});
+if(!Object.keys(playlists).length) playlists = {"Favorites":[], "History":[]};
+if(!playlists.Favorites) playlists.Favorites = [];
+if(!playlists.History) playlists.History = [];
+
+let resumeMap = safeJSON("fleepit_resumeMap", {}); // {key:{t,updatedAt}}
+let watchedMap = safeJSON("fleepit_watchedMap", {}); // {key:true}
+let currentPlaylistName = Object.keys(playlists)[0] || "Favorites";
+let currentPlaylist = playlists[currentPlaylistName] || [];
+let currentIndex = 0;
+let isPlaying = false;
+
+const HISTORY_LIMIT = 35;
+
+/* ---------- Free Clips Library (direct mp4) ---------- */
+const FREE_CLIPS = [
+  {id:"clip_bbb", title:"Big Buck Bunny (Trailer)", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", category:"Free Clips", tags:["free","animation","family"]},
+  {id:"clip_ed",  title:"Elephant Dream", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", category:"Free Clips", tags:["free","animation","art"]},
+  {id:"clip_sintel", title:"Sintel (Trailer)", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", category:"Free Clips", tags:["free","animation","fantasy"]},
+  {id:"clip_tears", title:"Tears of Steel", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", category:"Free Clips", tags:["free","sci-fi","film","movie"]},
+  {id:"clip_forbigger", title:"For Bigger Blazes", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", category:"Free Clips", tags:["free","bumper"]},
+  {id:"clip_forescape", title:"For Bigger Escape", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", category:"Free Clips", tags:["free","bumper"]},
+  {id:"clip_subaru", title:"Subaru Outback On Street And Dirt", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4", category:"Free Clips", tags:["free","travel"]},
+  {id:"clip_weare", title:"We Are Going On Bullrun", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4", category:"Free Clips", tags:["free","cars"]},
+  {id:"clip_ford", title:"Ford F150", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/FordF150.mp4", category:"Free Clips", tags:["free","cars"]},
+  {id:"clip_dream", title:"Volkswagen GTI Review", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4", category:"Free Clips", tags:["free","review"]},
+  {id:"clip_google", title:"For Bigger Meltdowns", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4", category:"Free Clips", tags:["free","bumper"]},
+  {id:"clip_bunny2", title:"Big Buck Bunny (Alt)", src:"https://www.w3schools.com/html/mov_bbb.mp4", category:"Free Clips", tags:["free","family"]},
+  {id:"clip_bunny3", title:"Movie Sample", src:"https://www.w3schools.com/html/movie.mp4", category:"Free Clips", tags:["free","movie"]},
+];
+
+/* ---------- Channels ---------- */
+const CHANNELS = [
+  {id:"doc",   name:"Documentary Channel", region:"Global", topic:"Documentary", tags:["documentary","history","nature","science","education"], blurb:"Curated documentaries + learning films. Auto-shuffles from your library + free clips."},
+  {id:"kids",  name:"Kids Channel", region:"Global", topic:"Kids", tags:["kids","family","education","learning","cartoon"], blurb:"Kid-safe queue (especially great with Kids Mode ON)."},
+  {id:"comedy",name:"Comedy Channel", region:"Global", topic:"Comedy", tags:["comedy","funny","standup","humor"], blurb:"Light-hearted picks — shuffle and relax."},
+  {id:"scitech",name:"Science & Tech Channel", region:"Global", topic:"Science/Tech", tags:["science","tech","ai","innovation","space","engineering"], blurb:"Science, technology, AI innovation, and future-minded clips."},
+  {id:"music", name:"Music Channel", region:"Global", topic:"Music", tags:["music","concert","live","instrumental","piano"], blurb:"Music videos, performances, and soothing sessions."},
+  {id:"world", name:"World & Culture Channel", region:"Global", topic:"Culture", tags:["culture","travel","world","language","art"], blurb:"International culture, travel, art & world perspectives."},
+  {id:"news",  name:"News Channel", region:"Global", topic:"News", tags:["news","headlines","current","worldnews","journalism","reports"], blurb:"News-style clips in your library (tag/category driven)."},
+  {id:"movies",name:"Movie Night Channel", region:"Global", topic:"Movies", tags:["movie","film","cinema","feature","trailer"], blurb:"Movie clips, trailers, film tags — great for an evening queue."},
+];
+
+/* ---------- 18 Channel Feed Tiles (Premium) ---------- */
+const CHANNEL_FEEDS = [
+  {id:"f_doc_1", channel:"doc", label:"Docs · Now"},
+  {id:"f_doc_2", channel:"doc", label:"Nature · Loop"},
+  {id:"f_doc_3", channel:"doc", label:"History · Reel"},
+  {id:"f_kids_1", channel:"kids", label:"Kids · Bright"},
+  {id:"f_kids_2", channel:"kids", label:"Family · Play"},
+  {id:"f_kids_3", channel:"kids", label:"Learning · Peek"},
+  {id:"f_scitech_1", channel:"scitech", label:"SciTech · Pulse"},
+  {id:"f_scitech_2", channel:"scitech", label:"AI · Glimpse"},
+  {id:"f_music_1", channel:"music", label:"Music · Chill"},
+  {id:"f_music_2", channel:"music", label:"Piano · Soft"},
+  {id:"f_world_1", channel:"world", label:"World · Window"},
+  {id:"f_world_2", channel:"world", label:"Culture · Color"},
+  {id:"f_comedy_1", channel:"comedy", label:"Comedy · Smile"},
+  {id:"f_comedy_2", channel:"comedy", label:"Humor · Break"},
+  {id:"f_news_1", channel:"news", label:"News · Live"},
+  {id:"f_news_2", channel:"news", label:"Headlines · Loop"},
+  {id:"f_movies_1", channel:"movies", label:"Movies · Night"},
+  {id:"f_movies_2", channel:"movies", label:"Trailers · Roll"},
+];
+
+/* Channel Catalog (external) */
+const CHANNEL_CATALOG = [
+  {name:"PBS KIDS Video", region:"North America", topic:"Kids", url:"https://pbskids.org/video", note:"Free kids videos (US-focused)."},
+  {name:"ARTE Videos", region:"Europe", topic:"Documentary", url:"https://www.arte.tv/en/videos", note:"Documentaries, culture, concerts (availability varies)."},
+  {name:"Pluto TV", region:"Global", topic:"Free TV", url:"https://pluto.tv", note:"FAST live channels + on-demand (ad-supported)."},
+  {name:"Internet Archive (Video)", region:"Global", topic:"Public Domain", url:"https://archive.org/details/movies", note:"Public domain + community uploads (verify licensing)."},
+  {name:"Kanopy", region:"Global", topic:"Library Streaming", url:"https://www.kanopy.com", note:"Free via participating libraries/universities."},
+  {name:"NHK WORLD-JAPAN", region:"Asia", topic:"News/Culture", url:"https://www3.nhk.or.jp/nhkworld/", note:"International Japan news & culture."},
+  {name:"Deutsche Welle (DW)", region:"Europe", topic:"News/Documentary", url:"https://www.dw.com", note:"International news + documentaries."},
+  {name:"France 24", region:"Europe", topic:"News", url:"https://www.france24.com/en/", note:"International news network."},
+  {name:"Al Jazeera English", region:"Middle East", topic:"News", url:"https://www.aljazeera.com", note:"International news network."},
+  {name:"CBC News", region:"North America", topic:"News", url:"https://www.cbc.ca/news", note:"Canada news (some content geo-restricted)."},
+  {name:"ABC News Australia", region:"Oceania", topic:"News", url:"https://www.abc.net.au/news", note:"Australia public broadcaster."},
+];
+
+
+
+/* ---------- Sovereign Platform + Resource Directory ---------- */
+const SOVEREIGN_DIRECTORY = [
+  {name:"Archive.org", desc:"Public-domain and community video, audio, books, films, and software archives.", url:"https://archive.org", group:"Archives", kind:"resource", tags:["archive","public domain","video","books"]},
+  {name:"Internet Archive Movies", desc:"Large moving-image collection with public-domain and community uploads. Verify licensing before reuse.", url:"https://archive.org/details/movies", group:"Archives", kind:"resource", tags:["archive","movies","public domain"]},
+  {name:"American Archive of Public Broadcasting", desc:"Historic public television and radio collections from across the United States.", url:"https://americanarchive.org", group:"Archives", kind:"resource", tags:["public broadcasting","history","education"]},
+  {name:"Alan Lomax Archive", desc:"Traditional music, field recordings, cultural equity collections, and folk heritage materials.", url:"https://archive.culturalequity.org", group:"Music Archives", kind:"resource", tags:["music","field recordings","culture"]},
+  {name:"PBS", desc:"Public broadcasting programming, educational videos, and station content.", url:"https://pbs.org", group:"Public Media", kind:"resource", tags:["pbs","education","documentary"]},
+  {name:"PBS KIDS Video", desc:"Child-friendly public media videos and learning shows.", url:"https://pbskids.org/video", group:"Kids Learning", kind:"resource", tags:["kids","family","learning"]},
+  {name:"TED Talks", desc:"Talks and lessons on science, society, creativity, business, learning, and ideas.", url:"https://www.ted.com/talks", group:"Learning", kind:"resource", tags:["education","ideas","talks"]},
+  {name:"National Geographic Videos", desc:"Science, nature, exploration, culture, and educational video features.", url:"https://www.nationalgeographic.com/videos", group:"Learning", kind:"resource", tags:["nature","science","culture"]},
+  {name:"WatchDocumentaries", desc:"Documentary discovery directory for free documentary films and series.", url:"https://watchdocumentaries.com", group:"Documentaries", kind:"resource", tags:["documentary","films","education"]},
+  {name:"Kanopy", desc:"Library and university-supported film streaming where available.", url:"https://www.kanopy.com", group:"Library Streaming", kind:"resource", tags:["library","films","education"]},
+  {name:"ARTE Videos", desc:"European culture, documentary, concerts, and art programming. Availability varies by region.", url:"https://www.arte.tv/en/videos", group:"Public Media", kind:"resource", tags:["culture","documentary","arts"]},
+  {name:"Reuters", desc:"Global news wire and video coverage.", url:"https://reuters.com", group:"News", kind:"resource", tags:["news","global","journalism"]},
+  {name:"BBC News", desc:"International news coverage and video reporting.", url:"https://www.bbc.com/news", group:"News", kind:"resource", tags:["news","global","video"]},
+  {name:"Al Jazeera", desc:"International news network with documentaries, live coverage, and analysis.", url:"https://aljazeera.com", group:"News", kind:"resource", tags:["news","international","documentary"]},
+  {name:"NHK WORLD-JAPAN", desc:"Japan-based international news, culture, travel, and documentary programming.", url:"https://www3.nhk.or.jp/nhkworld/", group:"News/Culture", kind:"resource", tags:["news","culture","japan"]},
+  {name:"Deutsche Welle", desc:"International news, documentaries, and explainers from Germany’s public broadcaster.", url:"https://www.dw.com", group:"News/Documentary", kind:"resource", tags:["news","documentary","world"]},
+  {name:"France 24", desc:"International news network with live coverage and on-demand reports.", url:"https://www.france24.com/en/", group:"News", kind:"resource", tags:["news","international","video"]},
+  {name:"CBC News", desc:"Canadian news, public-interest reporting, and video coverage.", url:"https://www.cbc.ca/news", group:"News", kind:"resource", tags:["news","canada","public media"]},
+  {name:"ABC News Australia", desc:"Australian public broadcaster news and video coverage.", url:"https://www.abc.net.au/news", group:"News", kind:"resource", tags:["news","australia","public media"]},
+
+  {name:"Tubi", desc:"Free ad-supported movies and TV.", url:"https://tubitv.com", group:"Free Streaming", kind:"platform", tags:["movies","tv","free"]},
+  {name:"Pluto TV", desc:"Free ad-supported live TV channels and on-demand programming.", url:"https://pluto.tv", group:"Free Streaming", kind:"platform", tags:["live tv","movies","free"]},
+  {name:"The Roku Channel", desc:"Free movies, shows, and live TV through Roku’s streaming platform.", url:"https://therokuchannel.roku.com", group:"Free Streaming", kind:"platform", tags:["movies","tv","free"]},
+  {name:"Crackle", desc:"Free movies, shows, and originals.", url:"https://www.crackle.com", group:"Free Streaming", kind:"platform", tags:["movies","shows","free"]},
+  {name:"Plex", desc:"Personal media server tools plus free streaming movies, TV, and channels.", url:"https://plex.tv", group:"Media Hub", kind:"platform", tags:["media server","streaming","free"]},
+  {name:"YouTube", desc:"Official channels, creators, education, music, news, and live video.", url:"https://www.youtube.com", group:"Video Platform", kind:"platform", tags:["video","creators","education"]},
+  {name:"YouTube Music", desc:"Music streaming and official music videos.", url:"https://music.youtube.com", group:"Music Platform", kind:"platform", tags:["music","streaming","video"]},
+  {name:"Vimeo", desc:"Independent film, creative video, and professional video hosting.", url:"https://vimeo.com", group:"Video Platform", kind:"platform", tags:["film","creative","video"]},
+  {name:"Dailymotion", desc:"Global video sharing and news/video discovery platform.", url:"https://www.dailymotion.com", group:"Video Platform", kind:"platform", tags:["video","global","sharing"]},
+  {name:"Yidio", desc:"Streaming search and discovery across services.", url:"https://www.yidio.com", group:"Search/Aggregation", kind:"platform", tags:["search","streaming","movies"]},
+  {name:"VideoSift", desc:"Community-curated videos and discovery.", url:"https://www.videosift.com", group:"Search/Aggregation", kind:"platform", tags:["curated","video","community"]},
+  {name:"SoundCloud", desc:"Independent music, podcasts, creator audio, and community tracks.", url:"https://soundcloud.com", group:"Music Platform", kind:"platform", tags:["music","podcasts","independent"]},
+  {name:"Bandcamp", desc:"Artist-driven music marketplace with direct fan support.", url:"https://bandcamp.com", group:"Music Platform", kind:"platform", tags:["music","artists","marketplace"]},
+  {name:"Audiomack", desc:"Free music streaming focused on hip-hop, global music, and emerging artists.", url:"https://audiomack.com", group:"Music Platform", kind:"platform", tags:["music","hip hop","global"]},
+  {name:"Mixcloud", desc:"DJ mixes, radio shows, and long-form music programming.", url:"https://www.mixcloud.com", group:"Music Platform", kind:"platform", tags:["dj","radio","music"]},
+  {name:"Spotify", desc:"Subscription and free-tier music and podcast streaming.", url:"https://www.spotify.com", group:"Music Platform", kind:"platform", tags:["music","podcasts","subscription"]},
+  {name:"Apple Music", desc:"Subscription music streaming and artist catalog access.", url:"https://music.apple.com", group:"Music Platform", kind:"platform", tags:["music","subscription","apple"]},
+  {name:"Amazon Music", desc:"Music streaming and purchases through Amazon.", url:"https://music.amazon.com", group:"Music Platform", kind:"platform", tags:["music","subscription","amazon"]},
+  {name:"Tidal", desc:"Music streaming with high-fidelity tiers and artist-focused catalog tools.", url:"https://tidal.com", group:"Music Platform", kind:"platform", tags:["music","hifi","subscription"]},
+  {name:"Deezer", desc:"Global music streaming service.", url:"https://www.deezer.com", group:"Music Platform", kind:"platform", tags:["music","streaming","global"]},
+  {name:"Qobuz", desc:"Hi-res music streaming and downloads.", url:"https://www.qobuz.com", group:"Music Platform", kind:"platform", tags:["music","hi-res","downloads"]},
+  {name:"Netflix", desc:"Subscription movies, series, documentaries, and originals.", url:"https://www.netflix.com", group:"Subscription Streaming", kind:"platform", tags:["movies","tv","subscription"]},
+  {name:"Amazon Prime Video", desc:"Movies, shows, originals, rentals, and purchases.", url:"https://www.primevideo.com", group:"Subscription Streaming", kind:"platform", tags:["movies","tv","subscription"]},
+  {name:"Hulu", desc:"TV shows, movies, originals, and bundle streaming options.", url:"https://www.hulu.com", group:"Subscription Streaming", kind:"platform", tags:["tv","movies","subscription"]},
+  {name:"Disney+", desc:"Disney, Pixar, Marvel, Star Wars, National Geographic, and family programming.", url:"https://www.disneyplus.com", group:"Subscription Streaming", kind:"platform", tags:["family","movies","subscription"]},
+  {name:"Max", desc:"HBO, films, series, documentaries, and originals.", url:"https://www.max.com", group:"Subscription Streaming", kind:"platform", tags:["hbo","movies","subscription"]},
+  {name:"Paramount+", desc:"Movies, TV, originals, and sports/live programming.", url:"https://www.paramountplus.com", group:"Subscription Streaming", kind:"platform", tags:["tv","movies","sports"]},
+  {name:"Peacock", desc:"NBCUniversal movies, shows, sports, news, and originals.", url:"https://www.peacocktv.com", group:"Subscription Streaming", kind:"platform", tags:["tv","movies","news"]},
+  {name:"Apple TV+", desc:"Original films, series, and documentaries.", url:"https://tv.apple.com", group:"Subscription Streaming", kind:"platform", tags:["movies","originals","subscription"]},
+  {name:"Stereogum", desc:"Indie music news, album coverage, and music culture.", url:"https://www.stereogum.com", group:"Music News", kind:"platform", tags:["music","news","culture"]}
+];
+
+function directoryMatches(item, q){
+  const text = `${item.name} ${item.desc} ${item.group} ${(item.tags||[]).join(" ")}`.toLowerCase();
+  return !q || text.includes(q);
+}
+function renderDirectory(q, mode){
+  const kind = mode === "platform" ? "platform" : "resource";
+  const title = kind === "platform" ? "Platform Directory" : "Resource Library";
+  const description = kind === "platform"
+    ? "Open streaming, music, video, and discovery platforms from one sovereign hub. External services open in a new tab."
+    : "Open archives, public media, learning collections, news sources, documentaries, and cultural resources from one hub.";
+
+  aggregator.innerHTML = "";
+  const hero = document.createElement("div");
+  hero.className = "sectionCard resourceHero";
+  hero.innerHTML = `<div><h3>${escapeHTML(title)}</h3><p>${escapeHTML(description)}</p></div><div class="pill">${kind === "platform" ? "External Platforms" : "Research + Learning"}</div>`;
+  aggregator.appendChild(hero);
+
+  const items = SOVEREIGN_DIRECTORY
+    .filter(x=>x.kind === kind)
+    .filter(x=>directoryMatches(x, q));
+
+  if(!items.length){
+    const empty = document.createElement("div");
+    empty.className = "sectionCard";
+    empty.style.gridColumn = "1/-1";
+    empty.innerHTML = `<b>No directory results.</b><br><small style="color:var(--muted)">Try a broader search term.</small>`;
+    aggregator.appendChild(empty);
+    return;
+  }
+
+  items.forEach(item=>{
+    const card = document.createElement("div");
+    card.className = "resourceCard";
+    card.innerHTML = `
+      <div>
+        <h4>${escapeHTML(item.name)}</h4>
+        <p>${escapeHTML(item.desc)}</p>
+      </div>
+      <div class="resourceMeta">
+        <span class="resourceBadge">${escapeHTML(item.group)}</span>
+        ${(item.tags||[]).slice(0,3).map(t=>`<span class="resourceBadge">${escapeHTML(t)}</span>`).join("")}
+      </div>
+      <div class="resourceActions">
+        <a class="btn small primary" href="${escapeHTML(item.url)}" target="_blank" rel="noopener noreferrer">Open</a>
+        <button class="btn small" type="button">Copy Link</button>
+      </div>
+    `;
+    const copy = card.querySelector("button");
+    copy.onclick = ()=>{
+      const text = `${item.name} — ${item.url}`;
+      if(navigator.clipboard){
+        navigator.clipboard.writeText(text).then(()=>toast("Directory link copied.")).catch(()=>prompt("Copy link:", text));
+      }else{
+        prompt("Copy link:", text);
+      }
+    };
+    aggregator.appendChild(card);
+  });
+}
+
+/* ---------- Schedule + Bumpers ---------- */
+const DEFAULT_SCHEDULE = [
+  {days:"all", start:6,  end:11, channel:"kids",   label:"Morning Kids"},
+  {days:"weekdays", start:11, end:16, channel:"doc",   label:"Midday Documentary"},
+  {days:"weekdays", start:16, end:19, channel:"scitech",label:"Afternoon Sci/Tech"},
+  {days:"all", start:19, end:21, channel:"news",  label:"Evening News"},
+  {days:"all", start:21, end:24, channel:"movies",label:"Movie Night"},
+  {days:"all", start:0,  end:6,  channel:"world", label:"Night World"},
+];
+let schedule = safeJSON("fleepit_schedule", DEFAULT_SCHEDULE);
+let autoSchedule = safeJSON("fleepit_autoSchedule", false);
+let bumpersEnabled = safeJSON("fleepit_bumpers", false);
+
+const BUMPER_ASSETS = [
+  {title:"Flea Pit Bumper", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4", start:0, end:7.5},
+  {title:"Flea Pit Bumper 2", src:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4", start:0, end:7.5},
+];
+
+/* ---------- DOM ---------- */
+const aggregator = $("aggregator");
+const searchInput = $("searchInput");
+const darkModeToggle = $("darkModeToggle");
+const kidsModeBtn = $("kidsModeBtn");
+const fontMinus = $("fontMinus");
+const fontPlus = $("fontPlus");
+const contrastBtn = $("contrastBtn");
+const contentRuleSel = $("contentRuleSel");
+
+const highlightPlayer = $("highlightPlayer");
+const highlightTitle = $("highlightTitle");
+const highlightCat = $("highlightCat");
+const highlightTags = $("highlightTags");
+const highlightMode = $("highlightMode");
+const resumeBar = $("resumeBar");
+const resumeText = $("resumeText");
+const resumeBtn = $("resumeBtn");
+const restartBtn = $("restartBtn");
+const historyHint = $("historyHint");
+const nowLabel = $("nowLabel");
+
+const pipBtn = $("pipBtn");
+const castBtn = $("castBtn");
+const popWinBtn = $("popWinBtn");
+
+const clipsGrid = $("clipsGrid");
+const clipsRefresh = $("clipsRefresh");
+
+const addBtn = $("addBtn");
+const addTitle = $("addTitle");
+const addURL = $("addURL");
+const addCategory = $("addCategory");
+const addToPlaylistSel = $("addToPlaylist");
+const localFiles = $("localFiles");
+const clearLocal = $("clearLocal");
+const exportBtn = $("exportBtn");
+const importFile = $("importFile");
+
+const tagChips = $("tagChips");
+const watchedChips = $("watchedChips");
+
+const channelsPanel = $("channelsPanel");
+const channelGrid = $("channelGrid");
+const channelFeedsGrid = $("channelFeedsGrid");
+const feedsRefreshBtn = $("feedsRefreshBtn");
+const scheduleList = $("scheduleList");
+const autoScheduleBtn = $("autoScheduleBtn");
+const bumperBtn = $("bumperBtn");
+const editScheduleBtn = $("editScheduleBtn");
+const kidsPassInput = $("kidsPass");
+const saveKidsPass = $("saveKidsPass");
+const clearKidsPass = $("clearKidsPass");
+
+const catalogRegion = $("catalogRegion");
+const catalogTopic = $("catalogTopic");
+const catalogReset = $("catalogReset");
+const catalogList = $("catalogList");
+
+const miniPlayer = $("miniPlayer");
+const miniClose = $("miniClose");
+const miniTitle = $("miniTitle");
+const miniVideo = $("miniVideo");
+
+const currentPlayingSpan = $("currentPlaying");
+const playlistSelector = $("playlistSelector");
+const playlistItemsDiv = $("playlistItems");
+const newPlaylistNameInput = $("newPlaylistName");
+const addPlaylistBtn = $("addPlaylistBtn");
+const deletePlaylistBtn = $("deletePlaylistBtn");
+const renamePlaylistBtn = $("renamePlaylistBtn");
+const playPauseBtn = $("playPauseBtn");
+const prevBtn = $("prevBtn");
+const nextBtn = $("nextBtn");
+const shuffleBtn = $("shuffleBtn");
+const clearOldHistoryBtn = $("clearOldHistoryBtn");
+
+/* ---------- View + Filters ---------- */
+let currentView = "grid"; // grid | category | fleepit | channels | platform | resources
+let activeTag = "All";
+let watchedFilter = "All"; // All | Unwatched | Watched
+let currentChannel = null;
+let channelQueue = [];
+let channelMode = false;
+
+/* ---------- Theme ---------- */
+function applyTheme(){
+  document.body.classList.toggle("dark", darkMode);
+  document.body.style.setProperty("--fontScale", fontScale);
+  document.body.style.filter = highContrast ? "contrast(1.15) saturate(1.05)" : "none";
+  darkModeToggle.classList.toggle("active", darkMode);
+  kidsModeBtn.classList.toggle("active", kidsMode);
+  kidsModeBtn.textContent = `Kids Mode: ${kidsMode ? "ON" : "OFF"}`;
+  contrastBtn.classList.toggle("active", highContrast);
+  // content rule select
+  if(contentRuleSel) contentRuleSel.value = contentRule;
+}
+applyTheme();
+
+/* ---------- Dark / Contrast / Font / Kids Mode ---------- */
+darkModeToggle.onclick = ()=>{
+  darkMode = !darkMode;
+  setJSON("fleepit_dark", darkMode);
+  applyTheme();
+};
+contrastBtn.onclick = ()=>{
+  highContrast = !highContrast;
+  setJSON("fleepit_contrast", highContrast);
+  applyTheme();
+};
+fontMinus.onclick = ()=>{
+  fontScale = clamp((fontScale - 0.08), 1, 1.8);
+  setJSON("fleepit_fontScale", fontScale);
+  applyTheme();
+};
+fontPlus.onclick = ()=>{
+  fontScale = clamp((fontScale + 0.08), 1, 1.8);
+  setJSON("fleepit_fontScale", fontScale);
+  applyTheme();
+};
+kidsModeBtn.onclick = ()=>{
+  if(kidsMode){
+    if(kidsPass){
+      const attempt = prompt("Enter Kids Mode passcode to turn OFF:");
+      if(attempt !== kidsPass) return alert("Incorrect passcode.");
+    }
+    kidsMode = false;
+  }else{
+    kidsMode = true;
+  }
+  setJSON("fleepit_kidsMode", kidsMode);
+  applyTheme();
+  renderAll();
+};
+saveKidsPass.onclick = ()=>{
+  const v = (kidsPassInput.value||"").trim();
+  if(!v) return alert("Enter a passcode first (or use Clear).");
+  kidsPass = v;
+  setStored("fleepit_kidsPass", kidsPass);
+  kidsPassInput.value = "";
+  toast("Kids Mode passcode saved.");
+};
+clearKidsPass.onclick = ()=>{
+  kidsPass = "";
+  removeStored("fleepit_kidsPass");
+  kidsPassInput.value = "";
+  toast("Kids Mode passcode cleared.");
+};
+
+contentRuleSel.onchange = ()=>{
+  contentRule = contentRuleSel.value;
+  setJSON("fleepit_contentRule", contentRule);
+  toast(`Content rule set: ${contentRuleSel.options[contentRuleSel.selectedIndex].text}`);
+  renderAll();
+};
+
+/* ---------- Resource Eligibility (Kids Mode + Content Rule) ---------- */
+function isAllowedInKids(v){
+  if(!kidsMode) return true;
+  const text = `${v.title||""} ${(v.category||"")} ${(v.tags||[]).join(" ")}`;
+  if(includesAny(text, BLOCKED_KIDS_WORDS)) return false;
+  if((v.tags||[]).some(t=>SPICY_TAGS.includes(String(t).toLowerCase()))) return false;
+  return true;
+}
+function passesContentRule(v){
+  if(contentRule === "All") return true;
+  const text = `${v.title||""} ${(v.category||"")} ${(v.tags||[]).join(" ")}`.toLowerCase();
+  const isNews = (
+    text.includes("news") || text.includes("headline") || text.includes("journal") || text.includes("report") ||
+    (v.category||"").toLowerCase().includes("news") ||
+    (v.tags||[]).some(t=>["news","headlines","worldnews","current","currentaffairs","journalism","reports"].includes(String(t).toLowerCase()))
+  );
+  const isMovie = (
+    text.includes("movie") || text.includes("film") || text.includes("cinema") || text.includes("trailer") || text.includes("feature") ||
+    (v.category||"").toLowerCase().includes("movie") ||
+    (v.tags||[]).some(t=>["movie","film","cinema","trailer","feature"].includes(String(t).toLowerCase()))
+  );
+  if(contentRule === "News") return isNews;
+  if(contentRule === "Movie") return isMovie;
+  return true;
+}
+
+/* ---------- Pools ---------- */
+function poolAll(){
+  if(currentView==="fleepit"){
+    const byId = Object.fromEntries(fleepitVideos.map(v=>[String(v.id), v]));
+    const ordered = fleepitOrder.map(id=>byId[String(id)]).filter(Boolean);
+    fleepitVideos.forEach(v=>{ if(!ordered.includes(v)) ordered.push(v); });
+    return ordered;
+  }
+  return [...videos, ...fleepitVideos, ...localVideos];
+}
+
+/* ---------- Chips ---------- */
+const DEFAULT_TAGS = ["All","News","Movie","Music","Documentary","Comedy","Kids","Science","Tech","AI","Art","Travel","Faith","History","Nature","Family","Learning"];
+function getTopTags(){
+  const tags = new Map();
+  poolAll().forEach(v=>{
+    (v.tags||[]).forEach(t=>{
+      const k = String(t).toLowerCase();
+      tags.set(k, (tags.get(k)||0)+1);
+    });
+  });
+  const sorted = [...tags.entries()].sort((a,b)=>b[1]-a[1]).slice(0,12).map(x=>x[0]);
+  const caps = s => s.charAt(0).toUpperCase()+s.slice(1);
+  return [ ...new Set([...DEFAULT_TAGS, ...sorted.map(caps)])].slice(0,18);
+}
+function renderChips(){
+  tagChips.innerHTML = "";
+  getTopTags().forEach(t=>{
+    const c = document.createElement("div");
+    c.className = "chip" + (activeTag===t ? " active":"");
+    c.textContent = t;
+    c.onclick = ()=>{ activeTag = t; renderAll(); };
+    tagChips.appendChild(c);
+  });
+
+  watchedChips.innerHTML = "";
+  ["All","Unwatched","Watched"].forEach(w=>{
+    const c = document.createElement("div");
+    c.className = "chip" + (watchedFilter===w ? " active":"");
+    c.textContent = `Watched: ${w}`;
+    c.onclick = ()=>{ watchedFilter = w; renderAll(); };
+    watchedChips.appendChild(c);
+  });
+}
+
+/* ---------- Add / Upload ---------- */
+function refreshAddPlaylistOptions(){
+  addToPlaylistSel.innerHTML = `<option value="">(none)</option>`;
+  Object.keys(playlists).forEach(name=>{
+    const opt = document.createElement("option");
+    opt.value = name; opt.textContent = name;
+    addToPlaylistSel.appendChild(opt);
+  });
+}
+addBtn.onclick = ()=>{
+  const title = addTitle.value.trim();
+  const url = addURL.value.trim();
+  const {category, tags} = parseTagsFromCategory(addCategory.value.trim());
+  if(!title) return alert("Please enter a title.");
+  if(!/^https?:\/\/.+\.(mp4|webm|m4v|mov)(\?.*)?$/i.test(url)) return alert("Please enter a direct video URL (mp4/webm/m4v/mov).");
+
+  const item = { id: String(now()), title, src:url, category, tags };
+  fleepitVideos.push(item);
+  setJSON("fleepitVideos", fleepitVideos);
+  syncOrder();
+
+  const pl = addToPlaylistSel.value;
+  if(pl){
+    playlists[pl] = playlists[pl] || [];
+    playlists[pl].push({...item});
+    savePlaylists();
+    renderPlaylistSelector();
+    renderPlaylist();
+  }
+  addTitle.value=""; addURL.value=""; addCategory.value="";
+  toast("Video added to your library.");
+  renderAll();
+};
+
+localFiles.addEventListener("change", (e)=>{
+  const files = [...e.target.files];
+  files.forEach(f=>{
+    const url = URL.createObjectURL(f);
+    const item = {
+      id: "local_"+now()+"_"+Math.random().toString(36).slice(2,7),
+      title: f.name,
+      src: url,
+      category: "Local (session)",
+      tags: ["local"],
+      ephemeral: true
+    };
+    localVideos.push(item);
+  });
+  renderAll();
+});
+clearLocal.onclick = ()=>{
+  localVideos.forEach(v=>{ try{ URL.revokeObjectURL(v.src); }catch{} });
+  localVideos = [];
+  toast("Local session videos cleared.");
+  renderAll();
+};
+
+/* ---------- Export / Import ---------- */
+function exportState(){
+  const payload = {
+    version: "fleepit_channels_premium_v2",
+    exportedAt: new Date().toISOString(),
+    fleepitVideos,
+    fleepitOrder,
+    playlists,
+    resumeMap,
+    watchedMap,
+    schedule,
+    directory: SOVEREIGN_DIRECTORY,
+    settings: {darkMode, highContrast, fontScale, kidsMode, autoSchedule, bumpersEnabled, contentRule}
+  };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `fleepit-backup-${new Date().toISOString().slice(0,10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 250);
+  toast("Export created (backup JSON downloaded).");
+}
+exportBtn.onclick = exportState;
+
+
+function normalizeImportedVideos(list){
+  return (Array.isArray(list) ? list : [])
+    .map((v, i)=>{
+      const src = v.src || v.url || "";
+      const category = v.category || v.platform || "Imported";
+      return {
+        id: String(v.id || `import_${Date.now()}_${i}`),
+        title: v.title || v.name || `Imported Video ${i+1}`,
+        src,
+        category,
+        tags: Array.isArray(v.tags) ? v.tags : [String(category).toLowerCase()].filter(Boolean)
+      };
+    })
+    .filter(v=>/^https?:\/\/.+\.(mp4|webm|m4v|mov)(\?.*)?$/i.test(v.src));
+}
+
+importFile.addEventListener("change", async (e)=>{
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  const txt = await f.text();
+  try{
+    const data = JSON.parse(txt);
+    if(data.fleepitVideos) fleepitVideos = data.fleepitVideos;
+    else if(data.videos) fleepitVideos = normalizeImportedVideos(data.videos);
+    if(data.fleepitOrder) fleepitOrder = data.fleepitOrder;
+    if(data.playlists) playlists = data.playlists;
+    if(data.resumeMap) resumeMap = data.resumeMap;
+    if(data.watchedMap) watchedMap = data.watchedMap;
+    if(data.schedule) schedule = data.schedule;
+    if(data.settings){
+      darkMode = !!data.settings.darkMode;
+      highContrast = !!data.settings.highContrast;
+      fontScale = clamp(Number(data.settings.fontScale||1), 1, 1.8);
+      kidsMode = !!data.settings.kidsMode;
+      autoSchedule = !!data.settings.autoSchedule;
+      bumpersEnabled = !!data.settings.bumpersEnabled;
+      contentRule = (data.settings.contentRule || "All");
+    }
+    setJSON("fleepitVideos", fleepitVideos);
+    setJSON("fleepitOrder", fleepitOrder);
+    setJSON("playlists", playlists);
+    setJSON("fleepit_resumeMap", resumeMap);
+    setJSON("fleepit_watchedMap", watchedMap);
+    setJSON("fleepit_schedule", schedule);
+    setJSON("fleepit_autoSchedule", autoSchedule);
+    setJSON("fleepit_bumpers", bumpersEnabled);
+    setJSON("fleepit_dark", darkMode);
+    setJSON("fleepit_contrast", highContrast);
+    setJSON("fleepit_fontScale", fontScale);
+    setJSON("fleepit_kidsMode", kidsMode);
+    setJSON("fleepit_contentRule", contentRule);
+
+    syncOrder();
+    applyTheme();
+    toast("Import complete. Library restored.");
+    renderAll();
+  }catch(err){
+    alert("Import failed: invalid JSON.");
+  }finally{
+    importFile.value = "";
+  }
+});
+
+/* ---------- Views ---------- */
+document.querySelectorAll('button[data-view]').forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll('button[data-view]').forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    currentView = btn.dataset.view;
+    channelMode = (currentView==="channels");
+    channelsPanel.style.display = channelMode ? "block" : "none";
+    renderAll();
+  };
+});
+searchInput.addEventListener("input", ()=>renderAll());
+
+/* ---------- Delete + Undo ---------- */
+function deleteVideo(video){
+  const id = String(video.id);
+  const isFleepit = fleepitVideos.some(v=>String(v.id)===id);
+  const isLocal = localVideos.some(v=>String(v.id)===id);
+
+  if(!confirm(`Delete "${video.title}"?\n\nAre you sure?`)) return;
+
+  if(isFleepit){
+    const idx = fleepitVideos.findIndex(v=>String(v.id)===id);
+    const removed = fleepitVideos.splice(idx,1)[0];
+    Object.keys(playlists).forEach(p=>{
+      playlists[p] = (playlists[p]||[]).filter(x=>String(x.id)!==id && x.src!==removed.src);
+    });
+    fleepitOrder = fleepitOrder.filter(x=>String(x)!==id);
+    setJSON("fleepitVideos", fleepitVideos);
+    setJSON("fleepitOrder", fleepitOrder);
+    savePlaylists();
+    toast("Deleted. (Undo available)", { onUndo: ()=>{
+      fleepitVideos.splice(idx,0,removed);
+      syncOrder();
+      setJSON("fleepitVideos", fleepitVideos);
+      savePlaylists();
+      renderAll();
+      toast("Undo complete.");
+    }});
+  }else if(isLocal){
+    const idx = localVideos.findIndex(v=>String(v.id)===id);
+    const removed = localVideos.splice(idx,1)[0];
+    toast("Deleted local session clip. (Undo available)", { onUndo: ()=>{
+      localVideos.splice(idx,0,removed);
+      renderAll();
+    }});
+  }else{
+    toast("Sample videos can’t be deleted.");
+  }
+  renderAll();
+}
+
+/* ---------- Favorites / Playlists ---------- */
+function savePlaylists(){ setJSON("playlists", playlists); }
+function renderPlaylistSelector(){
+  playlistSelector.innerHTML="";
+  Object.keys(playlists).forEach(name=>{
+    const opt=document.createElement("option");
+    opt.value=name; opt.textContent=name;
+    if(name===currentPlaylistName) opt.selected=true;
+    playlistSelector.appendChild(opt);
+  });
+  refreshAddPlaylistOptions();
+}
+function renderPlaylist(){
+  currentPlaylist = playlists[currentPlaylistName] || [];
+  playlistItemsDiv.innerHTML="";
+  if(!currentPlaylist.length){
+    const empty = document.createElement("div");
+    empty.style.padding = "14px";
+    empty.style.color = "var(--muted)";
+    empty.textContent = "Playlist is empty.";
+    playlistItemsDiv.appendChild(empty);
+    return;
+  }
+
+  currentPlaylist.forEach((item,index)=>{
+    const div = document.createElement("div");
+    div.className="playlist-item";
+    div.draggable = true;
+    div.dataset.index = index;
+    div.innerHTML = `<span class="handle">⋮⋮</span> <span class="title">${item.title}</span>`;
+    if(index===currentIndex) div.classList.add("active");
+
+    div.onclick = ()=>{
+      if(div.dataset.dragging==="1") return;
+      playMedia(index, true);
+    };
+
+    div.addEventListener("dragstart",(e)=>{
+      div.dataset.dragging="1";
+      e.dataTransfer.setData("text/plain", index.toString());
+      e.dataTransfer.effectAllowed="move";
+      setTimeout(()=>div.classList.add("dragging"),0);
+    });
+    div.addEventListener("dragend",()=>{
+      div.dataset.dragging="0";
+      div.classList.remove("dragging");
+      document.querySelectorAll(".playlist-item.drag-over").forEach(el=>el.classList.remove("drag-over"));
+    });
+    div.addEventListener("dragover",(e)=>{ e.preventDefault(); div.classList.add("drag-over"); });
+    div.addEventListener("dragleave",()=>div.classList.remove("drag-over"));
+    div.addEventListener("drop",(e)=>{
+      e.preventDefault();
+      div.classList.remove("drag-over");
+      const from = parseInt(e.dataTransfer.getData("text/plain"),10);
+      const to = parseInt(div.dataset.index,10);
+      if(isNaN(from)||isNaN(to)||from===to) return;
+      const [moved] = currentPlaylist.splice(from,1);
+      currentPlaylist.splice(to,0,moved);
+      playlists[currentPlaylistName] = currentPlaylist;
+      if(currentIndex===from) currentIndex=to;
+      else if(from<currentIndex && to>=currentIndex) currentIndex--;
+      else if(from>currentIndex && to<=currentIndex) currentIndex++;
+      savePlaylists(); renderPlaylist();
+    });
+
+    playlistItemsDiv.appendChild(div);
+  });
+}
+
+/* ---------- Continue Watching / History ---------- */
+function touchResume(videoKey, t){
+  resumeMap[videoKey] = {t, updatedAt: now()};
+  setJSON("fleepit_resumeMap", resumeMap);
+}
+function markWatched(videoKey){
+  watchedMap[videoKey] = true;
+  setJSON("fleepit_watchedMap", watchedMap);
+}
+function pushHistory(meta){
+  const h = playlists.History || [];
+  const next = [meta, ...h.filter(x=>x.key!==meta.key)].slice(0, HISTORY_LIMIT);
+  playlists.History = next;
+  savePlaylists();
+  if(next.length>=HISTORY_LIMIT){
+    toast(`History reached ${HISTORY_LIMIT}. Older entries will be replaced — Export JSON to back up.`);
+  }
+}
+clearOldHistoryBtn.onclick = ()=>{
+  const cutoff = now() - 30*msDay;
+  const before = (playlists.History||[]).length;
+  playlists.History = (playlists.History||[]).filter(x=>(x.watchedAt||0) >= cutoff);
+  savePlaylists();
+  const after = playlists.History.length;
+  toast(`History cleaned: removed ${before-after} item(s) older than 30 days.`);
+  renderPlaylistSelector();
+  if(currentPlaylistName==="History") renderPlaylist();
+};
+
+/* ---------- Highlight Player (with bumpers + resume) ---------- */
+let lastPlayed = null;
+let resumeCandidateTime = 0;
+let bumperPending = null;
+
+function setNowPlaying(media, modeLabel="Library"){
+  lastPlayed = media;
+  highlightTitle.textContent = media.title || "Untitled";
+  highlightCat.textContent = media.category || "Uncategorized";
+  const tg = (media.tags||[]).slice(0,6).join(", ");
+  highlightTags.textContent = tg ? `tags: ${tg}` : "tags: —";
+  highlightMode.textContent = modeLabel;
+}
+
+function applyEditIfAny(media){
+  const edit = media.edit || null;
+  const filter = edit?.filter || "none";
+  highlightPlayer.style.filter = filter;
+  return {
+    start: Math.max(0, Number(edit?.start||0)),
+    end: Math.max(0, Number(edit?.end||0))
+  };
+}
+
+function showResumeBar(videoKey){
+  const entry = resumeMap[videoKey];
+  if(entry && entry.t > 12 && !watchedMap[videoKey]){
+    resumeCandidateTime = entry.t;
+    resumeText.textContent = `Continue Watching: resume at ${fmtTime(entry.t)}`;
+    resumeBar.style.display = "flex";
+  }else{
+    resumeCandidateTime = 0;
+    resumeBar.style.display = "none";
+  }
+}
+
+resumeBtn.onclick = ()=>{
+  if(resumeCandidateTime>0){
+    highlightPlayer.currentTime = resumeCandidateTime;
+    noteHistoryHint();
+    highlightPlayer.play().catch(()=>{});
+  }
+};
+restartBtn.onclick = ()=>{
+  resumeBar.style.display = "none";
+  highlightPlayer.currentTime = 0;
+  highlightPlayer.play().catch(()=>{});
+};
+
+function playWithOptionalBumper(media, autoplay=true, modeLabel="Library"){
+  if(bumpersEnabled && isPlaying){
+    const bumper = BUMPER_ASSETS[Math.floor(Math.random()*BUMPER_ASSETS.length)];
+    bumperPending = {nextMedia: media, autoplay, modeLabel};
+    highlightPlayer.src = bumper.src;
+    setNowPlaying({title:`Bumper — ${bumper.title}`, category:"Bumper", tags:["bumper"]}, "Bumper");
+    highlightPlayer.load();
+    highlightPlayer.onloadedmetadata = ()=>{
+      highlightPlayer.currentTime = bumper.start || 0;
+      highlightPlayer.play().catch(()=>{});
+    };
+    highlightPlayer.ontimeupdate = ()=>{
+      if(highlightPlayer.currentTime >= (bumper.end||7.5)){
+        highlightPlayer.pause();
+        const pending = bumperPending;
+        bumperPending = null;
+        if(pending) setHighlight(pending.nextMedia, pending.autoplay, pending.modeLabel);
+      }
+    };
+    return;
+  }
+  setHighlight(media, autoplay, modeLabel);
+}
+
+function setHighlight(media, autoplay=true, modeLabel="Library"){
+  if(!media) return;
+
+  // Kids Mode gate
+  if(!isAllowedInKids(media)){
+    toast("Blocked by Kids Mode.");
+    return;
+  }
+  // Content rule gate
+  if(!passesContentRule(media)){
+    toast("Blocked by Content Rule.");
+    return;
+  }
+
+  const k = keyFor(media);
+  setNowPlaying(media, modeLabel);
+
+  highlightPlayer.onloadedmetadata = null;
+  highlightPlayer.ontimeupdate = null;
+  highlightPlayer.onended = null;
+
+  // stop mini if active (handoff)
+  try{
+    if(miniPlayer.style.display==="block"){
+      miniVideo.pause();
+      miniPlayer.style.display="none";
+    }
+  }catch{}
+
+  highlightPlayer.src = media.src;
+  highlightPlayer.load();
+
+  const {start, end} = applyEditIfAny(media);
+
+  highlightPlayer.onloadedmetadata = ()=>{
+    const dur = highlightPlayer.duration || 0;
+    const safeStart = (start>0 && start<dur) ? start : 0;
+    const safeEnd = (end>0 && end<=dur) ? end : 0;
+
+    showResumeBar(k);
+
+    if(autoplay){
+      if(resumeMap[k]?.t > 12 && !watchedMap[k]){
+        highlightPlayer.currentTime = resumeMap[k].t;
+      }else if(safeStart>0){
+        highlightPlayer.currentTime = safeStart;
+      }
+      highlightPlayer.play().catch(()=>{});
+    }else{
+      if(safeStart>0) highlightPlayer.currentTime = safeStart;
+    }
+
+    let lastSave = 0;
+    highlightPlayer.ontimeupdate = ()=>{
+      const t = highlightPlayer.currentTime || 0;
+      if(safeEnd && t>=safeEnd){
+        highlightPlayer.pause();
+        if(isPlaying) nextInPlaylist(true);
+        return;
+      }
+      if(t - lastSave >= 5){
+        lastSave = t;
+        touchResume(k, t);
+      }
+      if(dur>0 && t/dur >= 0.9){
+        markWatched(k);
+      }
+    };
+
+    highlightPlayer.onended = ()=>{
+      markWatched(k);
+      pushHistory({key:k, title:media.title, src:media.src, category:media.category, tags:media.tags||[], watchedAt: now()});
+      savePlaylists();
+      renderPlaylistSelector();
+      noteHistoryHint();
+      if(isPlaying) nextInPlaylist(true);
+    };
+
+    noteHistoryHint();
+  };
+
+  pushHistory({key:k, title:media.title, src:media.src, category:media.category, tags:media.tags||[], watchedAt: now()});
+  savePlaylists();
+  renderPlaylistSelector();
+  noteHistoryHint();
+
+  miniTitle.textContent = media.title || "Playing…";
+  initMiniObserver();
+}
+
+function noteHistoryHint(){
+  const hlen = (playlists.History||[]).length;
+  const ruleLabel = contentRule==="All" ? "All" : (contentRule==="News" ? "News-only" : "Movie-only");
+  historyHint.textContent = `History: ${hlen}/${HISTORY_LIMIT} • Kids: ${kidsMode ? "ON" : "OFF"} • Bumpers: ${bumpersEnabled ? "ON" : "OFF"} • Rule: ${ruleLabel}`;
+}
+
+/* ---------- Mini Docking (fixed: no double-audio) ---------- */
+let miniObserver = null;
+let miniOwnsPlayback = false;
+
+function initMiniObserver(){
+  if(miniObserver) miniObserver.disconnect();
+  miniObserver = new IntersectionObserver((entries)=>{
+    const e = entries[0];
+    if(!highlightPlayer) return;
+    const shouldDock = !e.isIntersecting && (isPlaying || !highlightPlayer.paused);
+
+    if(shouldDock){
+      // handoff: pause main, play mini
+      miniPlayer.style.display = "block";
+      if(miniVideo.src !== highlightPlayer.currentSrc){
+        miniVideo.src = highlightPlayer.currentSrc;
+        miniVideo.currentTime = highlightPlayer.currentTime || 0;
+        miniVideo.style.filter = highlightPlayer.style.filter || "none";
+      }else{
+        miniVideo.currentTime = highlightPlayer.currentTime || 0;
+      }
+      // handoff audio cleanly
+      if(!highlightPlayer.paused) highlightPlayer.pause();
+      miniOwnsPlayback = true;
+      miniVideo.play().catch(()=>{});
+    }else{
+      if(miniPlayer.style.display==="block"){
+        // hand back
+        try{
+          if(miniOwnsPlayback){
+            highlightPlayer.currentTime = miniVideo.currentTime || highlightPlayer.currentTime;
+            miniVideo.pause();
+            miniOwnsPlayback = false;
+            if(isPlaying) highlightPlayer.play().catch(()=>{});
+          }else{
+            miniVideo.pause();
+          }
+        }catch{}
+      }
+      miniPlayer.style.display = "none";
+    }
+  }, {threshold:0, rootMargin:"-20% 0px -60% 0px"});
+  miniObserver.observe($("topHighlight"));
+}
+
+miniClose.onclick = ()=>{
+  miniVideo.pause();
+  miniOwnsPlayback = false;
+  miniPlayer.style.display="none";
+  // return to main if user closes
+  try{ if(isPlaying) highlightPlayer.play().catch(()=>{}); }catch{}
+};
+
+/* ---------- PiP / Cast / Pop-out Window ---------- */
+pipBtn.onclick = async ()=>{
+  try{
+    if(document.pictureInPictureElement){
+      await document.exitPictureInPicture();
+      return;
+    }
+    if(highlightPlayer.requestPictureInPicture){
+      await highlightPlayer.requestPictureInPicture();
+    }else{
+      alert("PiP not supported on this browser/device.");
+    }
+  }catch(e){
+    alert("PiP unavailable (may require user gesture).");
+  }
+};
+castBtn.onclick = ()=>{
+  try{
+    if(highlightPlayer.webkitShowPlaybackTargetPicker){
+      highlightPlayer.webkitShowPlaybackTargetPicker();
+      return;
+    }
+  }catch{}
+  alert("Casting depends on device support.\n\nTip:\n• iPhone/iPad/Mac Safari: AirPlay appears in the video controls.\n• Chromecast requires a Cast-enabled player/SDK (not available in pure single-file HTML).");
+};
+popWinBtn.onclick = ()=>{
+  const src = highlightPlayer.currentSrc;
+  if(!src) return alert("No video loaded.");
+  const w = window.open("", "_blank", "width=980,height=620");
+  if(!w) return alert("Pop-out blocked by browser. Allow pop-ups for this site.");
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Flea Pit Pop-out Player</title>
+  <style>body{margin:0;background:#000;color:#fff;font-family:system-ui} .bar{padding:10px 12px;background:#111;display:flex;justify-content:space-between;gap:10px;align-items:center} video{width:100vw;height:calc(100vh - 44px);background:#000}</style>
+  </head><body>
+  <div class="bar"><b>${(lastPlayed?.title||"Now Playing").replace(/</g,"&lt;")}</b><span style="opacity:.8">Flea Pit</span></div>
+  <video src="${src}" controls autoplay playsinline></video>
+  </body></html>`);
+  w.document.close();
+};
+
+/* ---------- Free Feeds Wall (respects content rule) ---------- */
+function renderClipsWall(){
+  clipsGrid.innerHTML = "";
+  const eligible = FREE_CLIPS
+    .filter(c=>isAllowedInKids(c))
+    .filter(c=>passesContentRule(c));
+
+  const picks = shuffle(eligible).slice(0,18);
+  if(!picks.length){
+    clipsGrid.innerHTML = `<div class="sectionCard" style="grid-column:1/-1">
+      <b>No Free Feeds match your current filters.</b><br>
+      <small>Try switching Content Rule to “All”, or turn Kids Mode off.</small>
+    </div>`;
+    return;
+  }
+
+  picks.forEach(c=>{
+    const tile = document.createElement("div");
+    tile.className = "clipTile";
+    tile.innerHTML = `
+      <video muted playsinline preload="metadata" src="${c.src}"></video>
+      <div class="cap">
+        <b>${c.title}</b>
+        <small>${(c.tags||[]).slice(0,2).join(" · ") || "free"}</small>
+      </div>
+    `;
+    tile.onclick = ()=>{
+      isPlaying = true;
+      playPauseBtn.textContent = "⏸️ Pause";
+      setHighlight(c, true, "Free Feeds");
+    };
+    clipsGrid.appendChild(tile);
+  });
+}
+clipsRefresh.onclick = renderClipsWall;
+
+/* ---------- Cards / Rendering ---------- */
+function matchesSearch(v, q){
+  const text = `${v.title||""} ${(v.category||"")} ${(v.tags||[]).join(" ")}`.toLowerCase();
+  return !q || text.includes(q);
+}
+function matchesTag(v){
+  if(activeTag==="All") return true;
+  const t = activeTag.toLowerCase();
+  const text = `${v.category||""} ${(v.tags||[]).join(" ")}`.toLowerCase();
+  return text.includes(t);
+}
+function matchesWatched(v){
+  const k = keyFor(v);
+  if(watchedFilter==="All") return true;
+  if(watchedFilter==="Watched") return !!watchedMap[k];
+  if(watchedFilter==="Unwatched") return !watchedMap[k];
+  return true;
+}
+
+function cardMediaEl(video){
+  if(video.thumb){
+    const img = document.createElement("img");
+    img.className="thumb";
+    img.src = video.thumb;
+    img.alt = video.title;
+    return img;
+  }
+  const v = document.createElement("video");
+  v.src = video.src;
+  v.muted = true;
+  v.playsInline = true;
+  v.preload = "metadata";
+  return v;
+}
+
+function buildCard(video){
+  const card = document.createElement("div");
+  card.className = "video-card";
+  card.dataset.id = video.id || "";
+
+  const isDraggable = currentView==="fleepit" && fleepitVideos.some(x=>String(x.id)===String(video.id));
+  if(isDraggable){
+    card.draggable = true;
+    card.addEventListener("dragstart",(e)=>{
+      card.classList.add("dragging");
+      e.dataTransfer.setData("text/plain", String(video.id));
+      e.dataTransfer.effectAllowed = "move";
+    });
+    card.addEventListener("dragend",()=>{
+      card.classList.remove("dragging");
+      document.querySelectorAll(".video-card.drag-over").forEach(el=>el.classList.remove("drag-over"));
+    });
+    card.addEventListener("dragover",(e)=>{ e.preventDefault(); card.classList.add("drag-over"); });
+    card.addEventListener("dragleave",()=>card.classList.remove("drag-over"));
+    card.addEventListener("drop",(e)=>{
+      e.preventDefault();
+      card.classList.remove("drag-over");
+      const fromId = e.dataTransfer.getData("text/plain");
+      const toId = String(video.id);
+      if(!fromId || !toId || fromId===toId) return;
+      const fromIdx = fleepitOrder.indexOf(fromId);
+      const toIdx = fleepitOrder.indexOf(toId);
+      if(fromIdx<0 || toIdx<0) return;
+      fleepitOrder.splice(fromIdx,1);
+      fleepitOrder.splice(toIdx,0,fromId);
+      setJSON("fleepitOrder", fleepitOrder);
+      renderAll();
+    });
+  }
+
+  const media = cardMediaEl(video);
+  const info = document.createElement("div"); info.className="info";
+  const h4 = document.createElement("h4"); h4.textContent = video.title;
+  const small = document.createElement("small");
+  const tagTxt = (video.tags||[]).slice(0,3).join(", ");
+  small.textContent = `${video.category||"Uncategorized"}${tagTxt ? " · "+tagTxt : ""}`;
+
+  const ctrls = document.createElement("div"); ctrls.className="controls";
+  const bEdit = document.createElement("button"); bEdit.className="edit"; bEdit.textContent="Edit";
+  const bFav = document.createElement("button"); bFav.className="favorite"; bFav.textContent="★";
+  const bShare= document.createElement("button"); bShare.className="share"; bShare.textContent="Share";
+  const bMini = document.createElement("button"); bMini.className="mini"; bMini.textContent="Mini";
+  const bDel  = document.createElement("button"); bDel.className="del"; bDel.textContent="Delete";
+  ctrls.append(bEdit, bFav, bShare, bMini, bDel);
+
+  info.append(h4, small, ctrls);
+  card.append(media, info);
+
+  media.addEventListener("click", ()=>{
+    isPlaying = true;
+    playPauseBtn.textContent = "⏸️ Pause";
+    setHighlight(video, true, channelMode ? `Channel: ${currentChannel?.name||"—"}` : "Library");
+  });
+
+  bEdit.onclick = ()=>{
+    const start = parseFloat(prompt("Start time (seconds):", String(video.edit?.start||0))) || 0;
+    const end   = parseFloat(prompt("End time (seconds, 0 for none):", String(video.edit?.end||0))) || 0;
+    const filter= prompt("Filter (none / grayscale(100%) / sepia(100%) / contrast(140%) / brightness(120%)):", video.edit?.filter||"none") || "none";
+    video.edit = {start:Math.max(0,start), end:Math.max(0,end), filter};
+    if(fleepitVideos.some(v=>String(v.id)===String(video.id))){
+      setJSON("fleepitVideos", fleepitVideos);
+    }
+    toast("Edit applied locally.");
+  };
+
+  bFav.onclick = ()=>{
+    playlists.Favorites = playlists.Favorites || [];
+    playlists.Favorites = dedupeByKey([{...video}, ...playlists.Favorites]).slice(0,250);
+    savePlaylists(); renderPlaylistSelector();
+    toast("Added to Favorites.");
+  };
+
+  bShare.onclick = ()=>shareVideo(video);
+  bMini.onclick = ()=>{
+    isPlaying = true;
+    playPauseBtn.textContent = "⏸️ Pause";
+    setHighlight(video, true, channelMode ? `Channel: ${currentChannel?.name||"—"}` : "Library");
+    miniPlayer.style.display="block";
+  };
+  bDel.onclick = ()=>deleteVideo(video);
+
+  return card;
+}
+
+function renderGrid(q){
+  aggregator.innerHTML = "";
+  const pool = poolAll();
+  let first = null;
+
+  pool.forEach(v=>{
+    if(!isAllowedInKids(v)) return;
+    if(!passesContentRule(v)) return;
+    if(!matchesSearch(v,q)) return;
+    if(!matchesTag(v)) return;
+    if(!matchesWatched(v)) return;
+    const card = buildCard(v);
+    aggregator.appendChild(card);
+    if(!first) first = v;
+  });
+
+  if(first && !lastPlayed){
+    setHighlight(first, false, "Library");
+  }
+  if(!aggregator.children.length){
+    aggregator.innerHTML = `<div class="sectionCard" style="grid-column:1/-1;"><b>No results.</b> Try another search/tag or switch Content Rule.</div>`;
+  }
+}
+
+function renderByCategory(q){
+  aggregator.innerHTML = "";
+  const pool = poolAll().filter(v=>
+    isAllowedInKids(v) &&
+    passesContentRule(v) &&
+    matchesSearch(v,q) &&
+    matchesTag(v) &&
+    matchesWatched(v)
+  );
+  const groups = {};
+  pool.forEach(v=>{
+    const k = v.category || "Uncategorized";
+    (groups[k]||(groups[k]=[])).push(v);
+  });
+  let first = null;
+  Object.keys(groups).sort().forEach(cat=>{
+    const wrap = document.createElement("div");
+    wrap.className = "sectionCard";
+    wrap.innerHTML = `<h3 style="margin:.1rem 0 .6rem;">${cat}</h3>`;
+    const inner = document.createElement("div");
+    inner.className = "grid";
+    groups[cat].forEach(v=>{
+      if(!first) first=v;
+      inner.appendChild(buildCard(v));
+    });
+    wrap.appendChild(inner);
+    aggregator.appendChild(wrap);
+  });
+  if(first && !lastPlayed) setHighlight(first, false, "Library");
+  if(!pool.length){
+    aggregator.innerHTML = `<div class="sectionCard"><b>No results.</b></div>`;
+  }
+}
+
+/* ---------- Share ---------- */
+function shareVideo(video){
+  const shareText = `${video.title}\n${video.src}`;
+  if(navigator.share){
+    navigator.share({title: video.title, text: shareText, url: video.src}).catch(()=>{});
+  }else if(navigator.clipboard){
+    navigator.clipboard.writeText(shareText).then(()=>toast("Copied share text to clipboard.")).catch(()=>prompt("Copy:", shareText));
+  }else{
+    prompt("Copy share text:", shareText);
+  }
+}
+
+/* ---------- Channels: build queue + schedule ---------- */
+function channelItems(channel){
+  const pool = [...poolAll(), ...FREE_CLIPS];
+  const tset = new Set((channel.tags||[]).map(x=>String(x).toLowerCase()));
+  const picks = pool.filter(v=>{
+    if(!isAllowedInKids(v)) return false;
+    if(!passesContentRule(v)) return false;
+    const text = `${v.category||""} ${(v.tags||[]).join(" ")}`.toLowerCase();
+    let ok = false;
+    tset.forEach(t=>{ if(text.includes(t)) ok=true; });
+    if(channel.id==="kids") ok = ok && !includesAny(`${v.title||""} ${v.category||""}`, BLOCKED_KIDS_WORDS);
+    return ok;
+  });
+  return shuffle(picks).slice(0, 90);
+}
+
+function tuneChannel(channelId){
+  const ch = CHANNELS.find(c=>c.id===channelId);
+  if(!ch) return;
+  currentChannel = ch;
+  channelMode = true;
+  nowLabel.textContent = `Now Playing — ${ch.name}`;
+  channelQueue = channelItems(ch);
+  if(!channelQueue.length){
+    toast("No items found for this channel with current filters. Add more tagged videos or switch Content Rule/Kids Mode.");
+    return;
+  }
+  playlists["Channel Queue"] = channelQueue.map(x=>({...x}));
+  currentPlaylistName = "Channel Queue";
+  currentIndex = 0;
+  renderPlaylistSelector();
+  renderPlaylist();
+  isPlaying = true;
+  playPauseBtn.textContent = "⏸️ Pause";
+  playWithOptionalBumper(channelQueue[0], true, `Channel: ${ch.name}`);
+  toast(`Tuned in: ${ch.name} (auto-shuffle queue)`);
+}
+
+/* ---------- Auto Schedule ---------- */
+function isWeekend(d){
+  const day = d.getDay();
+  return day===0 || day===6;
+}
+function inScheduleBlock(block, d){
+  const h = d.getHours() + d.getMinutes()/60;
+  const dayOK =
+    block.days==="all" ||
+    (block.days==="weekdays" && !isWeekend(d)) ||
+    (block.days==="weekend" && isWeekend(d));
+  return dayOK && h>=block.start && h<block.end;
+}
+function scheduledChannelId(){
+  const d = new Date();
+  const hit = schedule.find(b=>inScheduleBlock(b,d));
+  return hit ? hit.channel : null;
+}
+function syncAutoSchedule(){
+  if(!autoSchedule) return;
+  const id = scheduledChannelId();
+  if(!id) return;
+  if(!currentChannel || currentChannel.id!==id){
+    tuneChannel(id);
+  }
+}
+
+/* ---------- Schedule UI ---------- */
+function renderScheduleList(){
+  scheduleList.innerHTML = "";
+  schedule.forEach((b, idx)=>{
+    const div = document.createElement("div");
+    div.className = "sectionCard";
+    const left = document.createElement("div");
+    left.innerHTML = `<b>${b.label||"Block"}</b><br><small style="color:var(--muted)">${b.days.toUpperCase()} · ${String(b.start).padStart(2,"0")}:00–${String(b.end).padStart(2,"0")}:00 · ${CHANNELS.find(c=>c.id===b.channel)?.name||b.channel}</small>`;
+    const right = document.createElement("div");
+    right.className="row";
+    const tune = document.createElement("button");
+    tune.className="btn small primary";
+    tune.textContent="Tune";
+    tune.onclick = ()=>tuneChannel(b.channel);
+    const del = document.createElement("button");
+    del.className="btn small danger";
+    del.textContent="Delete";
+    del.onclick = ()=>{
+      schedule.splice(idx,1);
+      setJSON("fleepit_schedule", schedule);
+      renderScheduleList();
+      toast("Schedule block deleted.");
+    };
+    right.append(tune, del);
+    div.append(left, right);
+    scheduleList.appendChild(div);
+  });
+}
+
+editScheduleBtn.onclick = ()=>{
+  const label = prompt("Block label:", "New Block");
+  if(!label) return;
+  const daysMode = prompt('Days: "all" | "weekdays" | "weekend"', "all");
+  const start = parseInt(prompt("Start hour (0–23):", "12"),10);
+  const end = parseInt(prompt("End hour (1–24):", "14"),10);
+  const channel = prompt(`Channel id: ${CHANNELS.map(c=>c.id).join(", ")}`, "doc");
+  if(!CHANNELS.some(c=>c.id===channel)) return alert("Invalid channel id.");
+  schedule.push({label, days:(daysMode||"all"), start:clamp(start,0,23), end:clamp(end,1,24), channel});
+  setJSON("fleepit_schedule", schedule);
+  renderScheduleList();
+  toast("Schedule block added.");
+};
+
+autoScheduleBtn.onclick = ()=>{
+  autoSchedule = !autoSchedule;
+  setJSON("fleepit_autoSchedule", autoSchedule);
+  autoScheduleBtn.textContent = `Auto Schedule: ${autoSchedule ? "ON" : "OFF"}`;
+  autoScheduleBtn.classList.toggle("active", autoSchedule);
+  if(autoSchedule) syncAutoSchedule();
+};
+bumperBtn.onclick = ()=>{
+  bumpersEnabled = !bumpersEnabled;
+  setJSON("fleepit_bumpers", bumpersEnabled);
+  bumperBtn.textContent = `Bumpers: ${bumpersEnabled ? "ON" : "OFF"}`;
+  bumperBtn.classList.toggle("active", bumpersEnabled);
+  noteHistoryHint();
+};
+
+/* ---------- Channel Cards UI ---------- */
+function renderChannels(){
+  channelGrid.innerHTML = "";
+  CHANNELS.forEach(ch=>{
+    const card = document.createElement("div");
+    card.className = "channelCard";
+    card.innerHTML = `
+      <h4>${ch.name}</h4>
+      <p>${ch.blurb}</p>
+      <div class="miniRow">
+        <span class="pill">${ch.region}</span>
+        <span class="pill">${ch.topic}</span>
+        <span class="pill">${kidsMode ? "Kids filter ON" : "Full library"}</span>
+        <span class="pill">${contentRule==="All" ? "All content" : (contentRule==="News" ? "News-only" : "Movie-only")}</span>
+      </div>
+    `;
+    const row = document.createElement("div");
+    row.className = "row";
+    row.style.justifyContent = "flex-start";
+    row.style.margin = "0";
+    const tune = document.createElement("button");
+    tune.className = "btn primary";
+    tune.textContent = "Tune In";
+    tune.onclick = ()=>tuneChannel(ch.id);
+
+    const preview = document.createElement("button");
+    preview.className = "btn";
+    preview.textContent = "Preview Queue";
+    preview.onclick = ()=>{
+      const items = channelItems(ch).slice(0,12);
+      playlists["Channel Preview"] = items.map(x=>({...x}));
+      currentPlaylistName = "Channel Preview";
+      currentIndex = 0;
+      renderPlaylistSelector(); renderPlaylist();
+      toast(`Preview loaded: ${ch.name}`);
+    };
+    row.append(tune, preview);
+    card.appendChild(row);
+    channelGrid.appendChild(card);
+  });
+}
+
+/* ---------- Channel Feeds (18 live previews, auto-rotate) ---------- */
+let feedsState = {}; // feedId -> {items, idx}
+let feedsInterval = null;
+let feedsObserver = null;
+
+function getFeedItems(feed){
+  const ch = CHANNELS.find(c=>c.id===feed.channel);
+  if(!ch) return [];
+  const items = channelItems(ch);
+  return items.length ? items : [];
+}
+
+function renderChannelFeeds(){
+  channelFeedsGrid.innerHTML = "";
+  feedsState = {};
+  if(feedsInterval) clearInterval(feedsInterval);
+  feedsInterval = null;
+  if(feedsObserver) feedsObserver.disconnect();
+  feedsObserver = null;
+
+  CHANNEL_FEEDS.forEach((feed, i)=>{
+    const items = getFeedItems(feed);
+    feedsState[feed.id] = {items, idx: 0};
+
+    const tile = document.createElement("div");
+    tile.className = "feedTile";
+    tile.dataset.feedId = feed.id;
+
+    const vid = document.createElement("video");
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.preload = "metadata";
+    vid.loop = true;
+
+    const first = items[0];
+    vid.src = first?.src || "";
+    tile.appendChild(vid);
+
+    const topPill = document.createElement("div");
+    topPill.className = "feedTopPill";
+    topPill.innerHTML = `<span class="dotLive"></span><span>${feed.label}</span>`;
+    tile.appendChild(topPill);
+
+    const actions = document.createElement("div");
+    actions.className = "feedActions";
+    const playBtn = document.createElement("button");
+    playBtn.textContent = "Play";
+    const tuneBtn = document.createElement("button");
+    tuneBtn.textContent = "Tune";
+    tuneBtn.title = "Tune to this channel";
+    actions.append(playBtn, tuneBtn);
+    tile.appendChild(actions);
+
+    const overlay = document.createElement("div");
+    overlay.className = "feedOverlay";
+    overlay.innerHTML = `<b>${first?.title || "No matching items"}</b><small>${(CHANNELS.find(c=>c.id===feed.channel)?.name||feed.channel)} · ${contentRule==="All"?"All":(contentRule==="News"?"News-only":"Movie-only")}</small>`;
+    tile.appendChild(overlay);
+
+    function playCurrent(){
+      const st = feedsState[feed.id];
+      const cur = st.items[st.idx];
+      if(!cur){
+        toast("No items available with current filters.");
+        return;
+      }
+      isPlaying = true;
+      playPauseBtn.textContent = "⏸️ Pause";
+      setHighlight(cur, true, `Feed: ${feed.label}`);
+    }
+    playBtn.onclick = (e)=>{ e.stopPropagation(); playCurrent(); };
+    tuneBtn.onclick = (e)=>{ e.stopPropagation(); tuneChannel(feed.channel); };
+    tile.onclick = ()=>playCurrent();
+
+    channelFeedsGrid.appendChild(tile);
+  });
+
+  // Only try to autoplay previews when tiles are visible (reduces CPU / prevents browser blocking)
+  feedsObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(ent=>{
+      const tile = ent.target;
+      const vid = tile.querySelector("video");
+      if(!vid) return;
+      if(ent.isIntersecting){
+        vid.play().catch(()=>{ /* autoplay may be blocked; it's ok */ });
+      }else{
+        try{ vid.pause(); }catch{}
+      }
+    });
+  }, {threshold:0.15});
+  [...channelFeedsGrid.querySelectorAll(".feedTile")].forEach(t=>feedsObserver.observe(t));
+
+  // Staggered auto-rotation to feel “live”
+  feedsInterval = setInterval(()=>rotateFeeds(), 8000);
+}
+
+function rotateFeeds(){
+  const tiles = [...channelFeedsGrid.querySelectorAll(".feedTile")];
+  tiles.forEach((tile, i)=>{
+    setTimeout(()=>rotateOneFeed(tile), i*120);
+  });
+}
+
+function rotateOneFeed(tile){
+  const feedId = tile.dataset.feedId;
+  const st = feedsState[feedId];
+  if(!st || !st.items || !st.items.length) return;
+
+  st.idx = (st.idx + 1) % st.items.length;
+  const cur = st.items[st.idx];
+
+  const vid = tile.querySelector("video");
+  const overlayB = tile.querySelector(".feedOverlay b");
+  if(overlayB) overlayB.textContent = cur.title || "Untitled";
+
+  // swap source and gently restart
+  if(vid){
+    const prev = vid.src;
+    if(prev !== cur.src){
+      try{
+        vid.pause();
+        vid.src = cur.src;
+        vid.load();
+        vid.play().catch(()=>{});
+      }catch{}
+    }
+  }
+}
+
+feedsRefreshBtn.onclick = ()=>{
+  rotateFeeds();
+  toast("Channel Feeds rotated.");
+};
+
+/* ---------- Catalog UI ---------- */
+function uniqueVals(list, key){
+  return [...new Set(list.map(x=>x[key]).filter(Boolean))].sort();
+}
+let catalogInited = false;
+function renderCatalogFilters(){
+  if(catalogInited) return;
+  const regions = ["All", ...uniqueVals(CHANNEL_CATALOG, "region")];
+  const topics  = ["All", ...uniqueVals(CHANNEL_CATALOG, "topic")];
+  catalogRegion.innerHTML = regions.map(r=>`<option>${r}</option>`).join("");
+  catalogTopic.innerHTML = topics.map(t=>`<option>${t}</option>`).join("");
+  catalogInited = true;
+}
+function renderCatalog(){
+  const r = catalogRegion.value || "All";
+  const t = catalogTopic.value || "All";
+  const filtered = CHANNEL_CATALOG.filter(x=>
+    (r==="All" || x.region===r) && (t==="All" || x.topic===t)
+  );
+  catalogList.innerHTML = "";
+  filtered.forEach(x=>{
+    const div = document.createElement("div");
+    div.className = "sectionCard";
+    div.style.display = "flex";
+    div.style.justifyContent = "space-between";
+    div.style.alignItems = "center";
+    div.style.gap = "10px";
+    div.innerHTML = `
+      <div class="left">
+        <b>${x.name}</b><br>
+        <small style="color:var(--muted)">${x.region} · ${x.topic}${x.note ? " · "+x.note : ""}</small>
+      </div>
+      <div class="right"></div>
+    `;
+    const right = div.querySelector(".right");
+    const open = document.createElement("a");
+    open.className = "btn small primary";
+    open.href = x.url; open.target="_blank"; open.rel="noopener";
+    open.textContent = "Open";
+    right.appendChild(open);
+    catalogList.appendChild(div);
+  });
+}
+catalogRegion.onchange = renderCatalog;
+catalogTopic.onchange = renderCatalog;
+catalogReset.onclick = ()=>{
+  catalogRegion.value = "All";
+  catalogTopic.value = "All";
+  renderCatalog();
+};
+
+/* ---------- Playlist Controls ---------- */
+function playMedia(index, autoPlay=false){
+  const list = playlists[currentPlaylistName] || [];
+  if(!list[index]) return;
+  currentIndex = index;
+  const media = list[index];
+  currentPlayingSpan.textContent = `Playing: ${media.title} — ${currentPlaylistName}`;
+  if(autoPlay){ isPlaying=true; playPauseBtn.textContent="⏸️ Pause"; }
+  playWithOptionalBumper(media, autoPlay, currentPlaylistName==="Channel Queue" ? `Channel: ${currentChannel?.name||"—"}` : "Library");
+  renderPlaylist();
+}
+function prevInPlaylist(auto=true){
+  const list = playlists[currentPlaylistName] || [];
+  if(!list.length) return;
+  currentIndex = (currentIndex-1+list.length) % list.length;
+  playMedia(currentIndex, auto);
+}
+function nextInPlaylist(auto=true){
+  const list = playlists[currentPlaylistName] || [];
+  if(!list.length) return;
+  currentIndex = (currentIndex+1) % list.length;
+  playMedia(currentIndex, auto);
+}
+
+playPauseBtn.onclick = ()=>{
+  isPlaying = !isPlaying;
+  playPauseBtn.textContent = isPlaying ? "⏸️ Pause" : "▶️ Play";
+  if(isPlaying) highlightPlayer.play().catch(()=>{});
+  else highlightPlayer.pause();
+};
+prevBtn.onclick = ()=>prevInPlaylist(true);
+nextBtn.onclick = ()=>nextInPlaylist(true);
+shuffleBtn.onclick = ()=>{
+  const list = playlists[currentPlaylistName] || [];
+  if(!list.length) return;
+  currentIndex = Math.floor(Math.random()*list.length);
+  playMedia(currentIndex, true);
+};
+
+playlistSelector.onchange = ()=>{
+  currentPlaylistName = playlistSelector.value;
+  currentIndex = 0;
+  renderPlaylist();
+  toast(`Switched playlist: ${currentPlaylistName}`);
+};
+
+addPlaylistBtn.onclick = ()=>{
+  const name = newPlaylistNameInput.value.trim();
+  if(!name) return alert("Enter playlist name.");
+  if(playlists[name]) return alert("Playlist already exists.");
+  playlists[name] = [];
+  savePlaylists();
+  currentPlaylistName = name;
+  renderPlaylistSelector();
+  renderPlaylist();
+  newPlaylistNameInput.value = "";
+  toast("Playlist created.");
+};
+deletePlaylistBtn.onclick = ()=>{
+  const name = currentPlaylistName;
+  if(name==="Favorites" || name==="History") return alert("Favorites and History can’t be deleted.");
+  if(!confirm(`Delete playlist "${name}"?`)) return;
+  delete playlists[name];
+  savePlaylists();
+  currentPlaylistName = Object.keys(playlists)[0] || "Favorites";
+  renderPlaylistSelector();
+  renderPlaylist();
+  toast("Playlist deleted.");
+};
+renamePlaylistBtn.onclick = ()=>{
+  const oldName = currentPlaylistName;
+  if(oldName==="Favorites" || oldName==="History") return alert("Favorites and History can’t be renamed.");
+  const nn = prompt("New name:", oldName);
+  if(!nn || !nn.trim()) return;
+  const newName = nn.trim();
+  if(playlists[newName]) return alert("That name already exists.");
+  playlists[newName] = playlists[oldName];
+  delete playlists[oldName];
+  currentPlaylistName = newName;
+  savePlaylists();
+  renderPlaylistSelector();
+  renderPlaylist();
+  toast("Playlist renamed.");
+};
+
+/* ---------- Main renderAll ---------- */
+function renderAll(){
+  renderChips();
+  renderPlaylistSelector();
+  renderPlaylist();
+
+  const q = searchInput.value.trim().toLowerCase();
+
+  const freeFeedsSection = $("freeFeedsSection");
+  if(freeFeedsSection) freeFeedsSection.style.display = (currentView==="platform" || currentView==="resources") ? "none" : "block";
+
+  if(currentView==="category") renderByCategory(q);
+  else if(currentView==="platform"){
+    nowLabel.textContent = "Platform Directory";
+    renderDirectory(q, "platform");
+  }else if(currentView==="resources"){
+    nowLabel.textContent = "Resource Library";
+    renderDirectory(q, "resources");
+  }else if(currentView==="channels"){
+    nowLabel.textContent = currentChannel ? `Now Playing — ${currentChannel.name}` : "Channels Mode";
+    aggregator.innerHTML = `<div class="sectionCard" style="grid-column:1/-1;">
+      <b>Channels Mode is active.</b><br>
+      <small style="color:var(--muted)">Use the Channel Feeds previews or Tune In to build a Channel Queue playlist. Schedule can auto-tune by time.</small>
+    </div>`;
+    renderChannels();
+    renderScheduleList();
+    autoScheduleBtn.textContent = `Auto Schedule: ${autoSchedule ? "ON" : "OFF"}`;
+    autoScheduleBtn.classList.toggle("active", autoSchedule);
+    bumperBtn.textContent = `Bumpers: ${bumpersEnabled ? "ON" : "OFF"}`;
+    bumperBtn.classList.toggle("active", bumpersEnabled);
+    renderCatalogFilters();
+    renderCatalog();
+    renderChannelFeeds();
+  }else{
+    nowLabel.textContent = currentView==="fleepit" ? "My FleaPit Library" : "Now Playing — Library";
+    renderGrid(q);
+  }
+
+  if(currentView!=="platform" && currentView!=="resources") renderClipsWall();
+
+  if(!lastPlayed){
+    const pool = poolAll().filter(v=>isAllowedInKids(v) && passesContentRule(v));
+    if(pool[0]) setHighlight(pool[0], false, "Library");
+  }
+
+  noteHistoryHint();
+}
+
+/* ---------- Boot ---------- */
+function boot(){
+  applyTheme();
+  renderPlaylistSelector();
+  renderPlaylist();
+  renderCatalogFilters();
+  renderCatalog();
+  renderAll();
+
+  setInterval(()=>syncAutoSchedule(), 60*1000);
+  toast("Flea Pit loaded. Export JSON anytime to back up your library.");
+}
+boot();
+</script>
+</body>
+</html>
