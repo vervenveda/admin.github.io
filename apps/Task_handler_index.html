@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quantum Task Handler v4</title>
+  <style>
+    :root{
+      --bg:#0b0f1a;
+      --panel:#14182b;
+      --panel-soft:#191f36;
+      --accent:#4f46e5;
+      --accent-soft:#6366f1;
+      --danger:#f97373;
+      --ink:#f9fafb;
+      --muted:#9ca3af;
+      --radius:10px;
+    }
+    *{box-sizing:border-box;}
+    body{
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      max-width:720px;
+      margin:32px auto;
+      padding:0 16px 32px;
+      background:radial-gradient(circle at top,#1f2937,#020617 65%);
+      color:var(--ink);
+    }
+    h2{margin:0 0 8px;}
+    h3{margin:16px 0 6px;}
+    label{font-size:14px; display:block; margin:6px 0;}
+    input[type="number"], input[type="text"], select{
+      font-size:14px;
+      padding:6px 8px;
+      border-radius:6px;
+      border:1px solid #374151;
+      background:#020617;
+      color:var(--ink);
+      width:100%;
+      max-width:190px;
+    }
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      align-items:flex-end;
+      margin-bottom:10px;
+    }
+    .grow{flex:1 1 160px;}
+    button{
+      border:none;
+      border-radius:6px;
+      padding:6px 10px;
+      font-size:13px;
+      cursor:pointer;
+      background:var(--accent);
+      color:#fff;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    button:hover{background:var(--accent-soft);}
+    button.secondary{
+      background:#111827;
+      color:var(--muted);
+    }
+    button.secondary:hover{
+      background:#1f2937;
+      color:var(--ink);
+    }
+    button.danger{
+      background:var(--danger);
+      color:#111827;
+    }
+    button.danger:hover{
+      background:#ef4444;
+      color:#111827;
+    }
+
+    .panel{
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:12px 14px;
+      box-shadow:0 12px 30px rgba(0,0,0,.5);
+      margin-top:14px;
+      border:1px solid #1f2937;
+    }
+    .panel-header{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    #tasks{ margin-top:6px; }
+
+    .task-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:8px;
+      padding:6px 0;
+      border-bottom:1px solid #1e293b;
+      font-size:13px;
+    }
+    .task-main{
+      flex:1;
+    }
+    .task-name{
+      font-weight:600;
+    }
+    .task-name.done{
+      text-decoration:line-through;
+      opacity:.7;
+    }
+    .task-meta{
+      color:var(--muted);
+      margin-top:2px;
+      font-size:12px;
+    }
+    .task-actions{
+      flex:0 0 auto;
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    #result{
+      margin-top:6px;
+      font-size:15px;
+      min-height:1.2em;
+    }
+    small{color:var(--muted); display:block; margin-top:2px;}
+
+    /* Template dropdown */
+    .templates-toggle{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:6px 10px;
+      border-radius:6px;
+      background:#0f1724;
+      color:var(--muted);
+      border:1px solid #16202b;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .templates-toggle:hover{background:#172033;color:var(--ink);}
+
+    .template-panel{
+      position:relative;
+    }
+
+    .template-dropdown{
+      position:absolute;
+      right:0;
+      top:36px;
+      width:320px;
+      max-width:calc(100vw - 40px);
+      background:var(--panel-soft);
+      border-radius:8px;
+      padding:10px;
+      border:1px solid #1f2937;
+      box-shadow:0 10px 30px rgba(0,0,0,0.6);
+      z-index:60;
+    }
+    .template-dropdown h4{
+      margin:0 0 8px 0;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .template-list{
+      max-height:220px;
+      overflow:auto;
+      padding-right:6px;
+      margin-bottom:8px;
+    }
+    .template-item{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:6px 4px;
+      border-radius:6px;
+    }
+    .template-item label{
+      cursor:pointer;
+      flex:1;
+      font-size:13px;
+      color:var(--ink);
+    }
+    .template-actions{
+      display:flex;
+      gap:8px;
+      justify-content:flex-end;
+    }
+
+    /* Quantum Log styles */
+    .log-summary{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .log-summary strong{
+      color:#e5e7eb;
+    }
+    .log-section-title{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:#9ca3af;
+      margin:6px 0 4px 0;
+    }
+    .log-entry{
+      font-size:13px;
+      padding:4px 0;
+      border-bottom:1px dashed #1f2937;
+    }
+    .log-entry-name{
+      font-weight:500;
+    }
+    .log-entry-meta{
+      font-size:11px;
+      color:#9ca3af;
+      margin-top:2px;
+    }
+
+    @media(max-width:600px){
+      body{margin:16px auto;}
+      .task-actions{flex-direction:row;}
+      .template-dropdown{left:0; right:auto; top:42px; width:calc(100% - 24px);}
+    }
+  </style>
+</head>
+<body>
+
+<h2>🌀 Quantum Task Handler v4</h2>
+<p style="font-size:13px;color:var(--muted);max-width:560px;">
+  Add tasks into simple lists (Household, Personal, Work/Employment, Health).
+  The decider uses a “quantum-ish” sampler that looks at urgency, reward,
+  how much energy you have today, and how much a task nourishes you.
+</p>
+
+<div class="panel">
+  <div class="panel-header">1. How much energy do you have today?</div>
+  <div class="row" style="align-items:center;">
+    <div>
+      <label for="energy">Energy (1–5)</label>
+      <input id="energy" type="number" min="1" max="5" value="3">
+      <small>1 = very low, 5 = lots of fuel.</small>
+    </div>
+    <div class="grow">
+      <label for="categoryFilter">Focus list</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="categoryFilter" style="flex:1;">
+          <option value="all">All tasks</option>
+          <option value="household">Household / Daily chores</option>
+          <option value="personal">Personal / Hygiene & soul</option>
+          <option value="work">Work / Employment</option>
+          <option value="health">Health / Wellness</option>
+        </select>
+
+        <div class="template-panel" id="filterTemplatePanel">
+          <button type="button" class="templates-toggle" id="btnFilterTemplates" aria-haspopup="true" aria-expanded="false">
+            Templates ▾
+          </button>
+        </div>
+      </div>
+      <small>The decider will prefer tasks in this list, if any exist.</small>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">2. Add tasks into your lists</div>
+  <div class="row">
+    <div class="grow">
+      <label for="taskName">Task name</label>
+      <input id="taskName" type="text" placeholder="e.g., Laundry, Email client, Pray, Stretch" />
+    </div>
+    <div>
+      <label for="taskCategory">Category / list</label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <select id="taskCategory">
+          <option value="household">Household / Daily chores</option>
+          <option value="personal">Personal / Hygiene & soul</option>
+          <option value="work">Work / Employment</option>
+          <option value="health">Health / Wellness</option>
+        </select>
+
+        <div class="template-panel" id="addTemplatePanel">
+          <button type="button" class="templates-toggle" id="btnAddTemplates" aria-haspopup="true" aria-expanded="false">
+            Choose common tasks ▾
+          </button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <button type="button" id="btnAdd">➕ Add Task</button>
+    </div>
+  </div>
+
+  <div id="tasks"></div>
+
+  <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+    <button type="button" class="secondary" id="btnClearCompleted">Clear completed</button>
+    <button type="button" class="secondary" id="btnClearAll">Clear all tasks</button>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">3. Let the quantum-ish sampler choose</div>
+  <button type="button" id="btnDecide">🔮 Decide</button>
+  <h3>Recommendation</h3>
+  <div id="result">No tasks yet. Add a few to begin.</div>
+</div>
+
+<div class="panel">
+  <div class="panel-header">4. Quantum Log · Collapse Events</div>
+  <div id="logSummary" class="log-summary">
+    No completed tasks yet. Once you mark tasks as done, they’ll appear here.
+  </div>
+  <div id="logList"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const CATEGORY_LABELS = {
+    household: "Household / Daily chores",
+    personal:  "Personal / Hygiene & soul",
+    work:      "Work / Employment",
+    health:    "Health / Wellness"
+  };
+
+  // Templates — suggested items per category
+  const CATEGORY_TEMPLATES = {
+    household: [
+      "Dishes",
+      "Laundry (wash & dry)",
+      "Load/Unload dishwasher",
+      "Take out trash",
+      "Sweep / vacuum living room",
+      "Wipe kitchen counters",
+      "Change bed sheets",
+      "Water plants"
+    ],
+    personal: [
+      "Brush teeth & floss",
+      "Shower",
+      "Meditate 5 minutes",
+      "Write gratitude note",
+      "Read 15 minutes",
+      "Skincare routine",
+      "Journal for 10 minutes"
+    ],
+    work: [
+      "Email client about X",
+      "Draft project outline",
+      "Process 5 inbox emails",
+      "Update task board",
+      "Schedule meeting",
+      "Review PRs"
+    ],
+    health: [
+      "10-minute stretch",
+      "30-minute walk",
+      "Prepare healthy meal",
+      "Drink 8oz water",
+      "Take vitamins",
+      "Breathing exercise 3 minutes"
+    ]
+  };
+
+  // Migration-aware storage keys
+  const STORAGE_KEY_NEW = "QUANTUM_TASK_DECIDER_V4";
+  const STORAGE_KEY_OLD = "QUANTUM_TASK_DECIDER_V3";
+
+  const PRAISE_LINES = [
+    "Beautiful work — one task lighter already.",
+    "Lovely. You just made future-you’s day easier.",
+    "Done. Breathe and feel that space you created.",
+    "You handled that with grace.",
+    "Well done. Tiny steps, big arc.",
+    "Checked off and cleared from your field.",
+    "You’re doing better than you think.",
+    "That one is off your plate now. ✨",
+    "Sovereign move. Onward when you’re ready.",
+    "Momentum is quietly building. Keep going at your pace."
+  ];
+
+  let tasks = [];
+  let nextId = 1;
+
+  const energyInput        = document.getElementById("energy");
+  const categoryFilterEl   = document.getElementById("categoryFilter");
+  const taskNameInput      = document.getElementById("taskName");
+  const taskCategoryEl     = document.getElementById("taskCategory");
+  const tasksDiv           = document.getElementById("tasks");
+  const resultDiv          = document.getElementById("result");
+  const btnAdd             = document.getElementById("btnAdd");
+  const btnDecide          = document.getElementById("btnDecide");
+  const btnClearAll        = document.getElementById("btnClearAll");
+  const btnClearCompleted  = document.getElementById("btnClearCompleted");
+
+  const logSummaryEl       = document.getElementById("logSummary");
+  const logListEl          = document.getElementById("logList");
+
+  // Template UI elements
+  const btnAddTemplates    = document.getElementById("btnAddTemplates");
+  const addTemplatePanel   = document.getElementById("addTemplatePanel");
+  const btnFilterTemplates = document.getElementById("btnFilterTemplates");
+  const filterTemplatePanel= document.getElementById("filterTemplatePanel");
+
+  const reminderTimers = new Map(); // id -> timeoutId
+
+  function escapeHTML(str){
+    return String(str).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+    }[m]));
+  }
+
+  function rand(min, max){
+    const lo = Math.min(min,max);
+    const hi = Math.max(min,max);
+    const range = hi - lo + 1;
+    if(range <= 0) return lo;
+    if(window.crypto && window.crypto.getRandomValues){
+      const buf = new Uint32Array(1);
+      window.crypto.getRandomValues(buf);
+      return lo + (buf[0] % range);
+    }
+    return Math.floor(Math.random() * range) + lo;
+  }
+
+  function randomPraise(){
+    return PRAISE_LINES[rand(0, PRAISE_LINES.length - 1)];
+  }
+
+  // Category → attributes
+  function attributesForCategory(cat){
+    let physical, mental, care, urgency, reward;
+    switch(cat){
+      case "household":
+        physical = rand(2,5);
+        mental   = rand(1,3);
+        care     = rand(1,3);
+        urgency  = rand(2,5);
+        reward   = rand(2,4);
+        break;
+      case "personal":
+        physical = rand(1,3);
+        mental   = rand(2,4);
+        care     = rand(3,5);
+        urgency  = rand(1,4);
+        reward   = rand(3,5);
+        break;
+      case "work":
+        physical = rand(1,3);
+        mental   = rand(3,5);
+        care     = rand(1,3);
+        urgency  = rand(2,5);
+        reward   = rand(2,5);
+        break;
+      case "health":
+      default:
+        physical = rand(2,4);
+        mental   = rand(1,4);
+        care     = rand(3,5);
+        urgency  = rand(2,5);
+        reward   = rand(3,5);
+        break;
+    }
+    return { physical, mental, care, urgency, reward };
+  }
+
+  /* -------- localStorage -------- */
+
+  function saveState(){
+    const state = {
+      tasks,
+      nextId,
+      energy: parseInt(energyInput.value,10) || 3,
+      categoryFilter: categoryFilterEl.value,
+      savedAt: Date.now()
+    };
+    try{
+      localStorage.setItem(STORAGE_KEY_NEW, JSON.stringify(state));
+    }catch(e){
+      // ignore save errors
+    }
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY_NEW) || localStorage.getItem(STORAGE_KEY_OLD);
+      if(!raw) return;
+      const state = JSON.parse(raw);
+      if(Array.isArray(state.tasks)) tasks = state.tasks;
+
+      if(typeof state.energy === "number") {
+        energyInput.value = state.energy;
+      }
+
+      if(state.categoryFilter && categoryFilterEl.querySelector(
+          `option[value="${state.categoryFilter}"]`)){
+        categoryFilterEl.value = state.categoryFilter;
+      }
+
+      // Backfill fields for older versions
+      tasks.forEach(t=>{
+        if(typeof t.completedAt === "undefined") t.completedAt = null;
+        if(typeof t.scheduledAt === "undefined") t.scheduledAt = null;
+
+        // Backfill scoring attributes if missing
+        if(typeof t.physical !== "number" ||
+           typeof t.mental   !== "number" ||
+           typeof t.care     !== "number" ||
+           typeof t.urgency  !== "number" ||
+           typeof t.reward   !== "number"){
+          const attrs = attributesForCategory(t.category || "household");
+          t.physical = attrs.physical;
+          t.mental   = attrs.mental;
+          t.care     = attrs.care;
+          t.urgency  = attrs.urgency;
+          t.reward   = attrs.reward;
+        }
+      });
+
+      // Safely derive nextId: ensure it's greater than any existing id
+      const maxId = tasks.reduce((max,t)=> Math.max(max, Number(t.id || 0)), 0);
+      if(typeof state.nextId === "number"){
+        nextId = Math.max(maxId + 1, state.nextId || 1);
+      }else{
+        nextId = maxId + 1;
+      }
+    }catch(e){
+      // ignore parse errors
+    }
+  }
+
+  /* -------- Reminders -------- */
+
+  function clearReminder(id){
+    const timerId = reminderTimers.get(id);
+    if(timerId){
+      clearTimeout(timerId);
+      reminderTimers.delete(id);
+    }
+  }
+
+  // scheduleReminder: chunk long delays so we don't schedule an enormous timeout
+  function scheduleReminder(task){
+    clearReminder(task.id);
+    if(!task.scheduledAt || task.completedAt) return;
+
+    const now = Date.now();
+    const delay = Number(task.scheduledAt) - now;
+    if(delay <= 0){
+      // scheduled time already passed — fire immediately
+      fireReminder(task.id);
+      return;
+    }
+
+    const MAX_CHUNK = 24 * 60 * 60 * 1000; // 24 hours
+    const chunk = Math.min(delay, MAX_CHUNK);
+
+    const id = setTimeout(()=>{
+      reminderTimers.delete(task.id);
+      // If scheduledAt still in future, reschedule again; otherwise fire
+      const now2 = Date.now();
+      if(!task.scheduledAt || task.completedAt) return;
+      if(now2 >= task.scheduledAt){
+        fireReminder(task.id);
+      }else{
+        // reschedule for remaining time (chunk again)
+        scheduleReminder(task);
+      }
+    }, chunk);
+
+    reminderTimers.set(task.id, id);
+  }
+
+  function rescheduleAllReminders(){
+    reminderTimers.forEach(timeoutId => clearTimeout(timeoutId));
+    reminderTimers.clear();
+    tasks.forEach(t=>{
+      if(t.scheduledAt && !t.completedAt){
+        scheduleReminder(t);
+      }
+    });
+  }
+
+  function fireReminder(taskId){
+    const t = tasks.find(x=>Number(x.id) === Number(taskId));
+    if(!t || t.completedAt) return;
+
+    try{
+      if("Notification" in window){
+        if(Notification.permission === "granted"){
+          new Notification("Task reminder", {
+            body: t.name,
+            tag: "quantum-task-" + t.id
+          });
+        }else if(Notification.permission === "default"){
+          Notification.requestPermission().then(p=>{
+            if(p === "granted"){
+              new Notification("Task reminder", {
+                body: t.name,
+                tag: "quantum-task-" + t.id
+              });
+            }
+          }).catch(()=>{/*ignore*/});
+        }
+      }
+    }catch(e){
+      // Notification errors are not critical
+    }
+
+    resultDiv.innerHTML = `⏰ Reminder: <b>${escapeHTML(t.name)}</b>`;
+  }
+
+  function formatScheduleMeta(task){
+    if(!task.scheduledAt) return "";
+    const diff = Number(task.scheduledAt) - Date.now();
+    if(diff <= 0) return " · ⏰ time passed";
+    const mins = Math.round(diff / 60000);
+    if(mins <= 1) return " · ⏰ in ~1 min";
+    return ` · ⏰ in ${mins} min`;
+  }
+
+  /* -------- Core actions -------- */
+
+  function addTask(name, cat){
+    const nm = (name || "").trim();
+    if(!nm) return;
+    const catVal = cat || (taskCategoryEl && taskCategoryEl.value) || "household";
+    const attrs = attributesForCategory(catVal);
+
+    const newTask = {
+      id: nextId++,
+      name: nm,
+      category: catVal,
+      ...attrs,
+      completedAt: null,
+      scheduledAt: null
+    };
+
+    tasks.push(newTask);
+    renderTasks();
+    saveState();
+  }
+
+  function deleteTask(id){
+    clearReminder(id);
+    tasks = tasks.filter(t => Number(t.id) !== Number(id));
+    renderTasks();
+    saveState();
+  }
+
+  function markDone(id){
+    const t = tasks.find(x=>Number(x.id) === Number(id));
+    if(!t) return;
+    t.completedAt = Date.now();
+    t.scheduledAt = null;
+    clearReminder(id);
+    renderTasks();
+    saveState();
+    resultDiv.innerHTML =
+      `✅ Finished: <b>${escapeHTML(t.name)}</b><br>` +
+      `<small>${escapeHTML(randomPraise())}</small>`;
+  }
+
+  function scheduleTask(id){
+    const t = tasks.find(x=>Number(x.id) === Number(id));
+    if(!t) return;
+
+    // Pre-fill with remaining minutes if already scheduled
+    let defaultVal = "25";
+    if(t.scheduledAt){
+      const remain = Math.max(0, Math.round((Number(t.scheduledAt) - Date.now())/60000));
+      defaultVal = String(remain || 1);
+    }
+
+    const input = prompt(
+      "Remind you in how many minutes? (leave blank to clear reminder)",
+      defaultVal
+    );
+
+    if(input === null) return;
+
+    const trimmed = input.trim();
+    if(!trimmed){
+      t.scheduledAt = null;
+      clearReminder(t.id);
+      renderTasks();
+      saveState();
+      return;
+    }
+    const minutes = parseFloat(trimmed);
+    if(!isFinite(minutes) || minutes <= 0){
+      alert("Please enter a positive number of minutes.");
+      return;
+    }
+
+    t.scheduledAt = Date.now() + minutes * 60 * 1000;
+    scheduleReminder(t);
+    renderTasks();
+    saveState();
+  }
+
+  function clearAllTasks(){
+    if(!tasks.length) return;
+    if(!confirm("Clear all tasks from all lists?")) return;
+    tasks = [];
+    reminderTimers.forEach(tId=>clearTimeout(tId));
+    reminderTimers.clear();
+    renderTasks();
+    saveState();
+    resultDiv.textContent = "Tasks cleared. Add new ones to begin again.";
+  }
+
+  function clearCompleted(){
+    const hadCompleted = tasks.some(t => t.completedAt);
+    if(!hadCompleted){
+      alert("No completed tasks to clear yet.");
+      return;
+    }
+    if(!confirm("Remove all completed tasks from the lists and log?")) return;
+    tasks = tasks.filter(t => !t.completedAt);
+    renderTasks();
+    saveState();
+  }
+
+  /* -------- Quantum Log rendering -------- */
+
+  function sameDay(a, b){
+    return a.getFullYear() === b.getFullYear() &&
+           a.getMonth() === b.getMonth() &&
+           a.getDate() === b.getDate();
+  }
+
+  function renderLog(){
+    const completed = tasks.filter(t => t.completedAt);
+    if(!completed.length){
+      logSummaryEl.textContent =
+        "No completed tasks yet. Once you mark tasks as done, they’ll appear here.";
+      logListEl.innerHTML = "";
+      return;
+    }
+
+    const now = new Date();
+    const todayTasks = [];
+    const earlierTasks = [];
+
+    completed.forEach(t=>{
+      const d = new Date(t.completedAt);
+      if(sameDay(d, now)) todayTasks.push(t);
+      else earlierTasks.push(t);
+    });
+
+    const todayCount = todayTasks.length;
+    const totalCount = completed.length;
+
+    logSummaryEl.innerHTML =
+      `Collapse events today: <strong>${todayCount}</strong> · ` +
+      `Total completed: <strong>${totalCount}</strong>`;
+
+    // Sort newest first
+    todayTasks.sort((a,b)=>b.completedAt - a.completedAt);
+    earlierTasks.sort((a,b)=>b.completedAt - a.completedAt);
+
+    const parts = [];
+
+    if(todayTasks.length){
+      parts.push('<div class="log-section-title">Today</div>');
+      todayTasks.forEach(t=>{
+        const d = new Date(t.completedAt);
+        const time = d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+        parts.push(
+          `<div class="log-entry">` +
+            `<div class="log-entry-name">${escapeHTML(t.name)}</div>` +
+            `<div class="log-entry-meta">${escapeHTML(CATEGORY_LABELS[t.category] || "")} · ${time}</div>` +
+          `</div>`
+        );
+      });
+    }
+
+    if(earlierTasks.length){
+      parts.push('<div class="log-section-title">Earlier</div>');
+      // Limit to last 20 earlier entries
+      earlierTasks.slice(0,20).forEach(t=>{
+        const d = new Date(t.completedAt);
+        const dateStr = d.toLocaleDateString();
+        const time = d.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"});
+        parts.push(
+          `<div class="log-entry">` +
+            `<div class="log-entry-name">${escapeHTML(t.name)}</div>` +
+            `<div class="log-entry-meta">${escapeHTML(CATEGORY_LABELS[t.category] || "")} · ${dateStr} ${time}</div>` +
+          `</div>`
+        );
+      });
+    }
+
+    logListEl.innerHTML = parts.join("");
+  }
+
+  /* -------- Task list rendering -------- */
+
+  function renderTasks(){
+    const filter = categoryFilterEl.value;
+    if(!tasks.length){
+      tasksDiv.innerHTML =
+        '<div style="font-size:13px;color:var(--muted);">No tasks yet. Add one above.</div>';
+      renderLog();
+      return;
+    }
+
+    let visible = tasks;
+    if(filter !== "all"){
+      visible = tasks.filter(t => t.category === filter);
+    }
+
+    if(!visible.length){
+      tasksDiv.innerHTML =
+        '<div style="font-size:13px;color:var(--muted);">No tasks in this list yet.</div>';
+      renderLog();
+      return;
+    }
+
+    tasksDiv.innerHTML = "";
+    visible.forEach(t=>{
+      const row = document.createElement("div");
+      row.className = "task-row";
+
+      const main = document.createElement("div");
+      main.className = "task-main";
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "task-name" + (t.completedAt ? " done" : "");
+      nameEl.textContent = t.name;
+
+      const metaEl = document.createElement("div");
+      metaEl.className = "task-meta";
+
+      let meta =
+        (CATEGORY_LABELS[t.category] || "") +
+        ` · U:${t.urgency}  Phys:${t.physical}  Focus:${t.mental}  Care:${t.care}  Reward:${t.reward}`;
+
+      if(t.completedAt){
+        meta += " · ✓ done";
+      }else{
+        meta += formatScheduleMeta(t);
+      }
+
+      metaEl.textContent = meta;
+
+      main.appendChild(nameEl);
+      main.appendChild(metaEl);
+
+      const actions = document.createElement("div");
+      actions.className = "task-actions";
+
+      if(!t.completedAt){
+        const doneBtn = document.createElement("button");
+        doneBtn.type = "button";
+        doneBtn.className = "secondary";
+        doneBtn.textContent = "✓ Done";
+        doneBtn.title = "Mark as finished";
+        doneBtn.setAttribute("aria-label", `Mark ${t.name} as done`);
+        doneBtn.addEventListener("click", () => markDone(t.id));
+        actions.appendChild(doneBtn);
+
+        const schedBtn = document.createElement("button");
+        schedBtn.type = "button";
+        schedBtn.className = "secondary";
+        schedBtn.textContent = "⏰";
+        schedBtn.title = "Schedule reminder";
+        schedBtn.setAttribute("aria-label", `Schedule reminder for ${t.name}`);
+        schedBtn.addEventListener("click", () => scheduleTask(t.id));
+        actions.appendChild(schedBtn);
+      }
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "danger";
+      delBtn.textContent = "✕";
+      delBtn.title = "Delete task";
+      delBtn.setAttribute("aria-label", `Delete ${t.name}`);
+      delBtn.addEventListener("click", () => deleteTask(t.id));
+      actions.appendChild(delBtn);
+
+      row.appendChild(main);
+      row.appendChild(actions);
+      tasksDiv.appendChild(row);
+    });
+
+    renderLog();
+  }
+
+  /* -------- Templates UI & Bulk-Add -------- */
+
+  // Create dropdown DOM for a panel (panelElement = addTemplatePanel/filterTemplatePanel)
+  function buildTemplateDropdown(panelElement, categorySelector, openAfterBuild=false){
+    // Remove existing dropdowns in that panel
+    const existing = panelElement.querySelector(".template-dropdown");
+    if(existing){
+      existing.remove();
+    }
+
+    const wrap = document.createElement("div");
+    wrap.className = "template-dropdown";
+    wrap.setAttribute("role","dialog");
+    wrap.setAttribute("aria-label","Task templates");
+    // Header
+    const h = document.createElement("h4");
+    h.textContent = `Common tasks — ${CATEGORY_LABELS[categorySelector.value] || ""}`;
+    wrap.appendChild(h);
+
+    const list = document.createElement("div");
+    list.className = "template-list";
+
+    const arr = CATEGORY_TEMPLATES[categorySelector.value] || [];
+    arr.forEach((label, idx) => {
+      const row = document.createElement("div");
+      row.className = "template-item";
+
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.id = `tpl-${categorySelector.value}-${idx}`;
+      cb.value = label;
+      cb.style.flex = "0 0 auto";
+
+      const lbl = document.createElement("label");
+      lbl.htmlFor = cb.id;
+      lbl.textContent = label;
+
+      row.appendChild(cb);
+      row.appendChild(lbl);
+      list.appendChild(row);
+    });
+
+    wrap.appendChild(list);
+
+    const actions = document.createElement("div");
+    actions.className = "template-actions";
+
+    const addSelected = document.createElement("button");
+    addSelected.type = "button";
+    addSelected.className = "secondary";
+    addSelected.textContent = "Add selected";
+    addSelected.addEventListener("click", ()=>{
+      const boxes = wrap.querySelectorAll('input[type="checkbox"]:checked');
+      if(!boxes.length){
+        alert("Please select at least one item to add.");
+        return;
+      }
+      boxes.forEach(cb=>{
+        addTask(cb.value, categorySelector.value);
+      });
+      // Remove the dropdown after adding
+      wrap.remove();
+      // Close toggles' aria-expanded
+      closeAllTemplateToggles();
+    });
+
+    const closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "secondary";
+    closeBtn.textContent = "Close";
+    closeBtn.addEventListener("click", ()=>{
+      wrap.remove();
+      closeAllTemplateToggles();
+    });
+
+    actions.appendChild(closeBtn);
+    actions.appendChild(addSelected);
+
+    wrap.appendChild(actions);
+
+    panelElement.appendChild(wrap);
+
+    // close on outside click & escape
+    setTimeout(()=>{ // small delay so immediate clicks don't close it
+      const onDocClick = (ev) => {
+        if(!wrap.contains(ev.target) && !panelElement.contains(ev.target)){
+          wrap.remove();
+          closeAllTemplateToggles();
+          document.removeEventListener("click", onDocClick);
+        }
+      };
+      document.addEventListener("click", onDocClick);
+      const onKey = (ev) => {
+        if(ev.key === "Escape"){
+          wrap.remove();
+          closeAllTemplateToggles();
+          document.removeEventListener("keydown", onKey);
+        }
+      };
+      document.addEventListener("keydown", onKey);
+    }, 50);
+
+    if(openAfterBuild){
+      // focus first checkbox if present
+      const first = wrap.querySelector('input[type="checkbox"]');
+      if(first) first.focus();
+    }
+
+    return wrap;
+  }
+
+  function closeAllTemplateToggles(){
+    try{ btnAddTemplates.setAttribute("aria-expanded","false"); }catch(e){}
+    try{ btnFilterTemplates.setAttribute("aria-expanded","false"); }catch(e){}
+    const existingAdd = addTemplatePanel.querySelector(".template-dropdown");
+    if(existingAdd) existingAdd.remove();
+    const existingFilter = filterTemplatePanel.querySelector(".template-dropdown");
+    if(existingFilter) existingFilter.remove();
+  }
+
+  // Toggle handler for Add panel
+  function toggleAddTemplates(){
+    const existing = addTemplatePanel.querySelector(".template-dropdown");
+    if(existing){
+      existing.remove();
+      btnAddTemplates.setAttribute("aria-expanded","false");
+      return;
+    }
+    // Build for currently selected category in add area
+    btnAddTemplates.setAttribute("aria-expanded","true");
+    buildTemplateDropdown(addTemplatePanel, taskCategoryEl, true);
+  }
+
+  // Toggle handler for Filter panel
+  function toggleFilterTemplates(){
+    const existing = filterTemplatePanel.querySelector(".template-dropdown");
+    if(existing){
+      existing.remove();
+      btnFilterTemplates.setAttribute("aria-expanded","false");
+      return;
+    }
+    // Build for currently selected category in the focus list. If 'all', default to household
+    const cat = categoryFilterEl.value === "all" ? "household" : categoryFilterEl.value;
+    // create a temporary select-like object to pass the category
+    const pseudoSelect = { value: cat };
+    btnFilterTemplates.setAttribute("aria-expanded","true");
+    buildTemplateDropdown(filterTemplatePanel, pseudoSelect, true);
+    // small UX: when adding via filter panel we want tasks to be assigned to the selected focus list
+  }
+
+  /* -------- Quantum-ish decider -------- */
+
+  function decide(){
+    const activeTasks = tasks.filter(t => !t.completedAt);
+    if(!activeTasks.length){
+      resultDiv.textContent =
+        "No unfinished tasks. Maybe rest, dream, or add new ones.";
+      return;
+    }
+
+    let energy = parseInt(energyInput.value,10);
+    if(isNaN(energy)) energy = 3;
+    if(energy < 1) energy = 1;
+    if(energy > 5) energy = 5;
+
+    const filter = categoryFilterEl.value;
+    let pool = activeTasks;
+    if(filter !== "all"){
+      const subset = activeTasks.filter(t => t.category === filter);
+      if(subset.length) pool = subset;
+    }
+
+    if(!pool.length){
+      resultDiv.textContent = "No unfinished tasks in the chosen list.";
+      return;
+    }
+
+    let best = null;
+    let bestScore = Infinity;
+
+    const URG_WEIGHT    = 1.5;
+    const REWARD_WEIGHT = 1.0;
+    const ENERGY_WEIGHT = 2.0;
+    const CARE_WEIGHT   = 1.2;
+
+    for(let i=0;i<500;i++){
+      const t = pool[rand(0, pool.length - 1)];
+
+      const energyDemand   = (t.physical + t.mental) / 2;
+      const energyMismatch = Math.abs(energyDemand - energy);
+
+      const urgencyTerm = (6 - t.urgency) * URG_WEIGHT;
+      const rewardTerm  = (6 - t.reward)  * REWARD_WEIGHT;
+      const energyTerm  = energyMismatch  * ENERGY_WEIGHT;
+
+      const careBoostFactor = (6 - energy);
+      const careTerm        = careBoostFactor * (t.care/5) * CARE_WEIGHT;
+
+      const score = urgencyTerm + rewardTerm + energyTerm - careTerm;
+
+      if(score < bestScore){
+        bestScore = score;
+        best = t;
+      }
+    }
+
+    if(!best){
+      resultDiv.textContent = "No tasks available.";
+      return;
+    }
+
+    resultDiv.innerHTML =
+      `✨ Do this next: <b>${escapeHTML(best.name)}</b><br>` +
+      `<small>${escapeHTML(CATEGORY_LABELS[best.category])} · ` +
+      `U:${best.urgency}, Phys:${best.physical}, Focus:${best.mental}, Care:${best.care}, Reward:${best.reward}</small>`;
+  }
+
+  /* -------- Wiring & init -------- */
+
+  function init(){
+    loadState();
+    renderTasks();
+    rescheduleAllReminders();
+
+    btnAdd.addEventListener("click", ()=> {
+      const name = taskNameInput.value.trim();
+      if(!name) {
+        alert("Please enter a task name first, or choose from templates.");
+        return;
+      }
+      addTask(name, taskCategoryEl.value);
+      taskNameInput.value = "";
+      taskNameInput.focus();
+    });
+
+    btnDecide.addEventListener("click", decide);
+    btnClearAll.addEventListener("click", clearAllTasks);
+    btnClearCompleted.addEventListener("click", clearCompleted);
+
+    categoryFilterEl.addEventListener("change", ()=>{
+      renderTasks();
+      saveState();
+    });
+
+    // Normalize energy to [1,5] on change, then save
+    energyInput.addEventListener("change", ()=>{
+      let v = parseInt(energyInput.value, 10);
+      if(isNaN(v)) v = 3;
+      if(v < 1) v = 1;
+      if(v > 5) v = 5;
+      energyInput.value = v;
+      saveState();
+    });
+
+    // Allow Enter to add a task from the input
+    taskNameInput.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        e.preventDefault();
+        const name = taskNameInput.value.trim();
+        if(name) {
+          addTask(name, taskCategoryEl.value);
+          taskNameInput.value = "";
+        }
+      }
+    });
+
+    // Template toggles
+    btnAddTemplates.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      // ensure only one open at a time
+      closeAllTemplateToggles();
+      toggleAddTemplates();
+    });
+    btnFilterTemplates.addEventListener("click", (e)=>{
+      e.stopPropagation();
+      closeAllTemplateToggles();
+      toggleFilterTemplates();
+    });
+
+    // Save state before unload to avoid accidental data loss
+    window.addEventListener("beforeunload", saveState);
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
