@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini Khaezip™</title>
+  <style>
+    :root{
+      --parchment:#f7f5f0;
+      --card:#ffffff;
+      --accent:#2563eb;
+      --accent-soft:#dbeafe;
+      --ink:#1f2933;
+      --muted:#6b7280;
+      --radius-card:11px;
+      --radius-pill:8px;
+    }
+
+    *{box-sizing:border-box;}
+
+    body{
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin:0;
+      padding:21px;
+      background:var(--parchment);
+      color:var(--ink);
+      display:flex;
+      justify-content:center;
+    }
+
+    .container{
+      width:100%;
+      max-width:640px;
+      background:var(--card);
+      padding:21px 21px 18px;
+      border-radius:var(--radius-card);
+      box-shadow:0 7px 21px rgba(0,0,0,0.06);
+      border:1px solid rgba(15,23,42,0.04);
+    }
+
+    h1{
+      font-size:21px;
+      margin:0 0 4px;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+    }
+
+    .tagline{
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:18px;
+    }
+
+    .section{
+      margin-bottom:21px;
+    }
+
+    .section h2{
+      font-size:17px;
+      margin:0 0 6px;
+    }
+
+    .section p{
+      font-size:13px;
+      color:var(--muted);
+      margin:0 0 9px;
+    }
+
+    .dropzone{
+      border:2px dashed #d2d8e0;
+      border-radius:var(--radius-card);
+      padding:16px 14px;
+      text-align:center;
+      color:var(--muted);
+      cursor:pointer;
+      margin-bottom:8px;
+      background:#f9fafb;
+      transition:border-color .18s, background .18s;
+    }
+
+    .dropzone.drag-over{
+      border-color:#a5b4fc;
+      background:var(--accent-soft);
+    }
+
+    .file-list{
+      max-height:200px;
+      overflow-y:auto;
+      border:1px solid #e5e7eb;
+      border-radius:6px;
+      padding:8px 10px;
+      background:#f9fafb;
+      font-size:14px;
+      list-style:none;
+      margin:0 0 4px;
+    }
+
+    .file-list li{
+      padding:4px 0;
+      border-bottom:1px solid #f3f4f6;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+
+    .file-list li:last-child{
+      border-bottom:none;
+    }
+
+    .file-name{
+      flex:1;
+      min-width:0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .file-meta{
+      font-size:12px;
+      color:var(--muted);
+      white-space:nowrap;
+    }
+
+    button{
+      margin-top:8px;
+      padding:8px 13px;
+      border:none;
+      border-radius:var(--radius-pill);
+      background:var(--accent);
+      color:#ffffff;
+      cursor:pointer;
+      font-size:14px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      transition:background .18s, transform .18s, box-shadow .18s;
+    }
+
+    button:hover:not(:disabled){
+      background:#1d4ed8;
+      transform:translateY(-1px);
+      box-shadow:0 7px 14px rgba(37,99,235,0.28);
+    }
+
+    button:disabled{
+      opacity:0.5;
+      cursor:not-allowed;
+      box-shadow:none;
+      transform:none;
+    }
+
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+      min-height:16px;
+    }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .link-btn{
+      background:#111827;
+      color:#f9fafb;
+      margin-top:12px;
+    }
+
+    .link-btn:hover{
+      background:#020617;
+    }
+  </style>
+</head>
+<body>
+<div class="container" aria-label="Mini Khaezip zip utility">
+  <h1>Mini Khaezip™</h1>
+  <div class="tagline">
+    Quick, in-browser ZIP tool for manuscripts, drafts, and reference files — nothing leaves your device.
+  </div>
+
+  <!-- CREATE ZIP -->
+  <div class="section">
+    <h2>Create ZIP</h2>
+    <p>Select or drop a handful of files to bundle into a single Khaezip archive.</p>
+    <div id="drop" class="dropzone" tabindex="0">
+      Drop files here or click to select
+    </div>
+    <input id="fileInput" type="file" multiple style="display:none;" />
+    <ul id="fileList" class="file-list" aria-live="polite" aria-label="Files to include in ZIP"></ul>
+    <div class="row">
+      <div>
+        <button id="zipBtn" type="button">Create ZIP</button>
+        <button id="clearBtn" type="button" style="background:#6b7280;">Clear</button>
+      </div>
+      <div id="zipStatus" class="small"></div>
+    </div>
+  </div>
+
+  <!-- OPEN ZIP -->
+  <div class="section">
+    <h2>Open ZIP</h2>
+    <p>Inspect an existing .zip file and download individual items from inside it.</p>
+    <input id="openInput" type="file" accept=".zip" />
+    <ul id="entries" class="file-list" aria-live="polite" aria-label="ZIP entries"></ul>
+    <div id="openStatus" class="small"></div>
+  </div>
+
+  <!-- Link to full Khaezip -->
+  <button
+    type="button"
+    class="link-btn"
+    onclick="window.open('https://www.vervenveda.com/khaezip','_blank','noopener')">
+    Open Full Khaezip™ Utility
+  </button>
+</div>
+
+<!-- JSZip and FileSaver from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.0/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<script>
+(function(){
+  // Elements
+  const drop       = document.getElementById('drop');
+  const fileInput  = document.getElementById('fileInput');
+  const fileList   = document.getElementById('fileList');
+  const zipBtn     = document.getElementById('zipBtn');
+  const clearBtn   = document.getElementById('clearBtn');
+  const zipStatus  = document.getElementById('zipStatus');
+  const openInput  = document.getElementById('openInput');
+  const entries    = document.getElementById('entries');
+  const openStatus = document.getElementById('openStatus');
+
+  let files = [];
+
+  // Human-readable sizes
+  function humanSize(bytes) {
+    if (!bytes && bytes !== 0) return "";
+    if (bytes === 0) return "0 B";
+    const units = ["B","KB","MB","GB"];
+    let i = 0;
+    let value = bytes;
+    while (value >= 1024 && i < units.length - 1) {
+      value /= 1024;
+      i++;
+    }
+    return (Math.round(value * 100) / 100) + " " + units[i];
+  }
+
+  function refreshFileList() {
+    fileList.innerHTML = "";
+    if (!files.length) return;
+    files.forEach(f => {
+      const li = document.createElement("li");
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "file-name";
+      nameSpan.textContent = f.name;
+      const metaSpan = document.createElement("span");
+      metaSpan.className = "file-meta";
+      metaSpan.textContent = humanSize(f.size);
+      li.appendChild(nameSpan);
+      li.appendChild(metaSpan);
+      fileList.appendChild(li);
+    });
+  }
+
+  function addFiles(list) {
+    for (let i = 0; i < list.length; i++) {
+      files.push(list[i]);
+    }
+    refreshFileList();
+    zipStatus.textContent = files.length
+      ? files.length + " file(s) ready to zip."
+      : "";
+  }
+
+  // Dropzone interactions
+  drop.addEventListener("click", () => fileInput.click());
+
+  drop.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      fileInput.click();
+    }
+  });
+
+  drop.addEventListener("dragover", e => {
+    e.preventDefault();
+    drop.classList.add("drag-over");
+  });
+
+  drop.addEventListener("dragleave", e => {
+    e.preventDefault();
+    drop.classList.remove("drag-over");
+  });
+
+  drop.addEventListener("drop", e => {
+    e.preventDefault();
+    drop.classList.remove("drag-over");
+    const dt = e.dataTransfer;
+    if (dt && dt.files) addFiles(dt.files);
+  });
+
+  fileInput.addEventListener("change", () => addFiles(fileInput.files));
+
+  clearBtn.addEventListener("click", () => {
+    files = [];
+    refreshFileList();
+    zipStatus.textContent = "List cleared.";
+  });
+
+  // Create ZIP
+  zipBtn.addEventListener("click", async () => {
+    if (!files.length) {
+      alert("Please add at least one file first.");
+      return;
+    }
+    zipBtn.disabled = true;
+    zipStatus.textContent = "Creating ZIP…";
+
+    try {
+      const zip = new JSZip();
+      files.forEach(f => zip.file(f.name, f));
+      const blob = await zip.generateAsync({ type: "blob" });
+      saveAs(blob, "khaezip.zip");
+      zipStatus.textContent = "ZIP saved to your device.";
+    } catch (err) {
+      console.error(err);
+      zipStatus.textContent = "Something went wrong while creating the ZIP.";
+    } finally {
+      zipBtn.disabled = false;
+    }
+  });
+
+  // Open ZIP
+  openInput.addEventListener("change", async () => {
+    const file = openInput.files[0];
+    if (!file) return;
+
+    entries.innerHTML = "";
+    openStatus.textContent = "Reading ZIP…";
+
+    try {
+      const zip = await JSZip.loadAsync(file);
+      const names = Object.keys(zip.files);
+      openStatus.textContent = names.length + " entr" + (names.length === 1 ? "y" : "ies") + " found.";
+      names.forEach(name => {
+        const zfile = zip.files[name];
+        const li = document.createElement("li");
+
+        const nameDiv = document.createElement("div");
+        nameDiv.className = "file-name";
+        nameDiv.textContent = name;
+        li.appendChild(nameDiv);
+
+        if (!zfile.dir) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = "Download";
+          btn.style.marginTop = "0";
+          btn.addEventListener("click", async () => {
+            const content = await zfile.async("blob");
+            saveAs(content, name.split("/").pop());
+          });
+          li.appendChild(btn);
+        }
+
+        entries.appendChild(li);
+      });
+    } catch (err) {
+      console.error(err);
+      openStatus.textContent = "Failed to read ZIP file.";
+    }
+  });
+})();
+</script>
+</body>
+</html>
