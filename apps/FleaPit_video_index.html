@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FleaPit Video Hub — Sovereign Media Search & Discovery</title>
+<style>
+  :root{
+    --bg:#08111f;
+    --bg2:#0d1b2f;
+    --panel:rgba(255,255,255,.08);
+    --panel2:rgba(255,255,255,.12);
+    --card:rgba(255,255,255,.10);
+    --ink:#eef7ff;
+    --muted:#9fb0c7;
+    --accent:#28e0c8;
+    --accent2:#8a7cff;
+    --gold:#f8c76a;
+    --danger:#ff6b6b;
+    --ok:#6ee7a8;
+    --border:rgba(255,255,255,.14);
+    --shadow:0 24px 70px rgba(0,0,0,.42);
+    --radius:22px;
+    --radius2:16px;
+    --fontScale:1;
+  }
+  [data-theme="light"]{
+    --bg:#f5f7fb;
+    --bg2:#edf2fb;
+    --panel:rgba(255,255,255,.86);
+    --panel2:rgba(255,255,255,.96);
+    --card:#fff;
+    --ink:#142033;
+    --muted:#64748b;
+    --accent:#0f9f9a;
+    --accent2:#5b5bd6;
+    --gold:#b7791f;
+    --danger:#d94141;
+    --ok:#128a58;
+    --border:rgba(15,23,42,.12);
+    --shadow:0 24px 70px rgba(15,23,42,.14);
+  }
+  [data-density="compact"]{
+    --radius:16px;
+    --radius2:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    min-height:100vh;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 12% 5%, rgba(40,224,200,.18), transparent 34rem),
+      radial-gradient(circle at 88% 10%, rgba(138,124,255,.20), transparent 32rem),
+      linear-gradient(135deg,var(--bg),var(--bg2));
+    font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size:calc(16px * var(--fontScale));
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image:linear-gradient(to bottom, rgba(0,0,0,.58), transparent 75%);
+  }
+  a{color:inherit;text-decoration:none}
+  button,input,select,textarea{font:inherit}
+  button{cursor:pointer}
+  .shell{width:min(1480px, calc(100% - 28px)); margin:0 auto; padding:18px 0 44px; position:relative; z-index:1}
+  .topbar{
+    position:sticky;
+    top:10px;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:calc(var(--radius) + 6px);
+    background:linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+    backdrop-filter: blur(18px);
+    box-shadow:var(--shadow);
+  }
+  [data-theme="light"] .topbar{background:rgba(255,255,255,.86)}
+  .brand{display:flex;align-items:center;gap:12px;min-width:260px}
+  .mark{
+    width:52px;height:52px;border-radius:19px;position:relative;flex:0 0 auto;
+    background:
+      radial-gradient(circle at 36% 30%, #fff, rgba(255,255,255,.15) 18%, transparent 21%),
+      conic-gradient(from 130deg, var(--accent), var(--accent2), var(--gold), var(--accent));
+    box-shadow:0 16px 36px rgba(40,224,200,.23);
+  }
+  .mark::after{content:"";position:absolute;inset:11px;border:2px solid rgba(255,255,255,.6);border-radius:14px;transform:rotate(12deg)}
+  .brand h1{font-size:1.12rem;line-height:1.02;margin:0;letter-spacing:.02em}
+  .brand small{display:block;color:var(--muted);margin-top:3px;font-size:.8rem}
+  .top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .btn{
+    border:1px solid var(--border);
+    background:rgba(255,255,255,.08);
+    color:var(--ink);
+    border-radius:999px;
+    padding:10px 13px;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition:transform .16s ease, background .16s ease, border-color .16s ease;
+    min-height:42px;
+  }
+  .btn:hover{transform:translateY(-1px); background:rgba(255,255,255,.14); border-color:rgba(255,255,255,.25)}
+  [data-theme="light"] .btn{background:#fff}
+  .btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#07111f; border-color:transparent; font-weight:800}
+  .btn.gold{background:linear-gradient(135deg,#ffd88b,#ffad4d); color:#241300; border-color:transparent; font-weight:800}
+  .btn.danger{color:#fff;background:linear-gradient(135deg,#ff6b6b,#c02626);border-color:transparent}
+  .btn.ghost{background:transparent}
+  .btn.small{min-height:36px;padding:8px 11px;font-size:.9rem}
+  .btn.active{outline:2px solid color-mix(in srgb, var(--accent), transparent 45%)}
+  .hero{
+    margin-top:18px;
+    display:grid;
+    grid-template-columns:1.15fr .85fr;
+    gap:16px;
+    align-items:stretch;
+  }
+  .hero-card,.panel,.rail-card{
+    border:1px solid var(--border);
+    background:linear-gradient(135deg, rgba(255,255,255,.12), rgba(255,255,255,.07));
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    backdrop-filter:blur(14px);
+  }
+  [data-theme="light"] .hero-card,[data-theme="light"] .panel,[data-theme="light"] .rail-card{background:rgba(255,255,255,.88)}
+  .hero-copy{padding:26px;display:flex;flex-direction:column;gap:16px;min-height:350px}
+  .eyebrow{color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.16em;font-size:.78rem}
+  .hero h2{font-size:clamp(2rem, 5vw, 4.5rem);line-height:.95;margin:0;max-width:880px;letter-spacing:-.06em}
+  .hero p{color:var(--muted);line-height:1.55;margin:0;max-width:780px}
+  .quick-search{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:10px;
+    padding:8px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    background:rgba(255,255,255,.10);
+  }
+  .quick-search input{border:0;outline:0;background:transparent;color:var(--ink);padding:0 12px;min-width:0}
+  .hero-stats{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:10px;margin-top:auto}
+  .stat{border:1px solid var(--border);border-radius:18px;padding:13px;background:rgba(255,255,255,.08)}
+  .stat b{display:block;font-size:1.35rem}.stat small{display:block;color:var(--muted);margin-top:3px;font-size:.82rem}
+  .player-card{padding:12px;display:flex;flex-direction:column;gap:12px}
+  .player-wrap{position:relative;background:#000;border-radius:18px;overflow:hidden;min-height:260px;border:1px solid rgba(255,255,255,.12)}
+  video#mainPlayer{width:100%;height:clamp(260px, 38vh, 520px);object-fit:cover;display:block;background:#000}
+  .player-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;color:#d9e6f2;padding:26px;background:radial-gradient(circle at 50% 30%,rgba(40,224,200,.20),transparent 45%),#03070d}
+  .player-empty.hidden{display:none}
+  .player-meta{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;padding:2px 2px 4px}
+  .player-meta h3{margin:0;font-size:1.05rem}.player-meta small{color:var(--muted);display:block;margin-top:4px}
+  .pill-row{display:flex;gap:7px;flex-wrap:wrap}
+  .pill{font-size:.78rem;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--muted);border-radius:999px;padding:5px 8px}
+  .layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;margin-top:16px;align-items:start}
+  .control-panel{padding:14px;display:grid;gap:12px}
+  .view-tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .view-tabs button{border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--ink);padding:10px 13px}
+  .view-tabs button.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#061220;border-color:transparent;font-weight:800}
+  .filters{display:grid;grid-template-columns:1.2fr repeat(3, minmax(140px,.4fr));gap:10px}
+  input[type="search"],input[type="text"],input[type="url"],select,textarea{
+    width:100%;border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.10);color:var(--ink);padding:11px 12px;outline:0;
+  }
+  textarea{min-height:82px;resize:vertical}
+  input::placeholder,textarea::placeholder{color:color-mix(in srgb,var(--muted),transparent 22%)}
+  [data-theme="light"] input,[data-theme="light"] select,[data-theme="light"] textarea{background:#fff}
+  .toolbar-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .toggle-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:.9rem}
+  .toggle-row label{border:1px solid var(--border);border-radius:999px;padding:8px 10px;background:rgba(255,255,255,.06);display:flex;align-items:center;gap:7px}
+  .scroll-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px}
+  .scroll-head h3{margin:0;font-size:1.05rem}.scroll-head small{color:var(--muted)}
+  .media-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:12px;
+    max-height:760px;
+    overflow:auto;
+    padding:2px 4px 6px 0;
+    scrollbar-color:var(--accent) transparent;
+  }
+  .media-card{
+    border:1px solid var(--border);
+    background:var(--card);
+    border-radius:18px;
+    overflow:hidden;
+    min-height:260px;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+  }
+  .media-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent),transparent 35%);box-shadow:0 18px 38px rgba(0,0,0,.18)}
+  .thumb{height:145px;background:#020617;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#d6e4f2}
+  .thumb video{width:100%;height:100%;object-fit:cover;display:block;opacity:.84}
+  .thumb .icon{font-size:2.2rem;filter:drop-shadow(0 10px 22px rgba(0,0,0,.5))}
+  .thumb::after{content:"";position:absolute;inset:auto 0 0 0;height:60%;background:linear-gradient(transparent,rgba(0,0,0,.65))}
+  .badge{position:absolute;top:10px;left:10px;border-radius:999px;background:rgba(0,0,0,.58);color:#fff;border:1px solid rgba(255,255,255,.22);padding:5px 8px;font-size:.74rem;z-index:2}
+  .source-badge{left:auto;right:10px}
+  .card-body{padding:12px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .card-body h4{margin:0;font-size:1rem;line-height:1.18}.card-body p{margin:0;color:var(--muted);font-size:.87rem;line-height:1.35}
+  .card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:auto}
+  .card-actions .btn{font-size:.84rem;min-height:34px;padding:7px 10px}
+  .resource-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;max-height:760px;overflow:auto;padding:2px 4px 6px 0}
+  .resource-card{border:1px solid var(--border);border-radius:18px;background:var(--card);padding:14px;display:flex;flex-direction:column;gap:10px;min-height:170px}
+  .resource-card h4{margin:0}.resource-card p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.35}.resource-card .btn{margin-top:auto;justify-content:center}
+  .launch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;max-height:760px;overflow:auto;padding:2px 4px 6px 0}
+  .launch-card{border:1px solid var(--border);border-radius:18px;background:var(--card);padding:14px;display:grid;gap:10px}.launch-card b{font-size:1.02rem}.launch-card small{color:var(--muted);line-height:1.35}
+  .rail{display:grid;gap:16px;position:sticky;top:104px}
+  .rail-card{padding:14px}.rail-card h3{margin:.1rem 0 .65rem;font-size:1.02rem}.rail-card p,.rail-card small{color:var(--muted);line-height:1.4}
+  .queue-list{display:grid;gap:8px;max-height:290px;overflow:auto;margin-top:10px}
+  .queue-item{border:1px solid var(--border);border-radius:14px;background:rgba(255,255,255,.06);padding:10px;display:flex;gap:10px;align-items:center;cursor:pointer}
+  .queue-item:hover{background:rgba(255,255,255,.12)}
+  .queue-item .num{width:26px;height:26px;border-radius:999px;background:rgba(255,255,255,.10);display:grid;place-items:center;color:var(--muted);font-size:.78rem;flex:0 0 auto}.queue-item b{font-size:.9rem}.queue-item small{display:block;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+  .add-panel{display:grid;gap:10px}.add-panel .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .toast{position:fixed;left:14px;right:14px;bottom:16px;max-width:980px;margin:auto;z-index:50;border:1px solid var(--border);background:var(--panel2);backdrop-filter:blur(18px);box-shadow:var(--shadow);border-radius:18px;padding:12px;display:none;justify-content:space-between;align-items:center;gap:12px}.toast.show{display:flex}.toast span{color:var(--ink)}
+  .file-input{font-size:.9rem;color:var(--muted)}
+  .hidden{display:none!important}
+  footer{margin-top:26px;text-align:center;color:var(--muted);font-size:.82rem}
+  @media (max-width:1120px){.hero,.layout{grid-template-columns:1fr}.rail{position:static}.filters{grid-template-columns:1fr 1fr}.hero-stats{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:720px){.shell{width:min(100% - 18px,1480px);padding-top:9px}.topbar{position:static}.brand{min-width:0}.brand h1{font-size:1rem}.top-actions{justify-content:flex-start}.hero-copy{padding:18px}.quick-search{grid-template-columns:1fr;border-radius:20px}.filters{grid-template-columns:1fr}.media-grid,.resource-grid,.launch-grid{max-height:none;overflow:visible}.add-panel .two{grid-template-columns:1fr}.hero-stats{grid-template-columns:1fr 1fr}.btn{padding:9px 11px}.view-tabs button{flex:1}.layout{gap:12px}.hero h2{font-size:2.4rem}}
+</style>
+</head>
+<body data-theme="dark" data-density="comfortable">
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div>
+        <h1>FleaPit Video Hub</h1>
+        <small>Sovereign media search · library · channels · recordings</small>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="btn small" id="fontDown" title="Smaller text">A−</button>
+      <button class="btn small" id="fontUp" title="Larger text">A+</button>
+      <button class="btn small" id="densityBtn">Comfortable</button>
+      <button class="btn small" id="themeBtn">☀️ Light</button>
+      <button class="btn small primary" id="exportBtn">Export</button>
+      <button class="btn small" id="importBtn">Import</button>
+      <input class="hidden" id="importFile" type="file" accept="application/json" />
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-card hero-copy">
+      <div class="eyebrow">Ultimate Media Discovery Portal</div>
+      <h2>Find, save, sort, and watch media from one beautiful hub.</h2>
+      <p>Build a scrollable discovery wall for direct videos, movies, documentaries, news clips, lectures, music recordings, archives, and external streaming resources. FleaPit works as a local-first media library plus a search launchpad for the wider web.</p>
+      <div class="quick-search">
+        <input id="heroSearch" type="search" placeholder="Search videos, movies, channels, archives, music, lectures…" />
+        <button class="btn primary" id="heroSearchBtn">Search Hub</button>
+      </div>
+      <div class="hero-stats" aria-label="Hub statistics">
+        <div class="stat"><b id="statMedia">0</b><small>media cards</small></div>
+        <div class="stat"><b id="statSaved">0</b><small>saved by you</small></div>
+        <div class="stat"><b id="statResources">0</b><small>resource portals</small></div>
+        <div class="stat"><b id="statQueue">0</b><small>queue items</small></div>
+      </div>
+    </div>
+
+    <div class="hero-card player-card">
+      <div class="player-wrap">
+        <video id="mainPlayer" controls playsinline></video>
+        <div class="player-empty" id="playerEmpty">
+          <div>
+            <div style="font-size:3rem">▶︎</div>
+            <b>Select a playable card to begin.</b><br>
+            <small>Direct MP4/WebM/MOV files play here. Platform resources open externally.</small>
+          </div>
+        </div>
+      </div>
+      <div class="player-meta">
+        <div>
+          <h3 id="nowTitle">Nothing playing yet</h3>
+          <small id="nowMeta">Choose a video from Discover or add your own link.</small>
+        </div>
+        <div class="pill-row" id="nowPills"></div>
+      </div>
+      <div class="toolbar-row">
+        <div class="pill-row">
+          <button class="btn small" id="pipBtn">Picture-in-Picture</button>
+          <button class="btn small" id="favoriteNowBtn">☆ Favorite</button>
+          <button class="btn small" id="openNowBtn">Open Source</button>
+        </div>
+        <small id="resumeHint" style="color:var(--muted)">Resume tracking is local to this browser.</small>
+      </div>
+    </div>
+  </section>
+
+  <main class="layout">
+    <section class="panel control-panel">
+      <div class="view-tabs" role="tablist" aria-label="FleaPit views">
+        <button class="active" data-view="discover">Discover Grid</button>
+        <button data-view="search">Search Launchpad</button>
+        <button data-view="channels">Channels</button>
+        <button data-view="library">My Library</button>
+        <button data-view="resources">Resources</button>
+      </div>
+
+      <div class="filters">
+        <input id="searchInput" type="search" placeholder="Filter the visible view…" />
+        <select id="typeFilter" title="Media type">
+          <option value="all">All types</option>
+          <option value="movie">Movies</option>
+          <option value="documentary">Documentaries</option>
+          <option value="news">News</option>
+          <option value="music">Music/audio</option>
+          <option value="education">Education</option>
+          <option value="archive">Archives</option>
+          <option value="kids">Kids/family</option>
+        </select>
+        <select id="sourceFilter" title="Source filter">
+          <option value="all">All sources</option>
+          <option value="playable">Playable here</option>
+          <option value="external">External platforms</option>
+          <option value="saved">Saved only</option>
+        </select>
+        <select id="sortFilter" title="Sort order">
+          <option value="featured">Featured order</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+          <option value="newest">Newest saved</option>
+        </select>
+      </div>
+
+      <div class="toolbar-row">
+        <div class="toggle-row">
+          <label><input type="checkbox" id="safeModeToggle" checked /> Family-safe filter</label>
+          <label><input type="checkbox" id="previewToggle" checked /> Muted previews</label>
+          <label><input type="checkbox" id="externalToggle" checked /> Show external resources</label>
+        </div>
+        <div class="pill-row">
+          <button class="btn small" id="clearFiltersBtn">Clear filters</button>
+          <button class="btn small gold" id="randomBtn">Surprise me</button>
+        </div>
+      </div>
+
+      <section id="discoverView">
+        <div class="scroll-head"><div><h3>Scrollable Media Wall</h3><small id="resultLabel">Showing all media</small></div><button class="btn small" id="scrollTopBtn">Top</button></div>
+        <div class="media-grid" id="mediaGrid"></div>
+      </section>
+
+      <section id="searchView" class="hidden">
+        <div class="scroll-head"><div><h3>Super Search Launchpad</h3><small>One query, many places to search.</small></div></div>
+        <div class="launch-grid" id="launchGrid"></div>
+      </section>
+
+      <section id="channelsView" class="hidden">
+        <div class="scroll-head"><div><h3>Channel Rows</h3><small>Curated media lanes built from your library and resources.</small></div></div>
+        <div class="media-grid" id="channelGrid"></div>
+      </section>
+
+      <section id="libraryView" class="hidden">
+        <div class="scroll-head"><div><h3>My Saved Library</h3><small>Favorites, imported links, and session files.</small></div><button class="btn small danger" id="clearSavedBtn">Clear saved</button></div>
+        <div class="media-grid" id="libraryGrid"></div>
+      </section>
+
+      <section id="resourcesView" class="hidden">
+        <div class="scroll-head"><div><h3>Resource Directory</h3><small>Streaming, archives, public media, learning, news, and music sources.</small></div></div>
+        <div class="resource-grid" id="resourceGrid"></div>
+      </section>
+    </section>
+
+    <aside class="rail">
+      <section class="rail-card">
+        <h3>Add media</h3>
+        <p>Save direct video links for in-app playback, or save external pages as searchable cards.</p>
+        <div class="add-panel">
+          <input id="addTitle" type="text" placeholder="Title" />
+          <input id="addUrl" type="url" placeholder="https://… mp4, webm, YouTube, Archive, article…" />
+          <div class="two">
+            <select id="addType">
+              <option value="movie">Movie</option>
+              <option value="documentary">Documentary</option>
+              <option value="news">News</option>
+              <option value="music">Music/audio</option>
+              <option value="education">Education</option>
+              <option value="archive">Archive</option>
+              <option value="kids">Kids/family</option>
+              <option value="other">Other</option>
+            </select>
+            <input id="addTags" type="text" placeholder="tags: art, history" />
+          </div>
+          <textarea id="addDesc" placeholder="Optional description or notes"></textarea>
+          <button class="btn primary" id="addMediaBtn">+ Add to Hub</button>
+          <label class="file-input">Local session files <input id="localFiles" type="file" accept="video/*,audio/*" multiple /></label>
+        </div>
+      </section>
+
+      <section class="rail-card">
+        <div class="toolbar-row"><h3>Watch queue</h3><button class="btn small" id="clearQueueBtn">Clear</button></div>
+        <small>Cards you add to queue appear here. Click any item to play or open it.</small>
+        <div class="queue-list" id="queueList"></div>
+      </section>
+
+      <section class="rail-card">
+        <div class="toolbar-row"><h3>Favorites</h3><button class="btn small" id="showFavoritesBtn">Open</button></div>
+        <small id="favoriteCount">0 favorites saved locally.</small>
+      </section>
+
+      <section class="rail-card">
+        <h3>Build notes</h3>
+        <small>Major streaming platforms usually block embedded playback. FleaPit treats them as discovery portals and opens searches safely in new tabs. Direct media files play in the built-in player.</small>
+      </section>
+    </aside>
+  </main>
+
+  <footer>FleaPit Video Hub © VerveN Veda & Khaemenes Academy — local-first sovereign media discovery prototype.</footer>
+</div>
+
+<div class="toast" id="toast"><span id="toastMsg">Saved.</span><button class="btn small" id="toastOk">OK</button></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const store = (()=>{
+    const memory = new Map();
+    function ok(){ try{ const k="__fb_test__"; localStorage.setItem(k,"1"); localStorage.removeItem(k); return true; }catch(e){ return false; } }
+    const can = ok();
+    return {
+      get(key, fallback){ try{ const raw = can ? localStorage.getItem(key) : memory.get(key); return raw ? JSON.parse(raw) : fallback; }catch(e){ return fallback; } },
+      set(key, value){ const raw = JSON.stringify(value); try{ can ? localStorage.setItem(key, raw) : memory.set(key, raw); }catch(e){ memory.set(key, raw); } },
+      remove(key){ try{ can ? localStorage.removeItem(key) : memory.delete(key); }catch(e){ memory.delete(key); } }
+    };
+  })();
+
+  const $ = id => document.getElementById(id);
+  const uid = () => "fb_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+  const norm = s => String(s||"").toLowerCase();
+  const escapeHtml = s => String(s||"").replace(/[&<>'"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch]));
+  const directRe = /\.(mp4|webm|m4v|mov|ogg|mp3|wav|m4a)(\?.*)?$/i;
+  const blockedWords = ["gore","porn","nsfw","violent","violence","murder","graphic","explicit","terror","suicide","blood"];
+
+  const resources = [
+    {name:"Internet Archive Video", type:"archive", source:"Archive", desc:"Public domain films, broadcasts, historic recordings, community video collections.", url:"https://archive.org/details/movies", search:"https://archive.org/search?query={q}&and%5B%5D=mediatype%3A%22movies%22"},
+    {name:"American Archive of Public Broadcasting", type:"archive", source:"AAPB", desc:"Historic public television and radio recordings from across the United States.", url:"https://americanarchive.org", search:"https://americanarchive.org/catalog?f%5Baccess_types%5D%5B%5D=online&q={q}"},
+    {name:"PBS Video", type:"education", source:"PBS", desc:"Public broadcasting documentaries, series, culture, history, science, and education.", url:"https://www.pbs.org/video/", search:"https://www.pbs.org/search/?q={q}"},
+    {name:"PBS KIDS Video", type:"kids", source:"PBS Kids", desc:"Family-friendly children’s videos and educational programs.", url:"https://pbskids.org/video", search:"https://pbskids.org/search/?q={q}"},
+    {name:"Tubi", type:"movie", source:"Tubi", desc:"Free ad-supported movies and shows.", url:"https://tubitv.com", search:"https://tubitv.com/search/{q}"},
+    {name:"Pluto TV", type:"movie", source:"Pluto", desc:"Free live TV channels and on-demand movies.", url:"https://pluto.tv", search:"https://pluto.tv/search/details?search={q}"},
+    {name:"The Roku Channel", type:"movie", source:"Roku", desc:"Free movies, shows, and live TV through Roku’s streaming portal.", url:"https://therokuchannel.roku.com", search:"https://therokuchannel.roku.com/search/{q}"},
+    {name:"Crackle", type:"movie", source:"Crackle", desc:"Free movies, television, and original series.", url:"https://www.crackle.com", search:"https://www.crackle.com/search/{q}"},
+    {name:"Plex Free Movies & TV", type:"movie", source:"Plex", desc:"Free movies, shows, live TV, and personal media hub tools.", url:"https://watch.plex.tv", search:"https://watch.plex.tv/search?q={q}"},
+    {name:"YouTube", type:"external", source:"YouTube", desc:"Massive public video platform for creators, official channels, lectures, clips, and music.", url:"https://www.youtube.com", search:"https://www.youtube.com/results?search_query={q}"},
+    {name:"Vimeo", type:"external", source:"Vimeo", desc:"Independent film, art, creative video, documentaries, portfolios, and showcases.", url:"https://vimeo.com", search:"https://vimeo.com/search?q={q}"},
+    {name:"Dailymotion", type:"external", source:"Dailymotion", desc:"Global video sharing and news clips.", url:"https://www.dailymotion.com", search:"https://www.dailymotion.com/search/{q}/videos"},
+    {name:"TED Talks", type:"education", source:"TED", desc:"Talks and presentations across science, culture, technology, design, and society.", url:"https://www.ted.com/talks", search:"https://www.ted.com/search?q={q}"},
+    {name:"WatchDocumentaries", type:"documentary", source:"WatchDocumentaries", desc:"Free documentary browsing by topic and category.", url:"https://watchdocumentaries.com", search:"https://watchdocumentaries.com/?s={q}"},
+    {name:"National Geographic Videos", type:"documentary", source:"NatGeo", desc:"Science, nature, environment, culture, and exploration videos.", url:"https://www.nationalgeographic.com/videos", search:"https://www.nationalgeographic.com/search?q={q}"},
+    {name:"Reuters Video", type:"news", source:"Reuters", desc:"Global news video and reporting.", url:"https://www.reuters.com/video/", search:"https://www.reuters.com/site-search/?query={q}"},
+    {name:"BBC News Video", type:"news", source:"BBC", desc:"International news coverage, explainers, and documentaries.", url:"https://www.bbc.com/news/video_and_audio", search:"https://www.bbc.co.uk/search?q={q}"},
+    {name:"Al Jazeera English", type:"news", source:"Al Jazeera", desc:"International news, documentaries, explainers, and livestreams.", url:"https://www.aljazeera.com", search:"https://www.aljazeera.com/search/{q}"},
+    {name:"DW Documentary", type:"documentary", source:"DW", desc:"International documentaries and explainers from Deutsche Welle.", url:"https://www.dw.com/en/documentaries/s-3610", search:"https://www.dw.com/search/en?searchNavigationId=9097&languageCode=en&item={q}"},
+    {name:"NHK WORLD-JAPAN", type:"news", source:"NHK", desc:"Japan and Asia news, culture, travel, and documentary programming.", url:"https://www3.nhk.or.jp/nhkworld/", search:"https://www3.nhk.or.jp/nhkworld/en/search/?q={q}"},
+    {name:"Alan Lomax Archive", type:"music", source:"Cultural Equity", desc:"Traditional music, oral histories, field recordings, and cultural preservation.", url:"https://archive.culturalequity.org", search:"https://archive.culturalequity.org/solr-search?q={q}"},
+    {name:"SoundCloud", type:"music", source:"SoundCloud", desc:"Independent music, podcasts, DJ sets, and creator audio.", url:"https://soundcloud.com", search:"https://soundcloud.com/search?q={q}"},
+    {name:"Bandcamp", type:"music", source:"Bandcamp", desc:"Artist-driven music discovery, albums, and independent labels.", url:"https://bandcamp.com", search:"https://bandcamp.com/search?q={q}"},
+    {name:"Mixcloud", type:"music", source:"Mixcloud", desc:"DJ mixes, radio shows, long-form audio, and creator-hosted recordings.", url:"https://www.mixcloud.com", search:"https://www.mixcloud.com/search/?q={q}"},
+    {name:"Spotify", type:"music", source:"Spotify", desc:"Music, podcasts, and audiobooks. Opens externally.", url:"https://open.spotify.com", search:"https://open.spotify.com/search/{q}"},
+    {name:"Apple Music", type:"music", source:"Apple Music", desc:"Subscription music streaming and artist pages. Opens externally.", url:"https://music.apple.com", search:"https://music.apple.com/us/search?term={q}"},
+    {name:"Netflix", type:"movie", source:"Netflix", desc:"Subscription movies, series, and originals. Opens externally.", url:"https://www.netflix.com", search:"https://www.netflix.com/search?q={q}"},
+    {name:"Hulu", type:"movie", source:"Hulu", desc:"Subscription movies, TV shows, and originals. Opens externally.", url:"https://www.hulu.com", search:"https://www.hulu.com/search?q={q}"},
+    {name:"Disney+", type:"movie", source:"Disney+", desc:"Disney, Pixar, Marvel, Star Wars, documentaries, and family media. Opens externally.", url:"https://www.disneyplus.com", search:"https://www.disneyplus.com/search?q={q}"},
+    {name:"Max", type:"movie", source:"Max", desc:"HBO, Warner Bros., documentaries, series, and films. Opens externally.", url:"https://www.max.com", search:"https://www.google.com/search?q=site%3Amax.com+{q}"},
+    {name:"Kanopy", type:"education", source:"Kanopy", desc:"Library-supported films, documentaries, cinema, and educational videos.", url:"https://www.kanopy.com", search:"https://www.kanopy.com/en/search?query={q}"},
+    {name:"Open Culture Video", type:"education", source:"Open Culture", desc:"Free cultural and educational media collections, lectures, films, and courses.", url:"https://www.openculture.com/freemoviesonline", search:"https://www.openculture.com/?s={q}"}
+  ];
+
+  const builtInMedia = [
+    {id:"demo_bbb", title:"Big Buck Bunny", type:"kids", source:"Demo MP4", platform:"Playable", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", desc:"Open movie sample for testing the player and media grid.", tags:["animation","family","movie"], builtIn:true, featured:1},
+    {id:"demo_sintel", title:"Sintel", type:"movie", source:"Demo MP4", platform:"Playable", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", desc:"Fantasy film sample for testing in-hub playback.", tags:["film","fantasy","trailer"], builtIn:true, featured:2},
+    {id:"demo_tears", title:"Tears of Steel", type:"movie", source:"Demo MP4", platform:"Playable", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4", desc:"Sci-fi movie sample that plays directly in the hub.", tags:["sci-fi","movie","demo"], builtIn:true, featured:3},
+    {id:"demo_elephants", title:"Elephants Dream", type:"documentary", source:"Demo MP4", platform:"Playable", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4", desc:"Artful open video sample with cinematic style.", tags:["animation","art","film"], builtIn:true, featured:4},
+    {id:"demo_forbigger", title:"For Bigger Joyrides", type:"news", source:"Demo MP4", platform:"Playable", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4", desc:"Short video loop for channel and preview testing.", tags:["short","clip","demo"], builtIn:true, featured:5},
+    {id:"ext_archive", title:"Explore Public Domain Movies", type:"archive", source:"Internet Archive", platform:"External", url:"https://archive.org/details/movies", desc:"Browse historic films, public domain cinema, community video collections, and preserved recordings.", tags:["archive","public-domain","history"], builtIn:true, featured:6},
+    {id:"ext_pbs", title:"PBS Documentary & Culture Portal", type:"education", source:"PBS", platform:"External", url:"https://www.pbs.org/video/", desc:"Public broadcasting documentaries, culture, history, science, and learning programs.", tags:["documentary","education","public-media"], builtIn:true, featured:7},
+    {id:"ext_ted", title:"TED Talks Learning Shelf", type:"education", source:"TED", platform:"External", url:"https://www.ted.com/talks", desc:"Talks and lectures by topic for learning, research, inspiration, and classroom enrichment.", tags:["talks","education","ideas"], builtIn:true, featured:8},
+    {id:"ext_lomax", title:"Alan Lomax Field Recordings", type:"music", source:"Cultural Equity", platform:"External", url:"https://archive.culturalequity.org", desc:"Traditional music, oral histories, and field recordings from cultural archives.", tags:["music","archive","culture"], builtIn:true, featured:9}
+  ];
+
+  let savedMedia = store.get("fb_savedMedia", []);
+  let favorites = store.get("fb_favorites", []);
+  let queue = store.get("fb_queue", []);
+  let resume = store.get("fb_resume", {});
+  let settings = store.get("fb_settings", {theme:"dark", density:"comfortable", fontScale:1, safeMode:true, previews:true, external:true});
+  let localMedia = [];
+  let currentView = "discover";
+  let currentItem = null;
+
+  const stateEls = {
+    body: document.body, mainPlayer: $("mainPlayer"), playerEmpty: $("playerEmpty"), nowTitle: $("nowTitle"), nowMeta: $("nowMeta"), nowPills: $("nowPills"), resumeHint: $("resumeHint"),
+    mediaGrid: $("mediaGrid"), libraryGrid: $("libraryGrid"), resourceGrid: $("resourceGrid"), launchGrid: $("launchGrid"), channelGrid: $("channelGrid"), queueList: $("queueList")
+  };
+
+  function toast(msg){
+    $("toastMsg").textContent = msg;
+    $("toast").classList.add("show");
+    clearTimeout(toast.t);
+    toast.t = setTimeout(()=>$("toast").classList.remove("show"), 4200);
+  }
+
+  function saveAll(){
+    store.set("fb_savedMedia", savedMedia);
+    store.set("fb_favorites", favorites);
+    store.set("fb_queue", queue);
+    store.set("fb_resume", resume);
+    store.set("fb_settings", settings);
+  }
+
+  function allMedia(){ return [...builtInMedia, ...savedMedia, ...localMedia]; }
+  function isPlayable(item){ return directRe.test(item.url||"") || item.local; }
+  function fullText(item){ return norm([item.title,item.type,item.source,item.platform,item.desc,(item.tags||[]).join(" ")].join(" ")); }
+  function isSafe(item){ return !blockedWords.some(w => fullText(item).includes(w)); }
+  function isFavorite(id){ return favorites.includes(id); }
+  function sourceIcon(item){
+    if(isPlayable(item)) return "▶";
+    if(item.type==="music") return "♫";
+    if(item.type==="news") return "◉";
+    if(item.type==="archive") return "◫";
+    if(item.type==="education") return "✦";
+    if(item.type==="kids") return "★";
+    return "⌁";
+  }
+  function sourceNameFromUrl(url){
+    try{ const host = new URL(url).hostname.replace(/^www\./,""); return host.split(".").slice(0,-1).join(".") || host; }catch(e){ return "Custom"; }
+  }
+
+  function filteredMedia(base){
+    const q = norm($("searchInput").value || $("heroSearch").value || "");
+    const type = $("typeFilter").value;
+    const source = $("sourceFilter").value;
+    let list = base.slice();
+    if(settings.safeMode) list = list.filter(isSafe);
+    if(!settings.external) list = list.filter(isPlayable);
+    if(q) list = list.filter(item => fullText(item).includes(q));
+    if(type !== "all") list = list.filter(item => item.type === type || (item.tags||[]).map(norm).includes(type));
+    if(source === "playable") list = list.filter(isPlayable);
+    if(source === "external") list = list.filter(item => !isPlayable(item));
+    if(source === "saved") list = list.filter(item => savedMedia.some(s => s.id === item.id) || localMedia.some(s => s.id === item.id));
+    const sort = $("sortFilter").value;
+    if(sort === "az") list.sort((a,b)=>a.title.localeCompare(b.title));
+    if(sort === "za") list.sort((a,b)=>b.title.localeCompare(a.title));
+    if(sort === "newest") list.sort((a,b)=>(b.savedAt||0)-(a.savedAt||0));
+    if(sort === "featured") list.sort((a,b)=>(a.featured||99)-(b.featured||99));
+    return list;
+  }
+
+  function renderCard(item){
+    const playable = isPlayable(item);
+    const fav = isFavorite(item.id);
+    const tags = (item.tags||[]).slice(0,3).map(t=>`<span class="pill">${escapeHtml(t)}</span>`).join("");
+    const preview = playable && settings.previews ? `<video muted playsinline preload="metadata" src="${escapeHtml(item.url)}"></video>` : `<div class="icon">${sourceIcon(item)}</div>`;
+    return `<article class="media-card" data-id="${escapeHtml(item.id)}">
+      <div class="thumb">${preview}<span class="badge">${escapeHtml(item.type||"media")}</span><span class="badge source-badge">${playable?"plays here":"opens out"}</span></div>
+      <div class="card-body">
+        <h4>${escapeHtml(item.title||"Untitled")}</h4>
+        <p>${escapeHtml(item.desc || item.source || "No description yet.")}</p>
+        <div class="pill-row">${tags}<span class="pill">${escapeHtml(item.source || sourceNameFromUrl(item.url))}</span></div>
+        <div class="card-actions">
+          <button class="btn small primary" data-action="play" data-id="${escapeHtml(item.id)}">${playable?"Play":"Open"}</button>
+          <button class="btn small" data-action="queue" data-id="${escapeHtml(item.id)}">+ Queue</button>
+          <button class="btn small" data-action="fav" data-id="${escapeHtml(item.id)}">${fav?"★ Saved":"☆ Save"}</button>
+          ${!item.builtIn && !item.local ? `<button class="btn small danger" data-action="delete" data-id="${escapeHtml(item.id)}">Delete</button>` : ""}
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderMediaGrid(){
+    const list = filteredMedia(allMedia());
+    stateEls.mediaGrid.innerHTML = list.length ? list.map(renderCard).join("") : emptyCard("No media found", "Try clearing filters or adding a new link.");
+    $("resultLabel").textContent = `${list.length} media card${list.length===1?"":"s"} visible`;
+  }
+
+  function renderLibrary(){
+    const ids = new Set(favorites);
+    const base = allMedia().filter(item => ids.has(item.id) || savedMedia.some(s=>s.id===item.id) || localMedia.some(s=>s.id===item.id));
+    const list = filteredMedia(base);
+    stateEls.libraryGrid.innerHTML = list.length ? list.map(renderCard).join("") : emptyCard("Your library is empty", "Save cards, import JSON, or add direct media links.");
+  }
+
+  function renderResources(){
+    const q = norm($("searchInput").value || $("heroSearch").value || "");
+    const type = $("typeFilter").value;
+    let list = resources.slice();
+    if(q) list = list.filter(r => norm([r.name,r.type,r.source,r.desc].join(" ")).includes(q));
+    if(type !== "all") list = list.filter(r => r.type === type || (type==="movie" && ["movie","external"].includes(r.type)));
+    list.sort((a,b)=>a.name.localeCompare(b.name));
+    stateEls.resourceGrid.innerHTML = list.length ? list.map(r=>`<article class="resource-card">
+      <div class="pill-row"><span class="pill">${escapeHtml(r.type)}</span><span class="pill">${escapeHtml(r.source)}</span></div>
+      <h4>${escapeHtml(r.name)}</h4><p>${escapeHtml(r.desc)}</p>
+      <a class="btn small primary" href="${escapeHtml(r.url)}" target="_blank" rel="noopener">Open Resource</a>
+    </article>`).join("") : emptyCard("No resources found", "Try a broader search.");
+  }
+
+  function renderLaunchpad(){
+    const q = ($("heroSearch").value || $("searchInput").value || "media").trim();
+    const type = $("typeFilter").value;
+    let list = resources.filter(r => type === "all" || r.type === type || (type==="movie" && r.type==="external"));
+    stateEls.launchGrid.innerHTML = list.map(r=>{
+      const href = (r.search || r.url).replace("{q}", encodeURIComponent(q));
+      return `<article class="launch-card"><b>${escapeHtml(r.name)}</b><small>${escapeHtml(r.desc)}</small><div class="pill-row"><span class="pill">${escapeHtml(r.type)}</span><span class="pill">${escapeHtml(r.source)}</span></div><a class="btn small primary" href="${escapeHtml(href)}" target="_blank" rel="noopener">Search “${escapeHtml(q)}”</a></article>`;
+    }).join("");
+  }
+
+  function renderChannels(){
+    const lanes = [
+      {title:"Movie Night", type:"movie", desc:"Feature films, trailers, and cinema resources."},
+      {title:"Documentary Shelf", type:"documentary", desc:"Docs, public media, history, nature, and culture."},
+      {title:"Learning & Lectures", type:"education", desc:"Talks, classroom videos, PBS, TED, and learning portals."},
+      {title:"Music & Recordings", type:"music", desc:"Music videos, field recordings, DJ mixes, and audio platforms."},
+      {title:"Newsroom", type:"news", desc:"Global news, video reports, and explainers."},
+      {title:"Archives", type:"archive", desc:"Public domain, preservation, and historic recordings."},
+      {title:"Family Friendly", type:"kids", desc:"Children’s and family-safe media."}
+    ];
+    const media = allMedia();
+    const cards = lanes.map((lane, idx)=>{
+      const matches = media.filter(m => m.type === lane.type || (m.tags||[]).map(norm).includes(lane.type)).slice(0,4);
+      const count = matches.length + resources.filter(r=>r.type===lane.type).length;
+      return `<article class="media-card" data-channel="${escapeHtml(lane.type)}">
+        <div class="thumb"><div class="icon">${["◉","▣","✦","♫","●","◫","★"][idx]}</div><span class="badge">channel</span><span class="badge source-badge">${count} sources</span></div>
+        <div class="card-body"><h4>${escapeHtml(lane.title)}</h4><p>${escapeHtml(lane.desc)}</p><div class="pill-row"><span class="pill">${escapeHtml(lane.type)}</span><span class="pill">${count} items</span></div><div class="card-actions"><button class="btn small primary" data-action="channel" data-type="${escapeHtml(lane.type)}">Tune Channel</button><button class="btn small" data-action="searchType" data-type="${escapeHtml(lane.type)}">Search This</button></div></div>
+      </article>`;
+    });
+    stateEls.channelGrid.innerHTML = cards.join("");
+  }
+
+  function emptyCard(title, desc){
+    return `<article class="resource-card" style="grid-column:1/-1"><h4>${escapeHtml(title)}</h4><p>${escapeHtml(desc)}</p></article>`;
+  }
+
+  function renderQueue(){
+    const mediaById = new Map(allMedia().map(m=>[m.id,m]));
+    const items = queue.map(id=>mediaById.get(id)).filter(Boolean);
+    stateEls.queueList.innerHTML = items.length ? items.map((item,i)=>`<div class="queue-item" data-action="play" data-id="${escapeHtml(item.id)}"><div class="num">${i+1}</div><div><b>${escapeHtml(item.title)}</b><small>${escapeHtml(item.source || item.type)} · ${isPlayable(item)?"playable":"external"}</small></div></div>`).join("") : `<small>No queue yet. Add cards from the grid.</small>`;
+    $("statQueue").textContent = String(items.length);
+  }
+
+  function renderStats(){
+    $("statMedia").textContent = String(allMedia().length);
+    $("statSaved").textContent = String(savedMedia.length + localMedia.length + favorites.length);
+    $("statResources").textContent = String(resources.length);
+    $("favoriteCount").textContent = `${favorites.length} favorite${favorites.length===1?"":"s"} saved locally.`;
+  }
+
+  function renderAll(){
+    settings.safeMode = $("safeModeToggle").checked;
+    settings.previews = $("previewToggle").checked;
+    settings.external = $("externalToggle").checked;
+    saveAll();
+    renderMediaGrid();
+    renderLibrary();
+    renderResources();
+    renderLaunchpad();
+    renderChannels();
+    renderQueue();
+    renderStats();
+  }
+
+  function setView(view){
+    currentView = view;
+    document.querySelectorAll(".view-tabs button").forEach(b => b.classList.toggle("active", b.dataset.view === view));
+    ["discover","search","channels","library","resources"].forEach(v => $(v+"View").classList.toggle("hidden", v !== view));
+    renderAll();
+  }
+
+  function findItem(id){ return allMedia().find(m => m.id === id); }
+  function playItem(item){
+    if(!item) return;
+    currentItem = item;
+    if(isPlayable(item)){
+      stateEls.playerEmpty.classList.add("hidden");
+      stateEls.mainPlayer.src = item.url;
+      stateEls.mainPlayer.load();
+      const resumeTime = resume[item.id]?.time || 0;
+      stateEls.mainPlayer.onloadedmetadata = () => { if(resumeTime > 8 && resumeTime < stateEls.mainPlayer.duration - 5) stateEls.mainPlayer.currentTime = resumeTime; stateEls.mainPlayer.play().catch(()=>{}); };
+      stateEls.nowTitle.textContent = item.title;
+      stateEls.nowMeta.textContent = `${item.source || sourceNameFromUrl(item.url)} · ${item.type} · playable in FleaPit`;
+      stateEls.nowPills.innerHTML = (item.tags||[]).slice(0,4).map(t=>`<span class="pill">${escapeHtml(t)}</span>`).join("") + `<span class="pill">direct media</span>`;
+      toast(`Playing: ${item.title}`);
+    }else{
+      window.open(item.url, "_blank", "noopener");
+      stateEls.nowTitle.textContent = item.title;
+      stateEls.nowMeta.textContent = `${item.source || sourceNameFromUrl(item.url)} · opened externally`;
+      stateEls.nowPills.innerHTML = `<span class="pill">external platform</span><span class="pill">${escapeHtml(item.type)}</span>`;
+      toast(`Opened externally: ${item.title}`);
+    }
+    if(!queue.includes(item.id)){ queue.unshift(item.id); queue = queue.slice(0,30); saveAll(); renderQueue(); }
+  }
+
+  function addFavorite(id){
+    if(!favorites.includes(id)) favorites.push(id);
+    saveAll(); renderAll(); toast("Saved to favorites.");
+  }
+  function removeFavorite(id){ favorites = favorites.filter(x=>x!==id); saveAll(); renderAll(); toast("Removed from favorites."); }
+  function toggleFavorite(id){ isFavorite(id) ? removeFavorite(id) : addFavorite(id); }
+  function addToQueue(id){ if(!queue.includes(id)) queue.push(id); saveAll(); renderQueue(); renderStats(); toast("Added to watch queue."); }
+
+  function deleteSaved(id){
+    const item = savedMedia.find(s=>s.id===id);
+    if(!item) return;
+    if(!confirm(`Delete “${item.title}” from saved media?`)) return;
+    savedMedia = savedMedia.filter(s=>s.id!==id);
+    favorites = favorites.filter(x=>x!==id);
+    queue = queue.filter(x=>x!==id);
+    saveAll(); renderAll(); toast("Saved media deleted.");
+  }
+
+  function addMedia(){
+    const title = $("addTitle").value.trim();
+    const url = $("addUrl").value.trim();
+    if(!title || !url) return alert("Please add a title and URL.");
+    try{ new URL(url); }catch(e){ return alert("Please enter a valid URL."); }
+    const item = {
+      id: uid(), title, url,
+      type: $("addType").value,
+      source: sourceNameFromUrl(url), platform: directRe.test(url) ? "Playable" : "External",
+      desc: $("addDesc").value.trim() || (directRe.test(url) ? "Direct media link added by you." : "External media/resource link added by you."),
+      tags: $("addTags").value.split(",").map(t=>t.trim()).filter(Boolean),
+      savedAt: Date.now()
+    };
+    savedMedia.unshift(item);
+    ["addTitle","addUrl","addTags","addDesc"].forEach(id=>$(id).value="");
+    saveAll(); renderAll(); toast("Media added to FleaPit.");
+  }
+
+  function importData(file){
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try{
+        const data = JSON.parse(reader.result);
+        if(Array.isArray(data.savedMedia)) savedMedia = data.savedMedia;
+        else if(Array.isArray(data.videos)) savedMedia = data.videos.map(v => ({id:v.id||uid(), title:v.title||"Imported video", url:v.url||v.src||"", type:v.type||v.category||"other", source:v.source||v.platform||"Imported", platform:directRe.test(v.url||v.src||"")?"Playable":"External", desc:v.desc||"Imported media", tags:v.tags||[], savedAt:Date.now()})).filter(v=>v.url);
+        if(Array.isArray(data.favorites)) favorites = data.favorites;
+        if(Array.isArray(data.queue)) queue = data.queue;
+        saveAll(); renderAll(); toast("Import complete.");
+      }catch(e){ alert("Import failed. Please choose a valid FleaPit JSON export."); }
+    };
+    reader.readAsText(file);
+  }
+
+  function exportData(){
+    const payload = {app:"FleaPit Video Hub", version:"2.0", exportedAt:new Date().toISOString(), savedMedia, favorites, queue, resume, settings};
+    const blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `fleepit-video-hub-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();}, 200);
+    toast("Export downloaded.");
+  }
+
+  function applySettings(){
+    document.body.dataset.theme = settings.theme || "dark";
+    document.body.dataset.density = settings.density || "comfortable";
+    document.body.style.setProperty("--fontScale", settings.fontScale || 1);
+    $("themeBtn").textContent = settings.theme === "light" ? "🌙 Dark" : "☀️ Light";
+    $("densityBtn").textContent = settings.density === "compact" ? "Compact" : "Comfortable";
+    $("safeModeToggle").checked = settings.safeMode !== false;
+    $("previewToggle").checked = settings.previews !== false;
+    $("externalToggle").checked = settings.external !== false;
+  }
+
+  document.addEventListener("click", e => {
+    const actionEl = e.target.closest("[data-action]");
+    if(actionEl){
+      const action = actionEl.dataset.action;
+      const id = actionEl.dataset.id;
+      const item = id ? findItem(id) : null;
+      if(action === "play") playItem(item);
+      if(action === "queue") addToQueue(id);
+      if(action === "fav") toggleFavorite(id);
+      if(action === "delete") deleteSaved(id);
+      if(action === "channel") { $("typeFilter").value = actionEl.dataset.type; setView("discover"); }
+      if(action === "searchType") { $("typeFilter").value = actionEl.dataset.type; setView("search"); }
+      return;
+    }
+    const tab = e.target.closest(".view-tabs button[data-view]");
+    if(tab) setView(tab.dataset.view);
+  });
+
+  $("addMediaBtn").onclick = addMedia;
+  $("exportBtn").onclick = exportData;
+  $("importBtn").onclick = () => $("importFile").click();
+  $("importFile").onchange = e => { importData(e.target.files[0]); e.target.value=""; };
+  $("toastOk").onclick = () => $("toast").classList.remove("show");
+  $("themeBtn").onclick = () => { settings.theme = settings.theme === "light" ? "dark" : "light"; applySettings(); saveAll(); };
+  $("densityBtn").onclick = () => { settings.density = settings.density === "compact" ? "comfortable" : "compact"; applySettings(); saveAll(); };
+  $("fontUp").onclick = () => { settings.fontScale = Math.min(1.35, (settings.fontScale||1)+.05); applySettings(); saveAll(); };
+  $("fontDown").onclick = () => { settings.fontScale = Math.max(.9, (settings.fontScale||1)-.05); applySettings(); saveAll(); };
+  $("heroSearchBtn").onclick = () => { $("searchInput").value = $("heroSearch").value; setView("discover"); };
+  $("heroSearch").addEventListener("keydown", e => { if(e.key === "Enter") $("heroSearchBtn").click(); });
+  ["searchInput","typeFilter","sourceFilter","sortFilter","safeModeToggle","previewToggle","externalToggle"].forEach(id => $(id).addEventListener("input", renderAll));
+  $("clearFiltersBtn").onclick = () => { $("searchInput").value=""; $("heroSearch").value=""; $("typeFilter").value="all"; $("sourceFilter").value="all"; $("sortFilter").value="featured"; renderAll(); };
+  $("scrollTopBtn").onclick = () => $("mediaGrid").scrollTo({top:0,behavior:"smooth"});
+  $("randomBtn").onclick = () => { const list = filteredMedia(allMedia()); if(list.length) playItem(list[Math.floor(Math.random()*list.length)]); };
+  $("clearQueueBtn").onclick = () => { queue=[]; saveAll(); renderQueue(); renderStats(); toast("Queue cleared."); };
+  $("clearSavedBtn").onclick = () => { if(confirm("Clear all saved user media and favorites? Built-in demo cards remain.")){ savedMedia=[]; favorites=[]; queue=[]; saveAll(); renderAll(); toast("Saved library cleared."); } };
+  $("showFavoritesBtn").onclick = () => { $("sourceFilter").value="all"; setView("library"); };
+  $("favoriteNowBtn").onclick = () => { if(currentItem) toggleFavorite(currentItem.id); else toast("Select a media card first."); };
+  $("openNowBtn").onclick = () => { if(currentItem?.url) window.open(currentItem.url,"_blank","noopener"); else toast("No source selected yet."); };
+  $("pipBtn").onclick = async () => { try{ if(document.pictureInPictureElement) await document.exitPictureInPicture(); else if(!stateEls.mainPlayer.paused) await stateEls.mainPlayer.requestPictureInPicture(); else toast("Start a video first."); }catch(e){ toast("Picture-in-Picture is not available here."); } };
+  $("localFiles").onchange = e => {
+    [...e.target.files].forEach(file => {
+      const url = URL.createObjectURL(file);
+      localMedia.unshift({id:uid(), title:file.name.replace(/\.[^.]+$/, ""), url, local:true, type:file.type.startsWith("audio")?"music":"movie", source:"Local session", platform:"Playable", desc:"Local file for this browser session only.", tags:["local","session"], savedAt:Date.now()});
+    });
+    renderAll(); toast("Local session file added.");
+  };
+  stateEls.mainPlayer.addEventListener("timeupdate", () => { if(currentItem && isPlayable(currentItem)){ resume[currentItem.id] = {time:stateEls.mainPlayer.currentTime, updatedAt:Date.now()}; store.set("fb_resume", resume); $("resumeHint").textContent = `Saved resume point: ${Math.floor(stateEls.mainPlayer.currentTime)}s`; } });
+  document.addEventListener("keydown", e => { const v = stateEls.mainPlayer; if(!v.src) return; if(["INPUT","TEXTAREA","SELECT"].includes(document.activeElement.tagName)) return; if(e.key === " "){e.preventDefault(); v.paused?v.play():v.pause();} if(e.key === "ArrowRight") v.currentTime += 10; if(e.key === "ArrowLeft") v.currentTime = Math.max(0, v.currentTime-10); });
+
+  applySettings(); renderAll();
+})();
+</script>
+</body>
+</html>
