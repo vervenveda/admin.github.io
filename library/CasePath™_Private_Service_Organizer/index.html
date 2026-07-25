@@ -1,0 +1,1360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="CasePath™ is a private, local-first service organizer for intake, needs assessment, warm referrals, benefit and document checklists, appointments, case notes, action plans, consent records, and carefully scoped exports.">
+<meta name="theme-color" content="#0b1620">
+<meta name="color-scheme" content="dark">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+<title>CasePath™ — Private Service Organizer</title>
+<style>
+:root{
+  --display:"Gaspacho","Cormorant Garamond",Georgia,serif;
+  --brand:"Cinzel","Aboreto",Georgia,serif;
+  --ui:"Brandon Grotesque","Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono","IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+
+  --night:#07111a;
+  --night2:#102333;
+  --night3:#183247;
+  --panel:rgba(13,29,42,.95);
+  --panel2:rgba(22,43,58,.90);
+  --paper:#f7f3e9;
+  --text:#f5f2ea;
+  --muted:#afbdc4;
+  --faint:#7e929b;
+  --blue:#75c6d5;
+  --blue2:#a5e1e8;
+  --sage:#82b497;
+  --sage2:#bce2c9;
+  --gold:#d6b36c;
+  --gold2:#eed697;
+  --violet:#9c8bd0;
+  --rose:#cd879c;
+  --good:#79d4a3;
+  --warn:#e1b96b;
+  --bad:#df7b88;
+  --line:rgba(117,198,213,.18);
+  --line-gold:rgba(214,179,108,.24);
+  --shadow:0 25px 78px rgba(0,0,0,.39);
+  --radius:15px;
+  --side:244px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;min-height:100vh;color:var(--text);font-family:var(--ui);letter-spacing:.004em;
+  background:
+    radial-gradient(circle at 11% -4%,rgba(130,180,151,.15),transparent 32rem),
+    radial-gradient(circle at 91% 8%,rgba(117,198,213,.13),transparent 31rem),
+    radial-gradient(circle at 50% 105%,rgba(214,179,108,.08),transparent 43rem),
+    linear-gradient(145deg,var(--night),#040a10 78%)
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.17;
+  background-image:
+    linear-gradient(rgba(117,198,213,.12) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(117,198,213,.12) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:linear-gradient(to bottom,#000,transparent 90%)
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+[hidden]{display:none!important}
+:focus-visible{outline:3px solid rgba(117,198,213,.78);outline-offset:3px}
+.skip{position:fixed;top:-70px;left:14px;z-index:10000;padding:10px 13px;border-radius:8px;background:#faf5ea;color:#10202b;font-weight:700}
+.skip:focus{top:14px}
+
+.lock-screen{
+  position:fixed;inset:0;z-index:9000;display:grid;place-items:center;padding:18px;
+  background:radial-gradient(circle at 50% 0%,rgba(156,139,208,.18),transparent 35rem),rgba(3,8,13,.98)
+}
+.lock-card{
+  width:min(540px,100%);padding:25px;border:1px solid var(--line-gold);border-radius:18px;
+  background:#0d1d2b;box-shadow:var(--shadow);text-align:center
+}
+.lock-card h1{margin:0;font:600 2.15rem var(--display)}
+.lock-card p{color:var(--muted);font-size:.68rem;line-height:1.65}
+.lock-card input{width:100%;margin-top:8px}
+.seal{
+  width:126px;height:126px;margin:0 auto 14px;border:1px solid rgba(238,214,151,.45);border-radius:50%;
+  display:grid;place-items:center;align-content:center;gap:5px;
+  background:radial-gradient(circle at 34% 24%,rgba(255,255,255,.15),transparent 35%),linear-gradient(145deg,rgba(117,198,213,.19),rgba(130,180,151,.16));
+  box-shadow:inset 0 0 30px rgba(214,179,108,.08),0 18px 45px rgba(0,0,0,.30)
+}
+.seal strong{font:600 1.05rem var(--brand);color:var(--gold2);letter-spacing:.13em}
+.seal small{font-size:.47rem;line-height:1.5;text-align:center;letter-spacing:.16em;color:#d8dfe2}
+
+.app{position:relative;z-index:1;min-height:100vh;display:grid;grid-template-columns:var(--side) minmax(0,1fr)}
+.sidebar{
+  position:sticky;top:0;height:100vh;overflow:auto;padding:14px 11px;
+  border-right:1px solid var(--line);background:rgba(6,14,21,.92);backdrop-filter:blur(16px)
+}
+.brand{padding:13px;border:1px solid var(--line-gold);border-radius:13px;background:linear-gradient(145deg,rgba(117,198,213,.08),rgba(130,180,151,.07))}
+.brand-mark{
+  width:46px;height:46px;border:1px solid rgba(238,214,151,.46);border-radius:13px;
+  display:grid;place-items:center;background:rgba(255,255,255,.035);color:var(--gold2);
+  font:700 .68rem var(--brand);letter-spacing:.08em
+}
+.brand strong{display:block;margin-top:11px;font:600 .78rem var(--brand);letter-spacing:.12em;text-transform:uppercase}
+.brand span{display:block;margin-top:4px;color:var(--muted);font-size:.61rem;line-height:1.48}
+.motto{
+  margin-top:10px;padding:10px;border:1px solid rgba(130,180,151,.23);border-radius:10px;
+  background:rgba(130,180,151,.07);color:#cde3d4;text-align:center
+}
+.motto strong{display:block;font:600 .72rem var(--display)}
+.motto span{display:block;margin-top:3px;color:#99b9a5;font-size:.53rem}
+.nav{display:grid;gap:5px;margin-top:12px}
+.nav button{
+  min-height:39px;padding:8px 10px;border:1px solid transparent;border-radius:8px;
+  text-align:left;background:transparent;color:#d7dfe2;font-size:.66rem;font-weight:650
+}
+.nav button:hover{border-color:var(--line);background:rgba(255,255,255,.035)}
+.nav button.active{border-color:rgba(214,179,108,.37);background:rgba(214,179,108,.09);color:var(--gold2)}
+.privacy-note{
+  margin-top:13px;padding:11px;border:1px solid rgba(225,185,107,.22);border-radius:10px;
+  color:#dbc9a5;background:rgba(63,48,23,.22);font-size:.56rem;line-height:1.55
+}
+
+.main{min-width:0;padding:14px 17px 48px}
+.topbar{
+  position:sticky;top:8px;z-index:50;min-height:58px;padding:8px 10px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  border:1px solid var(--line);border-radius:12px;background:rgba(8,18,28,.89);
+  backdrop-filter:blur(17px);box-shadow:0 12px 34px rgba(0,0,0,.19)
+}
+.topbar strong{font:600 1.13rem var(--display)}
+.spacer{flex:1}
+.button{
+  min-height:35px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;
+  background:rgba(255,255,255,.035);color:#dde3e5;font-size:.61rem;font-weight:700;text-decoration:none
+}
+.button:hover{border-color:rgba(238,214,151,.46);background:rgba(255,255,255,.065)}
+.button.primary{border:0;color:#071713;background:linear-gradient(145deg,#abe5df,#68b9b0)}
+.button.sage{border:0;color:#07150e;background:linear-gradient(145deg,#bce2c9,#77b791)}
+.button.gold{border:0;color:#171108;background:linear-gradient(145deg,var(--gold2),#c79447)}
+.button.danger{border-color:rgba(223,123,136,.28);background:rgba(125,42,59,.34);color:#ffdce3}
+.button.small{min-height:28px;padding:5px 7px;font-size:.51rem}
+.badge{
+  display:inline-flex;align-items:center;gap:5px;padding:5px 7px;border:1px solid var(--line);
+  border-radius:999px;color:#cad2d7;background:rgba(255,255,255,.025);font-size:.52rem;font-weight:700
+}
+.badge.good{border-color:rgba(121,212,163,.27);color:#b9e8ce}
+.badge.warn{border-color:rgba(225,185,107,.29);color:#ead49d}
+.badge.bad{border-color:rgba(223,123,136,.29);color:#f0adb7}
+
+.view{display:none}.view.active{display:block}
+.hero{
+  margin-top:12px;padding:25px;border:1px solid var(--line);border-radius:18px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(130,180,151,.09),transparent 25rem),
+    linear-gradient(145deg,rgba(18,39,52,.96),rgba(8,19,29,.95));box-shadow:var(--shadow)
+}
+.eyebrow{color:var(--gold2);font:600 .57rem var(--brand);letter-spacing:.2em;text-transform:uppercase}
+.hero h1{margin:7px 0 8px;font:600 clamp(2.35rem,5vw,4.5rem)/.94 var(--display)}
+.hero p{max-width:850px;margin:0;color:var(--muted);font-size:.73rem;line-height:1.7}
+.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:11px}
+.metric{min-height:72px;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.metric span{display:block;color:var(--faint);font-size:.51rem;letter-spacing:.1em;text-transform:uppercase}
+.metric strong{display:block;margin-top:6px;font:600 1.34rem var(--display)}
+
+.section{margin-top:12px;padding:15px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:11px}
+.section-head h2{margin:0;font:600 1.35rem var(--display)}
+.section-head p{max-width:680px;margin:3px 0 0;color:var(--muted);font-size:.61rem;line-height:1.56}
+.toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.search{min-width:240px;flex:1}
+input,select,textarea{
+  min-height:36px;padding:7px 9px;border:1px solid rgba(117,198,213,.19);border-radius:7px;
+  background:#07111c;color:var(--text);font-size:.63rem
+}
+textarea{min-height:92px;resize:vertical}
+.field{display:grid;gap:4px}
+.field label{color:#afbac0;font-size:.52rem;font-weight:700;letter-spacing:.04em}
+.field.wide{grid-column:1/-1}
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.check{
+  min-height:36px;padding:7px 9px;border:1px solid rgba(255,255,255,.065);border-radius:7px;
+  display:flex;align-items:center;gap:7px;color:var(--muted);font-size:.57rem;background:rgba(255,255,255,.02)
+}
+.check input{width:auto;min-height:auto;accent-color:var(--sage)}
+.statusline{
+  min-height:39px;padding:9px 10px;border:1px solid rgba(255,255,255,.065);border-radius:8px;
+  color:var(--muted);background:rgba(255,255,255,.02);font-size:.57rem;line-height:1.46
+}
+.statusline[data-kind="good"]{border-color:rgba(121,212,163,.26);color:#b9e8ce}
+.statusline[data-kind="warn"]{border-color:rgba(225,185,107,.28);color:#ead39b}
+.statusline[data-kind="bad"]{border-color:rgba(223,123,136,.29);color:#f0acb8}
+
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.card{padding:13px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.024)}
+.card h3{margin:0;font:600 1rem var(--display)}
+.card p{margin:6px 0 0;color:var(--muted);font-size:.58rem;line-height:1.53}
+.card small{display:block;margin-top:5px;color:var(--faint);font-size:.50rem;line-height:1.45}
+.card-actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.case-card.active{border-color:rgba(238,214,151,.42);background:rgba(214,179,108,.07)}
+.case-name{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.case-name strong{font:600 .79rem var(--display)}
+.pill-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+
+.table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.065);border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:940px}
+th,td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.055);text-align:left;vertical-align:top;font-size:.58rem}
+th{position:sticky;top:0;z-index:2;background:#12263a;color:#b7c3c8;font-size:.50rem;letter-spacing:.09em;text-transform:uppercase}
+tr:hover td{background:rgba(255,255,255,.018)}
+td strong{font-size:.62rem}
+.small{display:block;margin-top:3px;color:var(--faint);font-size:.50rem;line-height:1.42}
+.row-actions{display:flex;gap:4px;flex-wrap:wrap}
+.empty{padding:22px;text-align:center;color:var(--faint);font-size:.64rem}
+
+.case-header{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:center;
+  padding:14px;border:1px solid var(--line-gold);border-radius:12px;background:linear-gradient(145deg,rgba(130,180,151,.06),rgba(117,198,213,.04))
+}
+.case-header h2{margin:0;font:600 1.7rem var(--display)}
+.case-header p{margin:4px 0 0;color:var(--muted);font-size:.61rem;line-height:1.55}
+.case-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:10px}
+.summary-cell{padding:9px;border:1px solid rgba(255,255,255,.06);border-radius:8px;background:rgba(255,255,255,.02)}
+.summary-cell span{display:block;color:var(--faint);font-size:.48rem;text-transform:uppercase;letter-spacing:.09em}
+.summary-cell strong{display:block;margin-top:5px;font:600 .88rem var(--display)}
+
+.need-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.need-card{
+  padding:10px;border:1px solid rgba(255,255,255,.065);border-radius:9px;background:rgba(255,255,255,.022)
+}
+.need-card label{display:flex;align-items:flex-start;gap:7px;font-size:.59rem;font-weight:700}
+.need-card input[type="checkbox"]{width:auto;min-height:auto;margin-top:2px;accent-color:var(--sage)}
+.need-card select{width:100%;margin-top:7px}
+.need-card textarea{width:100%;min-height:58px;margin-top:7px;font-size:.56rem}
+
+.timeline{display:grid;gap:7px}
+.timeline-item{
+  position:relative;padding:10px 11px 10px 17px;border:1px solid rgba(255,255,255,.065);
+  border-radius:9px;background:rgba(255,255,255,.022)
+}
+.timeline-item::before{content:"";position:absolute;left:7px;top:13px;width:5px;height:5px;border-radius:50%;background:var(--blue)}
+.timeline-item strong{font-size:.62rem}
+.timeline-item p{margin:4px 0 0;color:var(--muted);font-size:.56rem;line-height:1.5}
+.timeline-item small{display:block;margin-top:4px;color:var(--faint);font-size:.49rem}
+
+.progress{height:7px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--sage),var(--gold))}
+.priority-high{color:#f0adb7}.priority-medium{color:#ead39b}.priority-low{color:#b9e8ce}
+
+.export-preview{
+  min-height:330px;padding:18px;border:1px solid rgba(214,179,108,.24);border-radius:10px;
+  background:#fbf8f0;color:#2a302d;font-family:Georgia,"Times New Roman",serif;font-size:.72rem;line-height:1.65;overflow:auto
+}
+.export-preview h1,.export-preview h2,.export-preview h3{font-family:var(--display)}
+.export-preview table{min-width:0;color:#2a302d}.export-preview th{position:static;background:#e8e3d8;color:#403b36}.export-preview td{border-color:#d8d1c3}
+.export-preview .redacted{color:#90796d;font-style:italic}
+
+dialog{
+  width:min(820px,calc(100% - 24px));max-height:88vh;overflow:auto;padding:0;
+  border:1px solid rgba(117,198,213,.32);border-radius:15px;background:#0d1d2b;color:var(--text);box-shadow:var(--shadow)
+}
+dialog::backdrop{background:rgba(1,5,9,.76);backdrop-filter:blur(5px)}
+.dialog-head{position:sticky;top:0;z-index:2;padding:13px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;background:#10283a}
+.dialog-head h2{margin:0;font:600 1.3rem var(--display)}
+.dialog-body{padding:14px}
+.dialog-actions{display:flex;justify-content:flex-end;gap:7px;flex-wrap:wrap;margin-top:12px}
+.warning{
+  padding:10px 11px;border:1px solid rgba(225,185,107,.25);border-left:3px solid var(--warn);
+  border-radius:8px;background:rgba(69,51,23,.22);color:#dfcda8;font-size:.57rem;line-height:1.55
+}
+.toast{
+  position:fixed;right:18px;bottom:18px;z-index:9500;max-width:380px;padding:10px 13px;
+  border:1px solid var(--line);border-radius:9px;background:#10283a;color:#e7ecee;box-shadow:var(--shadow);
+  font-size:.61rem;opacity:0;transform:translateY(10px);pointer-events:none;transition:.18s
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+footer{margin-top:15px;padding:20px 8px 4px;text-align:center;color:var(--faint);font-size:.55rem;line-height:1.72}
+footer strong{color:var(--gold2);font:600 .62rem var(--brand);letter-spacing:.08em}
+
+@media(max-width:1150px){
+  :root{--side:210px}
+  .metrics{grid-template-columns:repeat(3,1fr)}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr 1fr}
+  .need-grid{grid-template-columns:1fr 1fr}
+  .case-summary-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:800px){
+  .app{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto}
+  .nav{grid-template-columns:repeat(3,1fr)}
+  .nav button{text-align:center}
+  .main{padding:8px}
+  .hero{grid-template-columns:1fr;text-align:center}
+  .hero .seal{margin:auto}
+  .cards,.form-grid,.need-grid{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .nav{grid-template-columns:1fr 1fr}
+  .metrics,.case-summary-grid{grid-template-columns:1fr 1fr}
+  .topbar strong{width:100%}
+  .button{flex:1}
+  .hero,.section{padding:11px}
+  .case-header{grid-template-columns:1fr}
+}
+@media print{
+  body{background:#fff;color:#111}
+  .app,.sidebar,.topbar,.view,.toast,.lock-screen{display:none!important}
+  #printArea{display:block!important;padding:0}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#mainContent">Skip to CasePath</a>
+
+<div class="lock-screen" id="lockScreen" hidden>
+  <div class="lock-card">
+    <div class="seal"><strong>CP</strong><small>ONE DOOR<br>NO WRONG<br>DOOR</small></div>
+    <h1>CasePath™</h1>
+    <p>This private workspace is encrypted in this browser. Enter the local passphrase to open service records.</p>
+    <input id="unlockPassphrase" type="password" autocomplete="current-password" placeholder="Local workspace passphrase">
+    <div class="dialog-actions" style="justify-content:center">
+      <button class="button primary" id="unlockButton" type="button">Unlock Workspace</button>
+      <button class="button" id="unlockImportButton" type="button">Import Backup</button>
+    </div>
+    <div class="statusline" id="unlockStatus">The passphrase is never transmitted.</div>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">CP</div>
+      <strong>CasePath™</strong>
+      <span>Private service organizer for coordinated care, referrals, and action planning.</span>
+    </div>
+    <div class="motto"><strong>One Door, No Wrong Door</strong><span>Receive · Listen · Connect · Follow Through</span></div>
+
+    <nav class="nav" id="sideNavigation" aria-label="CasePath sections">
+      <button class="active" type="button" data-view="dashboard">Overview</button>
+      <button type="button" data-view="people">People & Households</button>
+      <button type="button" data-view="intake">Intake</button>
+      <button type="button" data-view="needs">Needs Assessment</button>
+      <button type="button" data-view="referrals">Warm Referrals</button>
+      <button type="button" data-view="documents">Benefits & Documents</button>
+      <button type="button" data-view="appointments">Appointments</button>
+      <button type="button" data-view="notes">Case Notes</button>
+      <button type="button" data-view="plans">Action Plans</button>
+      <button type="button" data-view="consent">Consent & Exports</button>
+      <button type="button" data-view="resources">Resource Directory</button>
+      <button type="button" data-view="reports">Outcome Reports</button>
+      <button type="button" data-view="settings">Protection & Backup</button>
+    </nav>
+
+    <div class="privacy-note"><strong>Sensitive-data tool:</strong> collect only what is necessary. Do not enter full Social Security numbers, banking credentials, immigration-document numbers, medical-record numbers, or passwords.</div>
+  </aside>
+
+  <main class="main" id="mainContent">
+    <div class="topbar">
+      <strong id="viewTitle">Service Overview</strong>
+      <span class="badge" id="workspaceBadge">Local workspace</span>
+      <span class="badge good" id="saveBadge">Saved</span>
+      <span class="badge" id="selectedCaseBadge">No case selected</span>
+      <span class="spacer"></span>
+      <button class="button sage" id="newCaseButton" type="button">New Intake</button>
+      <button class="button" id="quickActionButton" type="button">Add Follow-Up</button>
+      <button class="button" id="lockButton" type="button">Lock</button>
+    </div>
+
+    <section class="view active" id="view-dashboard">
+      <div class="hero">
+        <div>
+          <div class="eyebrow">Private service coordination · consent-aware records · warm handoffs</div>
+          <h1>CasePath™</h1>
+          <p><strong>One Door, No Wrong Door</strong> means a person should not have to understand the entire service system before receiving help. CasePath keeps intake, needs, referrals, documents, appointments, notes, goals, and follow-through in one private local workspace.</p>
+        </div>
+        <div class="seal"><strong>CP</strong><small>RECEIVE<br>CONNECT<br>FOLLOW</small></div>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><span>Open cases</span><strong id="metricOpenCases">0</strong></div>
+        <div class="metric"><span>Urgent needs</span><strong id="metricUrgent">0</strong></div>
+        <div class="metric"><span>Open referrals</span><strong id="metricReferrals">0</strong></div>
+        <div class="metric"><span>Follow-ups due</span><strong id="metricFollowups">0</strong></div>
+        <div class="metric"><span>Goals in progress</span><strong id="metricGoals">0</strong></div>
+        <div class="metric"><span>Consents expiring</span><strong id="metricConsent">0</strong></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><div><h2>Immediate attention</h2><p>Urgent needs, overdue follow-ups, expiring consent, and uncompleted warm handoffs are surfaced without exposing records outside this browser.</p></div></div>
+        <div class="timeline" id="attentionList"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><div><h2>Recently updated cases</h2><p>Select a person or household to continue from the last protected point.</p></div></div>
+        <div class="cards" id="recentCaseCards"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-people">
+      <div class="section">
+        <div class="section-head"><div><h2>People & Households</h2><p>Use a preferred name or household label. Record only the minimum information necessary to coordinate services.</p></div></div>
+        <div class="toolbar">
+          <input class="search" id="caseSearch" type="search" placeholder="Search case ID, preferred name, household, phone, email, or tags…">
+          <select id="caseStatusFilter"><option value="all">All cases</option><option value="open">Open</option><option value="closed">Closed</option><option value="paused">Paused</option></select>
+          <button class="button primary" id="newCaseButton2" type="button">New Intake</button>
+        </div>
+        <div class="cards" id="caseCards"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-intake">
+      <div class="section">
+        <div id="intakeEmpty" class="empty">Select or create a case to complete intake.</div>
+        <div id="intakeContent" hidden>
+          <div class="case-header" id="intakeCaseHeader"></div>
+          <form id="intakeForm" style="margin-top:10px">
+            <div class="form-grid">
+              <div class="field"><label for="intakeDisplayName">Preferred name or household label</label><input id="intakeDisplayName" required maxlength="120"></div>
+              <div class="field"><label for="intakeLegalName">Legal name, only when necessary</label><input id="intakeLegalName" maxlength="160"></div>
+              <div class="field"><label for="intakeCaseType">Case type</label><select id="intakeCaseType"><option value="individual">Individual</option><option value="family">Family or household</option><option value="senior">Senior household</option><option value="veteran">Veteran household</option><option value="community">Community member</option></select></div>
+              <div class="field"><label for="intakePhone">Phone</label><input id="intakePhone" type="tel" maxlength="50"></div>
+              <div class="field"><label for="intakeEmail">Email</label><input id="intakeEmail" type="email" maxlength="160"></div>
+              <div class="field"><label for="intakeContactMethod">Preferred contact</label><select id="intakeContactMethod"><option value="phone">Phone</option><option value="text">Text</option><option value="email">Email</option><option value="mail">Mail</option><option value="in-person">In person</option><option value="none">No safe contact method</option></select></div>
+              <div class="field"><label for="intakeLanguage">Preferred language</label><input id="intakeLanguage" maxlength="80"></div>
+              <div class="field"><label for="intakeAccessibility">Accessibility or communication needs</label><input id="intakeAccessibility" maxlength="300"></div>
+              <div class="field"><label for="intakeHouseholdSize">Household size</label><input id="intakeHouseholdSize" type="number" min="1" max="50"></div>
+              <div class="field wide"><label for="intakeSafeContact">Safe-contact instructions</label><textarea id="intakeSafeContact" maxlength="1500" placeholder="Examples: do not leave voicemail; safe after 3 PM; use preferred name only."></textarea></div>
+              <div class="field wide"><label for="intakeReason">Reason for contact, in the person’s own words</label><textarea id="intakeReason" maxlength="4000"></textarea></div>
+              <div class="field wide"><label for="intakeStrengths">Strengths, supports, and what is already working</label><textarea id="intakeStrengths" maxlength="3000"></textarea></div>
+              <div class="field"><label for="intakeStatus">Case status</label><select id="intakeStatus"><option value="open">Open</option><option value="paused">Paused</option><option value="closed">Closed</option></select></div>
+              <div class="field"><label for="intakeTags">Tags</label><input id="intakeTags" maxlength="500" placeholder="veteran, family, senior, housing…"></div>
+              <div class="field"><label for="intakeAssigned">Assigned coordinator</label><input id="intakeAssigned" maxlength="120"></div>
+            </div>
+            <div class="warning" style="margin-top:10px"><strong>Do not collect unnecessary identifiers.</strong> CasePath intentionally has no fields for full Social Security numbers, banking credentials, benefit-account passwords, immigration-document numbers, or detailed medical records.</div>
+            <div class="dialog-actions"><button class="button primary" type="submit">Save Intake</button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-needs">
+      <div class="section">
+        <div class="section-head"><div><h2>Needs Assessment</h2><p>Identify service needs without diagnosing. Mark urgency, record the person’s priorities, and preserve strengths alongside barriers.</p></div><button class="button primary" id="saveNeedsButton" type="button">Save Assessment</button></div>
+        <div id="needsEmpty" class="empty">Select a case to assess needs.</div>
+        <div class="need-grid" id="needsGrid" hidden></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-referrals">
+      <div class="section">
+        <div class="section-head"><div><h2>Warm Referrals</h2><p>A referral is more than a phone number. Track consent, the receiving organization, contact attempts, confirmation, obstacles, and the next follow-up.</p></div><button class="button gold" id="addReferralButton" type="button">Add Referral</button></div>
+        <div id="referralEmpty" class="empty">Select a case to manage referrals.</div>
+        <div class="table-wrap" id="referralTableWrap" hidden><table><thead><tr><th>Date</th><th>Need</th><th>Organization</th><th>Handoff</th><th>Status</th><th>Follow-up</th><th>Actions</th></tr></thead><tbody id="referralTableBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-documents">
+      <div class="section">
+        <div class="section-head"><div><h2>Benefits & Document Checklist</h2><p>Track whether a document is available, requested, submitted, verified, or not applicable—without storing document numbers or passwords.</p></div><button class="button gold" id="addDocumentButton" type="button">Add Checklist Item</button></div>
+        <div id="documentEmpty" class="empty">Select a case to use the checklist.</div>
+        <div class="table-wrap" id="documentTableWrap" hidden><table><thead><tr><th>Document or benefit</th><th>Category</th><th>Status</th><th>Due</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="documentTableBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-appointments">
+      <div class="section">
+        <div class="section-head"><div><h2>Appointments & Follow-Ups</h2><p>Keep the next contact visible and record whether transportation, interpretation, accompaniment, or document preparation is needed.</p></div><button class="button gold" id="addAppointmentButton" type="button">Add Appointment</button></div>
+        <div id="appointmentEmpty" class="empty">Select a case to schedule follow-up.</div>
+        <div class="table-wrap" id="appointmentTableWrap" hidden><table><thead><tr><th>Date & time</th><th>Purpose</th><th>Organization / location</th><th>Support needed</th><th>Status</th><th>Actions</th></tr></thead><tbody id="appointmentTableBody"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-notes">
+      <div class="section">
+        <div class="section-head"><div><h2>Case Notes</h2><p>Separate internal observations from client-shareable and referral-shareable notes. Record facts, actions, and next steps rather than assumptions.</p></div><button class="button gold" id="addNoteButton" type="button">Add Case Note</button></div>
+        <div id="noteEmpty" class="empty">Select a case to record notes.</div>
+        <div class="timeline" id="noteTimeline" hidden></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-plans">
+      <div class="section">
+        <div class="section-head"><div><h2>Action Plan</h2><p>Translate needs into a shared plan with clear goals, responsibilities, dates, status, and evidence of completion.</p></div><button class="button gold" id="addGoalButton" type="button">Add Goal</button></div>
+        <div id="planEmpty" class="empty">Select a case to create an action plan.</div>
+        <div class="cards" id="goalCards" hidden></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-consent">
+      <div class="section">
+        <div class="section-head"><div><h2>Consent & Scoped Exports</h2><p>Record what may be shared, with whom, for what purpose, and until when. Exports exclude internal-only notes unless an administrator deliberately chooses an internal summary.</p></div><button class="button gold" id="addConsentButton" type="button">Record Consent</button></div>
+        <div id="consentEmpty" class="empty">Select a case to manage consent.</div>
+        <div id="consentContent" hidden>
+          <div class="table-wrap"><table><thead><tr><th>Type</th><th>Scope / recipient</th><th>Granted</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead><tbody id="consentTableBody"></tbody></table></div>
+          <div class="section" style="margin-top:10px">
+            <div class="section-head"><div><h2>Prepare Export</h2><p>Review the complete preview before printing or downloading.</p></div></div>
+            <div class="toolbar">
+              <select id="exportScope"><option value="client">Client action-plan copy</option><option value="referral">Referral handoff summary</option><option value="internal">Internal case summary</option></select>
+              <label class="check"><input id="exportContact" type="checkbox" checked> Include contact details</label>
+              <label class="check"><input id="exportNeeds" type="checkbox" checked> Include relevant needs</label>
+              <label class="check"><input id="exportAppointments" type="checkbox" checked> Include appointments</label>
+              <label class="check"><input id="exportNotes" type="checkbox"> Include permitted notes</label>
+              <button class="button primary" id="generateExportButton" type="button">Generate Preview</button>
+              <button class="button" id="printExportButton" type="button">Print / PDF</button>
+              <button class="button gold" id="downloadExportButton" type="button">Download HTML</button>
+            </div>
+            <div class="export-preview" id="exportPreview">Choose an export scope and generate a preview.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="view-resources">
+      <div class="section">
+        <div class="section-head"><div><h2>Resource Directory</h2><p>Maintain local contact information, eligibility notes, service areas, hours, accessibility, and handoff instructions. No live internet connection is required.</p></div><button class="button gold" id="addResourceButton" type="button">Add Resource</button></div>
+        <div class="toolbar"><input class="search" id="resourceSearch" type="search" placeholder="Search resources, categories, eligibility, or service area…"><select id="resourceCategoryFilter"><option value="all">All categories</option></select></div>
+        <div class="cards" id="resourceCards"></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-reports">
+      <div class="section">
+        <div class="section-head"><div><h2>De-Identified Outcome Reports</h2><p>Aggregate service activity without names, phone numbers, emails, notes, or case-level identifiers. Review carefully before public use.</p></div></div>
+        <div class="toolbar">
+          <button class="button primary" id="generateReportButton" type="button">Generate Aggregate Report</button>
+          <button class="button" id="copyReportButton" type="button">Copy JSON</button>
+          <button class="button gold" id="downloadReportButton" type="button">Download JSON</button>
+        </div>
+        <textarea id="reportOutput" style="width:100%;min-height:420px;font-family:var(--mono)" spellcheck="false" placeholder="A de-identified aggregate report will appear here."></textarea>
+      </div>
+    </section>
+
+    <section class="view" id="view-settings">
+      <div class="section">
+        <div class="section-head"><div><h2>Workspace Protection & Backup</h2><p>Encryption protects records stored in this browser. It does not make a public static page private and does not replace device security, organizational policy, or professional compliance review.</p></div></div>
+        <div class="cards">
+          <div class="card"><h3 id="protectionHeading">Unprotected local workspace</h3><p id="protectionDescription">Records are stored locally as readable JSON in this browser profile.</p><div class="card-actions"><button class="button gold" id="protectWorkspaceButton" type="button">Protect with Passphrase</button><button class="button danger" id="removeProtectionButton" type="button" hidden>Remove Protection</button></div></div>
+          <div class="card"><h3>Private Backup</h3><p>Export or import the complete private workspace. Treat the backup as sensitive case data.</p><div class="card-actions"><button class="button primary" id="exportBackupButton" type="button">Export Backup</button><button class="button" id="importBackupButton" type="button">Import Backup</button><input id="backupFile" type="file" accept=".json,application/json" hidden></div></div>
+          <div class="card"><h3>Persistent Browser Storage</h3><p>Ask the browser to reduce the chance that local records are evicted. This is not guaranteed.</p><div class="card-actions"><button class="button sage" id="persistStorageButton" type="button">Request Persistent Storage</button></div><small id="storageEstimate">Storage estimate not yet checked.</small></div>
+          <div class="card"><h3>Workspace Reset</h3><p>Permanently erase all local cases, resources, appointments, notes, and consent records after exporting a backup.</p><div class="card-actions"><button class="button danger" id="resetWorkspaceButton" type="button">Erase Local Workspace</button></div></div>
+        </div>
+        <div class="warning" style="margin-top:10px"><strong>Not a compliance certification:</strong> CasePath is not automatically HIPAA-, FERPA-, 42 CFR Part 2-, legal case-management-, social-service-, or government-records-compliant. Organizations must review applicable law, consent rules, retention policy, breach procedures, device controls, and staff access.</div>
+      </div>
+    </section>
+
+    <footer><strong>CasePath™ · Private Service Organizer</strong><br>One Door, No Wrong Door · Verve N Veda · Jennifer Kay Pearl · All Rights Reserved 2026<br>Local-first records · Consent-aware exports · No server synchronization</footer>
+  </main>
+</div>
+
+<dialog id="caseDialog">
+  <div class="dialog-head"><h2 id="caseDialogTitle">New Intake</h2><span class="spacer"></span><button class="button" type="button" data-close="caseDialog">Close</button></div>
+  <form class="dialog-body" id="caseForm">
+    <input type="hidden" id="caseId">
+    <div class="form-grid">
+      <div class="field"><label for="caseDisplayName">Preferred name or household label</label><input id="caseDisplayName" required maxlength="120"></div>
+      <div class="field"><label for="caseType">Case type</label><select id="caseType"><option value="individual">Individual</option><option value="family">Family or household</option><option value="senior">Senior household</option><option value="veteran">Veteran household</option><option value="community">Community member</option></select></div>
+      <div class="field"><label for="casePhone">Phone, optional</label><input id="casePhone" type="tel" maxlength="50"></div>
+      <div class="field"><label for="caseEmail">Email, optional</label><input id="caseEmail" type="email" maxlength="160"></div>
+      <div class="field"><label for="caseReason">Primary reason for contact</label><input id="caseReason" maxlength="500"></div>
+      <div class="field"><label for="caseAssigned">Assigned coordinator</label><input id="caseAssigned" maxlength="120"></div>
+      <div class="field wide"><label for="caseSafeContact">Safe-contact instructions</label><textarea id="caseSafeContact" maxlength="1500"></textarea></div>
+    </div>
+    <div class="warning" style="margin-top:10px">Create the case with the least information needed. Additional intake can be completed after consent and safe-contact preferences are discussed.</div>
+    <div class="dialog-actions"><button class="button primary" type="submit">Create Case</button></div>
+  </form>
+</dialog>
+
+<dialog id="referralDialog">
+  <div class="dialog-head"><h2>Warm Referral</h2><span class="spacer"></span><button class="button" type="button" data-close="referralDialog">Close</button></div>
+  <form class="dialog-body" id="referralForm">
+    <input type="hidden" id="referralId">
+    <div class="form-grid">
+      <div class="field"><label for="referralDate">Referral date</label><input id="referralDate" type="date" required></div>
+      <div class="field"><label for="referralNeed">Need category</label><select id="referralNeed"></select></div>
+      <div class="field"><label for="referralResource">Resource directory entry</label><select id="referralResource"><option value="">Custom organization</option></select></div>
+      <div class="field"><label for="referralOrganization">Organization</label><input id="referralOrganization" required maxlength="180"></div>
+      <div class="field"><label for="referralContact">Contact person or method</label><input id="referralContact" maxlength="200"></div>
+      <div class="field"><label for="referralHandoff">Handoff method</label><select id="referralHandoff"><option value="information">Information provided</option><option value="call-together">Called together</option><option value="electronic">Secure electronic referral</option><option value="appointment">Appointment scheduled</option><option value="accompanied">Accompanied handoff</option></select></div>
+      <div class="field"><label for="referralStatus">Status</label><select id="referralStatus"><option value="pending">Pending</option><option value="contacted">Contacted</option><option value="accepted">Accepted</option><option value="completed">Completed</option><option value="declined">Declined</option><option value="unable">Unable to connect</option></select></div>
+      <div class="field"><label for="referralFollowup">Follow-up date</label><input id="referralFollowup" type="date"></div>
+      <label class="check"><input id="referralConsent" type="checkbox"> Consent confirmed for this referral</label>
+      <div class="field wide"><label for="referralNotes">Referral notes and barriers</label><textarea id="referralNotes" maxlength="3000"></textarea></div>
+    </div>
+    <div class="dialog-actions"><button class="button primary" type="submit">Save Referral</button></div>
+  </form>
+</dialog>
+
+<dialog id="documentDialog">
+  <div class="dialog-head"><h2>Benefit or Document Item</h2><span class="spacer"></span><button class="button" type="button" data-close="documentDialog">Close</button></div>
+  <form class="dialog-body" id="documentForm">
+    <input type="hidden" id="documentId">
+    <div class="form-grid">
+      <div class="field"><label for="documentName">Document or benefit</label><input id="documentName" required maxlength="180"></div>
+      <div class="field"><label for="documentCategory">Category</label><select id="documentCategory"><option>Identity</option><option>Housing</option><option>Income</option><option>Health</option><option>Veterans</option><option>Family</option><option>Legal</option><option>Education</option><option>Other</option></select></div>
+      <div class="field"><label for="documentStatus">Status</label><select id="documentStatus"><option value="needed">Needed</option><option value="requested">Requested</option><option value="available">Available</option><option value="submitted">Submitted</option><option value="verified">Verified</option><option value="not-applicable">Not applicable</option></select></div>
+      <div class="field"><label for="documentDue">Due date</label><input id="documentDue" type="date"></div>
+      <div class="field wide"><label for="documentNotes">Notes, without sensitive numbers</label><textarea id="documentNotes" maxlength="2000"></textarea></div>
+    </div>
+    <div class="dialog-actions"><button class="button primary" type="submit">Save Checklist Item</button></div>
+  </form>
+</dialog>
+
+<dialog id="appointmentDialog">
+  <div class="dialog-head"><h2>Appointment or Follow-Up</h2><span class="spacer"></span><button class="button" type="button" data-close="appointmentDialog">Close</button></div>
+  <form class="dialog-body" id="appointmentForm">
+    <input type="hidden" id="appointmentId">
+    <div class="form-grid">
+      <div class="field"><label for="appointmentDate">Date</label><input id="appointmentDate" type="date" required></div>
+      <div class="field"><label for="appointmentTime">Time</label><input id="appointmentTime" type="time"></div>
+      <div class="field"><label for="appointmentType">Type</label><select id="appointmentType"><option value="follow-up">Case follow-up</option><option value="benefit">Benefit appointment</option><option value="housing">Housing appointment</option><option value="medical">Health appointment</option><option value="legal">Legal appointment</option><option value="veteran">Veterans appointment</option><option value="school">School appointment</option><option value="other">Other</option></select></div>
+      <div class="field"><label for="appointmentPurpose">Purpose</label><input id="appointmentPurpose" required maxlength="240"></div>
+      <div class="field"><label for="appointmentOrganization">Organization or location</label><input id="appointmentOrganization" maxlength="240"></div>
+      <div class="field"><label for="appointmentStatus">Status</label><select id="appointmentStatus"><option value="scheduled">Scheduled</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="rescheduled">Rescheduled</option><option value="missed">Missed</option><option value="cancelled">Cancelled</option></select></div>
+      <div class="field wide"><label for="appointmentSupport">Transportation, interpretation, accompaniment, documents, or other support</label><textarea id="appointmentSupport" maxlength="2000"></textarea></div>
+    </div>
+    <div class="dialog-actions"><button class="button primary" type="submit">Save Appointment</button></div>
+  </form>
+</dialog>
+
+<dialog id="noteDialog">
+  <div class="dialog-head"><h2>Case Note</h2><span class="spacer"></span><button class="button" type="button" data-close="noteDialog">Close</button></div>
+  <form class="dialog-body" id="noteForm">
+    <input type="hidden" id="noteId">
+    <div class="form-grid">
+      <div class="field"><label for="noteDate">Date</label><input id="noteDate" type="date" required></div>
+      <div class="field"><label for="noteType">Note type</label><select id="noteType"><option value="contact">Contact</option><option value="assessment">Assessment update</option><option value="referral">Referral update</option><option value="appointment">Appointment outcome</option><option value="document">Document update</option><option value="safety">Safety concern</option><option value="general">General</option></select></div>
+      <div class="field"><label for="noteVisibility">Sharing scope</label><select id="noteVisibility"><option value="internal">Internal only</option><option value="client">Client-shareable</option><option value="referral">Referral-shareable with consent</option></select></div>
+      <div class="field wide"><label for="noteText">Fact-based note, action taken, and next step</label><textarea id="noteText" required maxlength="6000"></textarea></div>
+    </div>
+    <div class="dialog-actions"><button class="button primary" type="submit">Save Note</button></div>
+  </form>
+</dialog>
+
+<dialog id="goalDialog">
+  <div class="dialog-head"><h2>Action-Plan Goal</h2><span class="spacer"></span><button class="button" type="button" data-close="goalDialog">Close</button></div>
+  <form class="dialog-body" id="goalForm">
+    <input type="hidden" id="goalId">
+    <div class="form-grid">
+      <div class="field wide"><label for="goalTitle">Goal</label><input id="goalTitle" required maxlength="240"></div>
+      <div class="field"><label for="goalOwner">Responsible person</label><select id="goalOwner"><option value="client">Person / family</option><option value="coordinator">Coordinator</option><option value="shared">Shared</option><option value="partner">Partner organization</option></select></div>
+      <div class="field"><label for="goalDue">Target date</label><input id="goalDue" type="date"></div>
+      <div class="field"><label for="goalPriority">Priority</label><select id="goalPriority"><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></div>
+      <div class="field"><label for="goalStatus">Status</label><select id="goalStatus"><option value="not-started">Not started</option><option value="in-progress">In progress</option><option value="waiting">Waiting on another party</option><option value="completed">Completed</option><option value="paused">Paused</option></select></div>
+      <div class="field wide"><label for="goalSteps">Steps and responsibilities</label><textarea id="goalSteps" maxlength="4000"></textarea></div>
+      <div class="field wide"><label for="goalEvidence">Completion evidence or outcome</label><textarea id="goalEvidence" maxlength="2000"></textarea></div>
+    </div>
+    <div class="dialog-actions"><button class="button primary" type="submit">Save Goal</button></div>
+  </form>
+</dialog>
+
+<dialog id="consentDialog">
+  <div class="dialog-head"><h2>Consent Record</h2><span class="spacer"></span><button class="button" type="button" data-close="consentDialog">Close</button></div>
+  <form class="dialog-body" id="consentForm">
+    <input type="hidden" id="consentId">
+    <div class="form-grid">
+      <div class="field"><label for="consentType">Consent type</label><select id="consentType"><option value="service">Service coordination</option><option value="referral">Referral information sharing</option><option value="contact">Contact permission</option><option value="document">Document assistance</option><option value="media">Media or testimonial</option><option value="other">Other</option></select></div>
+      <div class="field"><label for="consentGranted">Granted date</label><input id="consentGranted" type="date" required></div>
+      <div class="field"><label for="consentExpires">Expiration date</label><input id="consentExpires" type="date"></div>
+      <div class="field"><label for="consentStatus">Status</label><select id="consentStatus"><option value="active">Active</option><option value="revoked">Revoked</option><option value="expired">Expired</option><option value="declined">Declined</option></select></div>
+      <div class="field wide"><label for="consentScope">Scope, recipient, purpose, and limits</label><textarea id="consentScope" required maxlength="4000"></textarea></div>
+      <div class="field wide"><label for="consentMethod">How consent was documented</label><input id="consentMethod" maxlength="500" placeholder="Signed form, verbal consent witnessed by…, electronic acknowledgment…"></div>
+    </div>
+    <div class="dialog-actions"><button class="button primary" type="submit">Save Consent</button></div>
+  </form>
+</dialog>
+
+<dialog id="resourceDialog">
+  <div class="dialog-head"><h2>Resource Directory Entry</h2><span class="spacer"></span><button class="button" type="button" data-close="resourceDialog">Close</button></div>
+  <form class="dialog-body" id="resourceForm">
+    <input type="hidden" id="resourceId">
+    <div class="form-grid">
+      <div class="field"><label for="resourceName">Organization or program</label><input id="resourceName" required maxlength="200"></div>
+      <div class="field"><label for="resourceCategory">Category</label><select id="resourceCategory"></select></div>
+      <div class="field"><label for="resourceServiceArea">Service area</label><input id="resourceServiceArea" maxlength="200"></div>
+      <div class="field"><label for="resourcePhone">Phone</label><input id="resourcePhone" type="tel" maxlength="80"></div>
+      <div class="field"><label for="resourceEmail">Email</label><input id="resourceEmail" type="email" maxlength="160"></div>
+      <div class="field"><label for="resourceUrl">Website</label><input id="resourceUrl" type="url" maxlength="600"></div>
+      <div class="field wide"><label for="resourceEligibility">Eligibility and documents generally requested</label><textarea id="resourceEligibility" maxlength="3000"></textarea></div>
+      <div class="field wide"><label for="resourceHandoff">Warm-handoff instructions, hours, accessibility, and known barriers</label><textarea id="resourceHandoff" maxlength="3000"></textarea></div>
+      <label class="check"><input id="resourceActive" type="checkbox" checked> Resource currently active</label>
+    </div>
+    <div class="dialog-actions"><button class="button primary" type="submit">Save Resource</button></div>
+  </form>
+</dialog>
+
+<dialog id="protectionDialog">
+  <div class="dialog-head"><h2>Protect CasePath Workspace</h2><span class="spacer"></span><button class="button" type="button" data-close="protectionDialog">Close</button></div>
+  <form class="dialog-body" id="protectionForm">
+    <p style="color:var(--muted);font-size:.63rem;line-height:1.6">Create a local passphrase. CasePath will encrypt this browser’s workspace with PBKDF2-HMAC-SHA256 and AES-GCM. There is no password-recovery service.</p>
+    <div class="form-grid">
+      <div class="field wide"><label for="newPassphrase">Passphrase</label><input id="newPassphrase" type="password" minlength="12" autocomplete="new-password" required></div>
+      <div class="field wide"><label for="confirmPassphrase">Confirm passphrase</label><input id="confirmPassphrase" type="password" minlength="12" autocomplete="new-password" required></div>
+    </div>
+    <div class="dialog-actions"><button class="button gold" type="submit">Encrypt Workspace</button></div>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="printArea" hidden></div>
+
+<script>
+(()=>{
+"use strict";
+
+const VERSION="1.0.0";
+const STORAGE_PLAIN="casepath_state_v1";
+const STORAGE_META="casepath_vault_meta_v1";
+const STORAGE_CIPHER="casepath_vault_cipher_v1";
+const PBKDF2_ITERATIONS=600000;
+const MAX_IMPORT_BYTES=20*1024*1024;
+const $=selector=>document.querySelector(selector);
+const $$=selector=>Array.from(document.querySelectorAll(selector));
+const uid=()=>crypto.randomUUID?crypto.randomUUID():"cp-"+Date.now()+"-"+Math.random().toString(36).slice(2);
+const nowIso=()=>new Date().toISOString();
+const today=()=>nowIso().slice(0,10);
+const enc=new TextEncoder(),dec=new TextDecoder();
+
+const NEED_CATEGORIES=[
+  "Immediate safety","Housing or shelter","Food and nutrition","Health care","Mental health or emotional support",
+  "Substance-use support","Veterans services","Benefits and income","Employment","Education or training",
+  "Transportation","Utilities","Legal assistance","Identification and records","Family or child care",
+  "Senior services","Disability access","Domestic violence support","Immigration information","Technology or communication",
+  "Clothing or household goods","Community connection","Other"
+];
+const RESOURCE_CATEGORIES=[...NEED_CATEGORIES.filter(name=>!["Immediate safety","Other"].includes(name)),"Emergency services","Other"];
+
+const DEFAULT_DOCUMENTS=[
+  ["Photo identification","Identity"],["Birth certificate","Identity"],["Social Security card available — do not record number","Identity"],
+  ["Proof of address or homelessness documentation","Housing"],["Lease, notice, or housing correspondence","Housing"],
+  ["Income or no-income verification","Income"],["Benefit award or denial notice","Income"],
+  ["Insurance card available — do not record number","Health"],["Relevant appointment or discharge instructions","Health"],
+  ["Veteran discharge or service documentation","Veterans"],["School enrollment or student records request","Education"],
+  ["Court notice or legal correspondence","Legal"],["Household-member documentation","Family"]
+];
+
+const seedResources=[
+  {id:"res-coordinated-entry",name:"Local Coordinated Entry / Housing Access",category:"Housing or shelter",serviceArea:"Add local county or region",phone:"",email:"",url:"",eligibility:"Replace with local eligibility and required-document information.",handoff:"Add current hours, intake route, after-hours instructions, and accessibility information.",active:true},
+  {id:"res-veterans",name:"Veterans Benefits & Support",category:"Veterans services",serviceArea:"Add local service area",phone:"",email:"",url:"",eligibility:"Confirm veteran, dependent, caregiver, and discharge-status rules locally.",handoff:"Record whether appointments, transportation, or document preparation are available.",active:true},
+  {id:"res-family",name:"Family Resource & Child Care Support",category:"Family or child care",serviceArea:"Add local service area",phone:"",email:"",url:"",eligibility:"Add age, household, income, and residency requirements.",handoff:"Add warm-handoff contact and safe-contact procedures.",active:true},
+  {id:"res-senior",name:"Senior Services & Aging Support",category:"Senior services",serviceArea:"Add local service area",phone:"",email:"",url:"",eligibility:"Add age, disability, caregiver, and residency criteria.",handoff:"Add home-visit, transportation, language, and accessibility information.",active:true},
+  {id:"res-legal",name:"Legal Information & Referral",category:"Legal assistance",serviceArea:"Add jurisdiction",phone:"",email:"",url:"",eligibility:"Add issue areas, income criteria, conflicts screening, and emergency limitations.",handoff:"Clarify that referral does not guarantee representation.",active:true},
+  {id:"res-benefits",name:"Benefits Enrollment Assistance",category:"Benefits and income",serviceArea:"Add local service area",phone:"",email:"",url:"",eligibility:"Add supported benefit programs and appointment requirements.",handoff:"Never request account passwords or retain benefit-system credentials.",active:true},
+  {id:"res-food",name:"Food & Nutrition Access",category:"Food and nutrition",serviceArea:"Add local service area",phone:"",email:"",url:"",eligibility:"Add pantry, meal, nutrition, and benefit-program rules.",handoff:"Add same-day access, delivery, dietary, and mobility information.",active:true},
+  {id:"res-safety",name:"Emergency & Immediate Safety Referral",category:"Emergency services",serviceArea:"Local emergency jurisdiction",phone:"",email:"",url:"",eligibility:"For imminent danger or emergency needs, follow local emergency protocols.",handoff:"CasePath is not an emergency-dispatch system. Add approved crisis and emergency instructions.",active:true}
+];
+
+const blankState=()=>({
+  schema:"casepath-workspace",schemaVersion:1,appVersion:VERSION,updatedAt:nowIso(),
+  cases:[],resources:JSON.parse(JSON.stringify(seedResources)),selectedCaseId:"",
+  settings:{organization:"",program:"One Door, No Wrong Door"},reportCache:null
+});
+
+let state=null;
+let sessionKey=null;
+let saveTimer=0;
+let generatedExportHtml="";
+let currentReport="";
+
+function clone(value){return JSON.parse(JSON.stringify(value))}
+function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]))}
+function safeText(value,max=1000){return String(value??"").trim().slice(0,max)}
+function asArray(value){return Array.isArray(value)?value:[]}
+function caseById(id=state.selectedCaseId){return state.cases.find(record=>record.id===id)||null}
+function selectedCase(){return caseById()}
+function displayDate(value){if(!value)return "—";const date=new Date(value+"T00:00:00");return Number.isNaN(date.getTime())?value:date.toLocaleDateString()}
+function daysUntil(value){if(!value)return Infinity;const target=new Date(value+"T23:59:59"),current=new Date();return Math.ceil((target-current)/86400000)}
+function humanDateTime(date,time){if(!date)return "—";const parsed=new Date(date+"T"+(time||"12:00"));return Number.isNaN(parsed.getTime())?date:[parsed.toLocaleDateString(),time||""].filter(Boolean).join(" ")}
+function isProtected(){return !!localStorage.getItem(STORAGE_META)&&!!localStorage.getItem(STORAGE_CIPHER)}
+function bytesToBase64(bytes){let binary="";for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(binary)}
+function base64ToBytes(value){const binary=atob(value),out=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)out[i]=binary.charCodeAt(i);return out}
+
+function normalizeCase(record){
+  const current=record&&typeof record==="object"?record:{};
+  return {
+    id:safeText(current.id||uid(),120),caseNumber:safeText(current.caseNumber||"",80),
+    displayName:safeText(current.displayName||"Untitled Case",120),legalName:safeText(current.legalName||"",160),
+    type:["individual","family","senior","veteran","community"].includes(current.type)?current.type:"individual",
+    phone:safeText(current.phone||"",50),email:safeText(current.email||"",160),
+    contactMethod:safeText(current.contactMethod||"phone",40),language:safeText(current.language||"",80),
+    accessibility:safeText(current.accessibility||"",300),householdSize:Math.min(50,Math.max(1,Number(current.householdSize)||1)),
+    safeContact:safeText(current.safeContact||"",1500),reason:safeText(current.reason||"",4000),strengths:safeText(current.strengths||"",3000),
+    assigned:safeText(current.assigned||"",120),status:["open","paused","closed"].includes(current.status)?current.status:"open",
+    tags:asArray(current.tags).map(item=>safeText(item,80)).filter(Boolean).slice(0,30),
+    createdAt:current.createdAt||nowIso(),updatedAt:current.updatedAt||nowIso(),closedAt:current.closedAt||"",
+    needs:current.needs&&typeof current.needs==="object"?current.needs:{},
+    referrals:asArray(current.referrals).slice(0,300),documents:asArray(current.documents).slice(0,300),
+    appointments:asArray(current.appointments).slice(0,500),notes:asArray(current.notes).slice(0,1000),
+    goals:asArray(current.goals).slice(0,500),consents:asArray(current.consents).slice(0,300)
+  };
+}
+function normalizeState(input){
+  if(!input||input.schema!=="casepath-workspace")throw new Error("Unsupported CasePath backup.");
+  return {
+    schema:"casepath-workspace",schemaVersion:1,appVersion:VERSION,updatedAt:nowIso(),
+    cases:asArray(input.cases).slice(0,1000).map(normalizeCase),
+    resources:asArray(input.resources).slice(0,2000).map(resource=>({
+      id:safeText(resource.id||uid(),120),name:safeText(resource.name||"Unnamed Resource",200),
+      category:RESOURCE_CATEGORIES.includes(resource.category)?resource.category:"Other",
+      serviceArea:safeText(resource.serviceArea||"",200),phone:safeText(resource.phone||"",80),
+      email:safeText(resource.email||"",160),url:safeText(resource.url||"",600),
+      eligibility:safeText(resource.eligibility||"",3000),handoff:safeText(resource.handoff||"",3000),
+      active:resource.active!==false
+    })),
+    selectedCaseId:safeText(input.selectedCaseId||"",120),
+    settings:input.settings&&typeof input.settings==="object"?input.settings:{},
+    reportCache:null
+  };
+}
+async function deriveKey(passphrase,salt){
+  const material=await crypto.subtle.importKey("raw",enc.encode(passphrase),{name:"PBKDF2"},false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:PBKDF2_ITERATIONS,hash:"SHA-256"},material,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function encryptState(value,key){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,enc.encode(JSON.stringify(value)));
+  return {iv:bytesToBase64(iv),cipher:bytesToBase64(new Uint8Array(cipher))};
+}
+async function decryptState(record,key){
+  const plain=await crypto.subtle.decrypt({name:"AES-GCM",iv:base64ToBytes(record.iv)},key,base64ToBytes(record.cipher));
+  return normalizeState(JSON.parse(dec.decode(plain)));
+}
+function setSaved(saved){
+  const badge=$("#saveBadge");badge.textContent=saved?"Saved":"Saving…";badge.className="badge "+(saved?"good":"warn");
+}
+async function saveNow(){
+  if(!state)return;
+  state.updatedAt=nowIso();
+  if(isProtected()){
+    if(!sessionKey)throw new Error("Protected workspace is locked.");
+    localStorage.setItem(STORAGE_CIPHER,JSON.stringify(await encryptState(state,sessionKey)));
+  }else localStorage.setItem(STORAGE_PLAIN,JSON.stringify(state));
+  setSaved(true);
+}
+function scheduleSave(){
+  setSaved(false);clearTimeout(saveTimer);saveTimer=setTimeout(()=>saveNow().catch(error=>toast("Save failed: "+error.message)),320);
+}
+function toast(message){
+  const node=$("#toast");node.textContent=message;node.classList.add("show");
+  clearTimeout(node._timer);node._timer=setTimeout(()=>node.classList.remove("show"),2900);
+}
+function download(name,text,type="application/json"){
+  const url=URL.createObjectURL(new Blob([text],{type:type+";charset=utf-8"}));
+  const a=document.createElement("a");a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function setSelectedCase(id){
+  state.selectedCaseId=state.cases.some(record=>record.id===id)?id:"";
+  scheduleSave();renderAll();
+}
+function updateCase(caseRecord){
+  caseRecord.updatedAt=nowIso();
+  if(caseRecord.status==="closed"&&!caseRecord.closedAt)caseRecord.closedAt=nowIso();
+  if(caseRecord.status!=="closed")caseRecord.closedAt="";
+  scheduleSave();renderAll();
+}
+function caseNumber(){
+  const year=new Date().getFullYear();
+  const sequence=state.cases.filter(record=>record.caseNumber.startsWith("CP-"+year+"-")).length+1;
+  return "CP-"+year+"-"+String(sequence).padStart(4,"0");
+}
+
+function switchView(name){
+  $$(".view").forEach(view=>view.classList.toggle("active",view.id==="view-"+name));
+  $$("#sideNavigation button").forEach(button=>button.classList.toggle("active",button.dataset.view===name));
+  const titles={dashboard:"Service Overview",people:"People & Households",intake:"Intake",needs:"Needs Assessment",referrals:"Warm Referrals",documents:"Benefits & Documents",appointments:"Appointments & Follow-Ups",notes:"Case Notes",plans:"Action Plans",consent:"Consent & Exports",resources:"Resource Directory",reports:"Outcome Reports",settings:"Protection & Backup"};
+  $("#viewTitle").textContent=titles[name]||"CasePath";
+}
+
+function priorityClass(priority){return priority==="high"?"priority-high":priority==="medium"?"priority-medium":"priority-low"}
+function openNeedCount(record,priority=""){return Object.values(record.needs||{}).filter(item=>item?.active&&(!priority||item.priority===priority)).length}
+function openReferralCount(record){return record.referrals.filter(item=>!["completed","declined"].includes(item.status)).length}
+function dueFollowupCount(record){
+  const appointments=record.appointments.filter(item=>["scheduled","confirmed","rescheduled"].includes(item.status)&&daysUntil(item.date)<=7).length;
+  const referrals=record.referrals.filter(item=>item.followup&&daysUntil(item.followup)<=7&&!["completed","declined"].includes(item.status)).length;
+  return appointments+referrals;
+}
+function expiringConsentCount(record){
+  return record.consents.filter(item=>item.status==="active"&&item.expires&&daysUntil(item.expires)<=30).length;
+}
+function renderMetrics(){
+  const open=state.cases.filter(record=>record.status==="open");
+  $("#metricOpenCases").textContent=String(open.length);
+  $("#metricUrgent").textContent=String(open.reduce((sum,record)=>sum+openNeedCount(record,"high"),0));
+  $("#metricReferrals").textContent=String(open.reduce((sum,record)=>sum+openReferralCount(record),0));
+  $("#metricFollowups").textContent=String(open.reduce((sum,record)=>sum+dueFollowupCount(record),0));
+  $("#metricGoals").textContent=String(open.reduce((sum,record)=>sum+record.goals.filter(goal=>["in-progress","waiting","not-started"].includes(goal.status)).length,0));
+  $("#metricConsent").textContent=String(open.reduce((sum,record)=>sum+expiringConsentCount(record),0));
+}
+function renderAttention(){
+  const items=[];
+  for(const record of state.cases.filter(item=>item.status==="open")){
+    for(const [category,need] of Object.entries(record.needs||{}))if(need.active&&need.priority==="high")items.push({date:record.updatedAt,title:`Urgent need · ${record.displayName}`,detail:category+" — "+(need.notes||"No detail recorded."),caseId:record.id,kind:"urgent"});
+    for(const referral of record.referrals)if(referral.followup&&daysUntil(referral.followup)<0&&!["completed","declined"].includes(referral.status))items.push({date:referral.followup,title:`Overdue referral follow-up · ${record.displayName}`,detail:`${referral.organization} · ${referral.need}`,caseId:record.id,kind:"referral"});
+    for(const appointment of record.appointments)if(daysUntil(appointment.date)<0&&["scheduled","confirmed","rescheduled"].includes(appointment.status))items.push({date:appointment.date,title:`Past-due appointment status · ${record.displayName}`,detail:appointment.purpose,caseId:record.id,kind:"appointment"});
+    for(const consent of record.consents)if(consent.status==="active"&&consent.expires&&daysUntil(consent.expires)<=30)items.push({date:consent.expires,title:`Consent review · ${record.displayName}`,detail:`${consent.type} consent expires ${displayDate(consent.expires)}`,caseId:record.id,kind:"consent"});
+  }
+  items.sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const host=$("#attentionList");host.replaceChildren();
+  if(!items.length){host.innerHTML='<div class="empty">No urgent or overdue items are currently recorded.</div>';return;}
+  for(const item of items.slice(0,30)){
+    const div=document.createElement("div");div.className="timeline-item";
+    div.innerHTML=`<strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.detail)}</p><small>${escapeHtml(item.date||"")}</small><div class="card-actions"><button class="button small" data-select-case="${item.caseId}">Open case</button></div>`;
+    host.append(div);
+  }
+}
+function renderRecentCases(){
+  const host=$("#recentCaseCards");host.replaceChildren();
+  const records=[...state.cases].sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt))).slice(0,9);
+  if(!records.length){host.innerHTML='<div class="empty">No cases have been created.</div>';return;}
+  for(const record of records)host.append(buildCaseCard(record));
+}
+function buildCaseCard(record){
+  const card=document.createElement("article");card.className="card case-card"+(record.id===state.selectedCaseId?" active":"");
+  card.innerHTML=`<div class="case-name"><strong>${escapeHtml(record.displayName)}</strong><span class="badge ${record.status==="open"?"good":record.status==="paused"?"warn":""}">${escapeHtml(record.status)}</span></div><p>${escapeHtml(record.caseNumber)} · ${escapeHtml(record.type)}<br>${escapeHtml(record.reason||"No reason recorded")}</p><div class="pill-row"><span class="badge">${openNeedCount(record)} needs</span><span class="badge">${openReferralCount(record)} referrals</span><span class="badge">${record.goals.length} goals</span></div><small>Updated ${new Date(record.updatedAt).toLocaleString()}</small><div class="card-actions"><button class="button primary small" data-select-case="${record.id}">Open case</button><button class="button small" data-edit-case="${record.id}">Quick edit</button></div>`;
+  return card;
+}
+function renderCases(){
+  const query=$("#caseSearch").value.trim().toLowerCase(),filter=$("#caseStatusFilter").value;
+  const records=state.cases.filter(record=>{
+    const text=[record.caseNumber,record.displayName,record.legalName,record.phone,record.email,record.type,record.reason,record.assigned,...record.tags].join(" ").toLowerCase();
+    return (!query||text.includes(query))&&(filter==="all"||record.status===filter);
+  }).sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)));
+  const host=$("#caseCards");host.replaceChildren();
+  for(const record of records)host.append(buildCaseCard(record));
+  if(!records.length)host.innerHTML='<div class="empty">No cases match the current search.</div>';
+}
+function caseHeaderHtml(record){
+  return `<div><h2>${escapeHtml(record.displayName)}</h2><p>${escapeHtml(record.caseNumber)} · ${escapeHtml(record.type)} · ${escapeHtml(record.status)} · Coordinator: ${escapeHtml(record.assigned||"Unassigned")}</p></div><div class="card-actions"><button class="button" data-edit-case="${record.id}">Quick Edit</button><button class="button danger" data-close-case="${record.id}">${record.status==="closed"?"Reopen":"Close Case"}</button></div>`;
+}
+function renderIntake(){
+  const record=selectedCase();
+  $("#intakeEmpty").hidden=!!record;$("#intakeContent").hidden=!record;
+  if(!record)return;
+  $("#intakeCaseHeader").innerHTML=caseHeaderHtml(record);
+  $("#intakeDisplayName").value=record.displayName;$("#intakeLegalName").value=record.legalName;$("#intakeCaseType").value=record.type;
+  $("#intakePhone").value=record.phone;$("#intakeEmail").value=record.email;$("#intakeContactMethod").value=record.contactMethod;
+  $("#intakeLanguage").value=record.language;$("#intakeAccessibility").value=record.accessibility;$("#intakeHouseholdSize").value=record.householdSize;
+  $("#intakeSafeContact").value=record.safeContact;$("#intakeReason").value=record.reason;$("#intakeStrengths").value=record.strengths;
+  $("#intakeStatus").value=record.status;$("#intakeTags").value=record.tags.join(", ");$("#intakeAssigned").value=record.assigned;
+}
+function renderNeeds(){
+  const record=selectedCase(),host=$("#needsGrid");
+  $("#needsEmpty").hidden=!!record;host.hidden=!record;host.replaceChildren();
+  if(!record)return;
+  for(const category of NEED_CATEGORIES){
+    const value=record.needs[category]||{active:false,priority:"medium",notes:""};
+    const card=document.createElement("div");card.className="need-card";
+    card.innerHTML=`<label><input type="checkbox" data-need-active="${escapeHtml(category)}" ${value.active?"checked":""}> ${escapeHtml(category)}</label><select data-need-priority="${escapeHtml(category)}"><option value="high" ${value.priority==="high"?"selected":""}>High urgency</option><option value="medium" ${value.priority==="medium"?"selected":""}>Medium priority</option><option value="low" ${value.priority==="low"?"selected":""}>Lower priority</option></select><textarea data-need-notes="${escapeHtml(category)}" placeholder="Person’s priority, current situation, strengths, barriers, and next step…">${escapeHtml(value.notes||"")}</textarea>`;
+    host.append(card);
+  }
+}
+function renderReferrals(){
+  const record=selectedCase();$("#referralEmpty").hidden=!!record;$("#referralTableWrap").hidden=!record;
+  const body=$("#referralTableBody");body.replaceChildren();if(!record)return;
+  for(const item of [...record.referrals].sort((a,b)=>String(b.date).localeCompare(String(a.date)))){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${displayDate(item.date)}<span class="small">${item.consent?"Consent confirmed":"Consent not confirmed"}</span></td><td>${escapeHtml(item.need)}</td><td><strong>${escapeHtml(item.organization)}</strong><span class="small">${escapeHtml(item.contact||"")}</span></td><td>${escapeHtml(item.handoff)}</td><td><span class="badge ${item.status==="completed"?"good":item.status==="unable"?"bad":"warn"}">${escapeHtml(item.status)}</span></td><td>${displayDate(item.followup)}<span class="small">${escapeHtml(item.notes||"")}</span></td><td><div class="row-actions"><button class="button small" data-edit-referral="${item.id}">Edit</button><button class="button danger small" data-delete-referral="${item.id}">Delete</button></div></td>`;
+    body.append(tr);
+  }
+  if(!record.referrals.length)body.innerHTML='<tr><td colspan="7" class="empty">No referrals recorded.</td></tr>';
+}
+function renderDocuments(){
+  const record=selectedCase();$("#documentEmpty").hidden=!!record;$("#documentTableWrap").hidden=!record;
+  const body=$("#documentTableBody");body.replaceChildren();if(!record)return;
+  for(const item of record.documents){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td><strong>${escapeHtml(item.name)}</strong></td><td>${escapeHtml(item.category)}</td><td><span class="badge ${item.status==="verified"?"good":item.status==="needed"?"warn":""}">${escapeHtml(item.status)}</span></td><td>${displayDate(item.due)}</td><td>${escapeHtml(item.notes||"")}</td><td><div class="row-actions"><button class="button small" data-edit-document="${item.id}">Edit</button><button class="button danger small" data-delete-document="${item.id}">Delete</button></div></td>`;
+    body.append(tr);
+  }
+  if(!record.documents.length)body.innerHTML='<tr><td colspan="6" class="empty">No checklist items. Add one or load the standard checklist.</td></tr>';
+}
+function renderAppointments(){
+  const record=selectedCase();$("#appointmentEmpty").hidden=!!record;$("#appointmentTableWrap").hidden=!record;
+  const body=$("#appointmentTableBody");body.replaceChildren();if(!record)return;
+  const records=[...record.appointments].sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  for(const item of records){
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${humanDateTime(item.date,item.time)}</td><td><strong>${escapeHtml(item.purpose)}</strong><span class="small">${escapeHtml(item.type)}</span></td><td>${escapeHtml(item.organization||"—")}</td><td>${escapeHtml(item.support||"—")}</td><td><span class="badge ${item.status==="completed"?"good":item.status==="missed"?"bad":"warn"}">${escapeHtml(item.status)}</span></td><td><div class="row-actions"><button class="button small" data-edit-appointment="${item.id}">Edit</button><button class="button danger small" data-delete-appointment="${item.id}">Delete</button></div></td>`;
+    body.append(tr);
+  }
+  if(!records.length)body.innerHTML='<tr><td colspan="6" class="empty">No appointments or follow-ups recorded.</td></tr>';
+}
+function renderNotes(){
+  const record=selectedCase();$("#noteEmpty").hidden=!!record;$("#noteTimeline").hidden=!record;
+  const host=$("#noteTimeline");host.replaceChildren();if(!record)return;
+  for(const item of [...record.notes].sort((a,b)=>String(b.date).localeCompare(String(a.date)))){
+    const div=document.createElement("div");div.className="timeline-item";
+    div.innerHTML=`<strong>${escapeHtml(item.type)} · ${escapeHtml(item.visibility)}</strong><p>${escapeHtml(item.text)}</p><small>${displayDate(item.date)}</small><div class="card-actions"><button class="button small" data-edit-note="${item.id}">Edit</button><button class="button danger small" data-delete-note="${item.id}">Delete</button></div>`;
+    host.append(div);
+  }
+  if(!record.notes.length)host.innerHTML='<div class="empty">No case notes recorded.</div>';
+}
+function goalProgress(status){return ({"not-started":5,"in-progress":55,waiting:40,completed:100,paused:25})[status]||0}
+function renderGoals(){
+  const record=selectedCase();$("#planEmpty").hidden=!!record;$("#goalCards").hidden=!record;
+  const host=$("#goalCards");host.replaceChildren();if(!record)return;
+  for(const goal of record.goals){
+    const card=document.createElement("article");card.className="card";
+    card.innerHTML=`<div class="case-name"><strong>${escapeHtml(goal.title)}</strong><span class="${priorityClass(goal.priority)}">${escapeHtml(goal.priority)}</span></div><p>Owner: ${escapeHtml(goal.owner)} · Target: ${displayDate(goal.due)}<br>Status: ${escapeHtml(goal.status)}</p><div class="progress"><i style="width:${goalProgress(goal.status)}%"></i></div><small>${escapeHtml(goal.steps||"No steps recorded.")}</small>${goal.evidence?`<p><strong>Outcome:</strong> ${escapeHtml(goal.evidence)}</p>`:""}<div class="card-actions"><button class="button small" data-edit-goal="${goal.id}">Edit</button><button class="button danger small" data-delete-goal="${goal.id}">Delete</button></div>`;
+    host.append(card);
+  }
+  if(!record.goals.length)host.innerHTML='<div class="empty">No action-plan goals recorded.</div>';
+}
+function renderConsents(){
+  const record=selectedCase();$("#consentEmpty").hidden=!!record;$("#consentContent").hidden=!record;
+  const body=$("#consentTableBody");body.replaceChildren();if(!record)return;
+  for(const item of record.consents){
+    const expired=item.expires&&daysUntil(item.expires)<0&&item.status==="active";
+    const status=expired?"expired":item.status;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${escapeHtml(item.type)}</td><td>${escapeHtml(item.scope)}</td><td>${displayDate(item.granted)}</td><td>${displayDate(item.expires)}</td><td><span class="badge ${status==="active"?"good":status==="revoked"||status==="declined"?"bad":"warn"}">${escapeHtml(status)}</span><span class="small">${escapeHtml(item.method||"")}</span></td><td><div class="row-actions"><button class="button small" data-edit-consent="${item.id}">Edit</button><button class="button danger small" data-delete-consent="${item.id}">Delete</button></div></td>`;
+    body.append(tr);
+  }
+  if(!record.consents.length)body.innerHTML='<tr><td colspan="6" class="empty">No consent records. Do not share case information until the appropriate consent is documented.</td></tr>';
+}
+function renderResources(){
+  const query=$("#resourceSearch").value.trim().toLowerCase(),category=$("#resourceCategoryFilter").value;
+  const host=$("#resourceCards");host.replaceChildren();
+  const records=state.resources.filter(resource=>{
+    const text=[resource.name,resource.category,resource.serviceArea,resource.phone,resource.email,resource.eligibility,resource.handoff].join(" ").toLowerCase();
+    return (!query||text.includes(query))&&(category==="all"||resource.category===category);
+  }).sort((a,b)=>a.category.localeCompare(b.category)||a.name.localeCompare(b.name));
+  for(const resource of records){
+    const card=document.createElement("article");card.className="card";
+    card.innerHTML=`<div class="case-name"><strong>${escapeHtml(resource.name)}</strong><span class="badge ${resource.active?"good":"warn"}">${resource.active?"active":"inactive"}</span></div><p>${escapeHtml(resource.category)} · ${escapeHtml(resource.serviceArea||"Service area not entered")}<br>${escapeHtml(resource.phone||"")} ${resource.email?`· ${escapeHtml(resource.email)}`:""}</p><small><strong>Eligibility:</strong> ${escapeHtml(resource.eligibility||"Not entered")}<br><strong>Handoff:</strong> ${escapeHtml(resource.handoff||"Not entered")}</small><div class="card-actions"><button class="button small" data-edit-resource="${resource.id}">Edit</button>${resource.url?`<a class="button small" href="${escapeHtml(resource.url)}" target="_blank" rel="noopener noreferrer">Open site</a>`:""}<button class="button danger small" data-delete-resource="${resource.id}">Delete</button></div>`;
+    host.append(card);
+  }
+  if(!records.length)host.innerHTML='<div class="empty">No resources match the current filters.</div>';
+}
+function renderCaseBadge(){
+  const record=selectedCase();
+  $("#selectedCaseBadge").textContent=record?record.displayName:"No case selected";
+  $("#selectedCaseBadge").className="badge "+(record?"good":"");
+}
+async function renderStorage(){
+  const protectedWorkspace=isProtected();
+  $("#workspaceBadge").textContent=protectedWorkspace?"Encrypted workspace":"Local workspace";
+  $("#workspaceBadge").className="badge "+(protectedWorkspace?"good":"warn");
+  $("#protectionHeading").textContent=protectedWorkspace?"Encrypted local workspace":"Unprotected local workspace";
+  $("#protectionDescription").textContent=protectedWorkspace?"Case data is encrypted at rest in this browser. The key exists only while this session is unlocked.":"Records are stored locally as readable JSON in this browser profile.";
+  $("#protectWorkspaceButton").hidden=protectedWorkspace;$("#removeProtectionButton").hidden=!protectedWorkspace;
+  try{
+    if(navigator.storage?.estimate){
+      const estimate=await navigator.storage.estimate(),persisted=navigator.storage.persisted?await navigator.storage.persisted():false;
+      $("#storageEstimate").textContent=`${((estimate.usage||0)/1048576).toFixed(1)} MB used of approximately ${((estimate.quota||0)/1048576).toFixed(0)} MB · ${persisted?"persistent":"best effort"}`;
+    }
+  }catch{}
+}
+function renderAll(){
+  renderMetrics();renderAttention();renderRecentCases();renderCases();renderIntake();renderNeeds();renderReferrals();renderDocuments();
+  renderAppointments();renderNotes();renderGoals();renderConsents();renderResources();renderCaseBadge();renderStorage();
+}
+
+function openCaseDialog(id=""){
+  const record=id?caseById(id):null;
+  $("#caseDialogTitle").textContent=record?"Quick Edit":"New Intake";
+  $("#caseId").value=record?.id||"";
+  $("#caseDisplayName").value=record?.displayName||"";
+  $("#caseType").value=record?.type||"individual";
+  $("#casePhone").value=record?.phone||"";
+  $("#caseEmail").value=record?.email||"";
+  $("#caseReason").value=record?.reason||"";
+  $("#caseAssigned").value=record?.assigned||"";
+  $("#caseSafeContact").value=record?.safeContact||"";
+  $("#caseDialog").showModal();
+}
+function fillNeedSelect(select){select.replaceChildren();for(const category of NEED_CATEGORIES){const option=document.createElement("option");option.value=category;option.textContent=category;select.append(option);}}
+function fillResourceSelect(){
+  const select=$("#referralResource"),current=select.value;select.innerHTML='<option value="">Custom organization</option>';
+  for(const resource of state.resources.filter(item=>item.active)){const option=document.createElement("option");option.value=resource.id;option.textContent=resource.name+" · "+resource.category;select.append(option);}
+  if(state.resources.some(item=>item.id===current))select.value=current;
+}
+function openReferralDialog(id=""){
+  const record=selectedCase();if(!record)return toast("Select a case first.");
+  fillNeedSelect($("#referralNeed"));fillResourceSelect();
+  const item=id?record.referrals.find(entry=>entry.id===id):null;
+  $("#referralId").value=item?.id||"";$("#referralDate").value=item?.date||today();$("#referralNeed").value=item?.need||NEED_CATEGORIES[0];
+  $("#referralResource").value=item?.resourceId||"";$("#referralOrganization").value=item?.organization||"";$("#referralContact").value=item?.contact||"";
+  $("#referralHandoff").value=item?.handoff||"information";$("#referralStatus").value=item?.status||"pending";$("#referralFollowup").value=item?.followup||"";
+  $("#referralConsent").checked=!!item?.consent;$("#referralNotes").value=item?.notes||"";$("#referralDialog").showModal();
+}
+function openDocumentDialog(id=""){
+  const record=selectedCase();if(!record)return toast("Select a case first.");
+  const item=id?record.documents.find(entry=>entry.id===id):null;
+  $("#documentId").value=item?.id||"";$("#documentName").value=item?.name||"";$("#documentCategory").value=item?.category||"Identity";
+  $("#documentStatus").value=item?.status||"needed";$("#documentDue").value=item?.due||"";$("#documentNotes").value=item?.notes||"";
+  $("#documentDialog").showModal();
+}
+function openAppointmentDialog(id=""){
+  const record=selectedCase();if(!record)return toast("Select a case first.");
+  const item=id?record.appointments.find(entry=>entry.id===id):null;
+  $("#appointmentId").value=item?.id||"";$("#appointmentDate").value=item?.date||today();$("#appointmentTime").value=item?.time||"";
+  $("#appointmentType").value=item?.type||"follow-up";$("#appointmentPurpose").value=item?.purpose||"";$("#appointmentOrganization").value=item?.organization||"";
+  $("#appointmentStatus").value=item?.status||"scheduled";$("#appointmentSupport").value=item?.support||"";$("#appointmentDialog").showModal();
+}
+function openNoteDialog(id=""){
+  const record=selectedCase();if(!record)return toast("Select a case first.");
+  const item=id?record.notes.find(entry=>entry.id===id):null;
+  $("#noteId").value=item?.id||"";$("#noteDate").value=item?.date||today();$("#noteType").value=item?.type||"contact";
+  $("#noteVisibility").value=item?.visibility||"internal";$("#noteText").value=item?.text||"";$("#noteDialog").showModal();
+}
+function openGoalDialog(id=""){
+  const record=selectedCase();if(!record)return toast("Select a case first.");
+  const item=id?record.goals.find(entry=>entry.id===id):null;
+  $("#goalId").value=item?.id||"";$("#goalTitle").value=item?.title||"";$("#goalOwner").value=item?.owner||"shared";$("#goalDue").value=item?.due||"";
+  $("#goalPriority").value=item?.priority||"medium";$("#goalStatus").value=item?.status||"not-started";$("#goalSteps").value=item?.steps||"";$("#goalEvidence").value=item?.evidence||"";
+  $("#goalDialog").showModal();
+}
+function openConsentDialog(id=""){
+  const record=selectedCase();if(!record)return toast("Select a case first.");
+  const item=id?record.consents.find(entry=>entry.id===id):null;
+  $("#consentId").value=item?.id||"";$("#consentType").value=item?.type||"service";$("#consentGranted").value=item?.granted||today();
+  $("#consentExpires").value=item?.expires||"";$("#consentStatus").value=item?.status||"active";$("#consentScope").value=item?.scope||"";$("#consentMethod").value=item?.method||"";
+  $("#consentDialog").showModal();
+}
+function fillResourceCategorySelects(){
+  for(const selector of ["#resourceCategory","#resourceCategoryFilter"]){
+    const select=$(selector),current=select.value;select.replaceChildren();
+    if(selector.endsWith("Filter")){const all=document.createElement("option");all.value="all";all.textContent="All categories";select.append(all);}
+    for(const category of RESOURCE_CATEGORIES){const option=document.createElement("option");option.value=category;option.textContent=category;select.append(option);}
+    if(Array.from(select.options).some(option=>option.value===current))select.value=current;
+  }
+}
+function openResourceDialog(id=""){
+  fillResourceCategorySelects();
+  const item=id?state.resources.find(entry=>entry.id===id):null;
+  $("#resourceId").value=item?.id||"";$("#resourceName").value=item?.name||"";$("#resourceCategory").value=item?.category||RESOURCE_CATEGORIES[0];
+  $("#resourceServiceArea").value=item?.serviceArea||"";$("#resourcePhone").value=item?.phone||"";$("#resourceEmail").value=item?.email||"";
+  $("#resourceUrl").value=item?.url||"";$("#resourceEligibility").value=item?.eligibility||"";$("#resourceHandoff").value=item?.handoff||"";$("#resourceActive").checked=item?item.active!==false:true;
+  $("#resourceDialog").showModal();
+}
+
+function activeConsent(record,type){
+  return record.consents.some(item=>item.type===type&&item.status==="active"&&(!item.expires||daysUntil(item.expires)>=0));
+}
+function relevantNeeds(record){return Object.entries(record.needs||{}).filter(([,need])=>need.active)}
+function permittedNotes(record,scope){
+  if(scope==="internal")return record.notes;
+  if(scope==="client")return record.notes.filter(note=>note.visibility==="client");
+  if(scope==="referral"&&!activeConsent(record,"referral"))return [];
+  return record.notes.filter(note=>note.visibility==="referral");
+}
+function generateCaseExport(){
+  const record=selectedCase();if(!record)return toast("Select a case first.");
+  const scope=$("#exportScope").value;
+  const contact=$("#exportContact").checked,includeNeeds=$("#exportNeeds").checked,appointments=$("#exportAppointments").checked,notes=$("#exportNotes").checked;
+  const title=scope==="client"?"Action Plan and Service Summary":scope==="referral"?"Referral Handoff Summary":"Internal Case Summary";
+  const scopeWarning=scope==="referral"&&!activeConsent(record,"referral")?'<p class="redacted"><strong>Referral-sharing consent is not active. This preview excludes referral-shareable notes and must not be sent until appropriate consent is documented.</strong></p>':"";
+  const contactHtml=contact?`<h2>Contact</h2><p>${escapeHtml(record.displayName)}<br>${escapeHtml(record.phone||"No phone recorded")}<br>${escapeHtml(record.email||"No email recorded")}<br>Preferred contact: ${escapeHtml(record.contactMethod)}<br>Safe-contact instructions: ${escapeHtml(record.safeContact||"None recorded")}</p>`:"";
+  const needsHtml=includeNeeds?`<h2>Current Priorities</h2>${relevantNeeds(record).length?`<ul>${relevantNeeds(record).map(([category,need])=>`<li><strong>${escapeHtml(category)}</strong> · ${escapeHtml(need.priority)} — ${escapeHtml(need.notes||"")}</li>`).join("")}</ul>`:"<p>No active needs recorded.</p>"}`:"";
+  const goalsHtml=`<h2>Action Plan</h2>${record.goals.length?`<table><thead><tr><th>Goal</th><th>Owner</th><th>Target</th><th>Status</th><th>Steps</th></tr></thead><tbody>${record.goals.map(goal=>`<tr><td>${escapeHtml(goal.title)}</td><td>${escapeHtml(goal.owner)}</td><td>${displayDate(goal.due)}</td><td>${escapeHtml(goal.status)}</td><td>${escapeHtml(goal.steps||"")}</td></tr>`).join("")}</tbody></table>`:"<p>No goals recorded.</p>"}`;
+  const referralHtml=`<h2>Referrals</h2>${record.referrals.length?`<table><thead><tr><th>Need</th><th>Organization</th><th>Status</th><th>Follow-up</th></tr></thead><tbody>${record.referrals.map(item=>`<tr><td>${escapeHtml(item.need)}</td><td>${escapeHtml(item.organization)}</td><td>${escapeHtml(item.status)}</td><td>${displayDate(item.followup)}</td></tr>`).join("")}</tbody></table>`:"<p>No referrals recorded.</p>"}`;
+  const appointmentHtml=appointments?`<h2>Upcoming Appointments</h2>${record.appointments.filter(item=>["scheduled","confirmed","rescheduled"].includes(item.status)).length?`<ul>${record.appointments.filter(item=>["scheduled","confirmed","rescheduled"].includes(item.status)).map(item=>`<li><strong>${humanDateTime(item.date,item.time)}</strong> — ${escapeHtml(item.purpose)} · ${escapeHtml(item.organization||"")}</li>`).join("")}</ul>`:"<p>No upcoming appointments recorded.</p>"}`:"";
+  const noteRecords=notes?permittedNotes(record,scope):[];
+  const notesHtml=notes?`<h2>Permitted Notes</h2>${noteRecords.length?`<ul>${noteRecords.map(item=>`<li><strong>${displayDate(item.date)} · ${escapeHtml(item.type)}</strong> — ${escapeHtml(item.text)}</li>`).join("")}</ul>`:'<p class="redacted">No notes are permitted for this export scope.</p>'}`:"";
+  const consentHtml=scope==="internal"?`<h2>Consent Records</h2>${record.consents.length?`<ul>${record.consents.map(item=>`<li>${escapeHtml(item.type)} · ${escapeHtml(item.status)} · ${escapeHtml(item.scope)}</li>`).join("")}</ul>`:"<p>No consent records.</p>"}`:"";
+  generatedExportHtml=`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>body{font-family:Georgia,serif;max-width:850px;margin:36px auto;padding:0 22px;color:#222;line-height:1.6}h1,h2{font-family:Georgia,serif}table{width:100%;border-collapse:collapse}th,td{padding:8px;border:1px solid #bbb;text-align:left;vertical-align:top}.redacted{color:#7d6156;font-style:italic}.footer{margin-top:30px;padding-top:12px;border-top:1px solid #bbb;font-size:12px;color:#666}</style></head><body><h1>${escapeHtml(title)}</h1><p><strong>Case:</strong> ${escapeHtml(record.caseNumber)} · <strong>Prepared:</strong> ${new Date().toLocaleString()}</p>${scopeWarning}${contactHtml}${needsHtml}${goalsHtml}${referralHtml}${appointmentHtml}${notesHtml}${consentHtml}<div class="footer">CasePath™ · One Door, No Wrong Door · Prepared from a private local workspace. Review before sharing.</div></body></html>`;
+  $("#exportPreview").innerHTML=generatedExportHtml.match(/<body>([\s\S]*)<\/body>/i)?.[1]||generatedExportHtml;
+  toast("Consent-aware export preview generated.");
+}
+function aggregateReport(){
+  const cases=state.cases,open=cases.filter(record=>record.status==="open"),closed=cases.filter(record=>record.status==="closed");
+  const needCounts={},referralStatus={},goalStatus={},documentStatus={};
+  for(const record of cases){
+    for(const [category,need] of Object.entries(record.needs||{}))if(need.active)needCounts[category]=(needCounts[category]||0)+1;
+    for(const item of record.referrals)referralStatus[item.status]=(referralStatus[item.status]||0)+1;
+    for(const item of record.goals)goalStatus[item.status]=(goalStatus[item.status]||0)+1;
+    for(const item of record.documents)documentStatus[item.status]=(documentStatus[item.status]||0)+1;
+  }
+  const report={
+    schema:"casepath-deidentified-outcome-report",schemaVersion:1,generatedAt:nowIso(),
+    notice:"Aggregate counts only. Review small-cell and re-identification risk before public use.",
+    cases:{total:cases.length,open:open.length,closed:closed.length,paused:cases.filter(record=>record.status==="paused").length},
+    householdsByType:Object.fromEntries(["individual","family","senior","veteran","community"].map(type=>[type,cases.filter(record=>record.type===type).length])),
+    activeNeeds:needCounts,referralsByStatus:referralStatus,goalsByStatus:goalStatus,documentsByStatus:documentStatus,
+    appointments:{total:cases.reduce((sum,record)=>sum+record.appointments.length,0),completed:cases.reduce((sum,record)=>sum+record.appointments.filter(item=>item.status==="completed").length,0)},
+    consents:{active:cases.reduce((sum,record)=>sum+record.consents.filter(item=>item.status==="active").length,0),revoked:cases.reduce((sum,record)=>sum+record.consents.filter(item=>item.status==="revoked").length,0)}
+  };
+  currentReport=JSON.stringify(report,null,2);$("#reportOutput").value=currentReport;toast("De-identified aggregate report generated.");
+}
+
+function renderFormSelects(){
+  fillNeedSelect($("#referralNeed"));fillResourceSelect();fillResourceCategorySelects();
+}
+function renderAllAndSelectView(){renderAll();}
+
+$("#sideNavigation").addEventListener("click",event=>{const button=event.target.closest("[data-view]");if(button)switchView(button.dataset.view);});
+$("#newCaseButton").onclick=$("#newCaseButton2").onclick=()=>openCaseDialog();
+$("#quickActionButton").onclick=()=>openAppointmentDialog();
+$("#caseSearch").addEventListener("input",renderCases);$("#caseStatusFilter").addEventListener("change",renderCases);
+$("#resourceSearch").addEventListener("input",renderResources);$("#resourceCategoryFilter").addEventListener("change",renderResources);
+
+document.addEventListener("click",event=>{
+  const select=event.target.closest("[data-select-case]");if(select){setSelectedCase(select.dataset.selectCase);switchView("intake");return;}
+  const editCase=event.target.closest("[data-edit-case]");if(editCase)return openCaseDialog(editCase.dataset.editCase);
+  const closeCase=event.target.closest("[data-close-case]");if(closeCase){const record=caseById(closeCase.dataset.closeCase);if(record){record.status=record.status==="closed"?"open":"closed";updateCase(record);}return;}
+  const editReferral=event.target.closest("[data-edit-referral]");if(editReferral)return openReferralDialog(editReferral.dataset.editReferral);
+  const deleteReferral=event.target.closest("[data-delete-referral]");if(deleteReferral&&confirm("Delete this referral record?")){const record=selectedCase();record.referrals=record.referrals.filter(item=>item.id!==deleteReferral.dataset.deleteReferral);updateCase(record);return;}
+  const editDocument=event.target.closest("[data-edit-document]");if(editDocument)return openDocumentDialog(editDocument.dataset.editDocument);
+  const deleteDocument=event.target.closest("[data-delete-document]");if(deleteDocument&&confirm("Delete this checklist item?")){const record=selectedCase();record.documents=record.documents.filter(item=>item.id!==deleteDocument.dataset.deleteDocument);updateCase(record);return;}
+  const editAppointment=event.target.closest("[data-edit-appointment]");if(editAppointment)return openAppointmentDialog(editAppointment.dataset.editAppointment);
+  const deleteAppointment=event.target.closest("[data-delete-appointment]");if(deleteAppointment&&confirm("Delete this appointment?")){const record=selectedCase();record.appointments=record.appointments.filter(item=>item.id!==deleteAppointment.dataset.deleteAppointment);updateCase(record);return;}
+  const editNote=event.target.closest("[data-edit-note]");if(editNote)return openNoteDialog(editNote.dataset.editNote);
+  const deleteNote=event.target.closest("[data-delete-note]");if(deleteNote&&confirm("Delete this case note?")){const record=selectedCase();record.notes=record.notes.filter(item=>item.id!==deleteNote.dataset.deleteNote);updateCase(record);return;}
+  const editGoal=event.target.closest("[data-edit-goal]");if(editGoal)return openGoalDialog(editGoal.dataset.editGoal);
+  const deleteGoal=event.target.closest("[data-delete-goal]");if(deleteGoal&&confirm("Delete this goal?")){const record=selectedCase();record.goals=record.goals.filter(item=>item.id!==deleteGoal.dataset.deleteGoal);updateCase(record);return;}
+  const editConsent=event.target.closest("[data-edit-consent]");if(editConsent)return openConsentDialog(editConsent.dataset.editConsent);
+  const deleteConsent=event.target.closest("[data-delete-consent]");if(deleteConsent&&confirm("Delete this consent record?")){const record=selectedCase();record.consents=record.consents.filter(item=>item.id!==deleteConsent.dataset.deleteConsent);updateCase(record);return;}
+  const editResource=event.target.closest("[data-edit-resource]");if(editResource)return openResourceDialog(editResource.dataset.editResource);
+  const deleteResource=event.target.closest("[data-delete-resource]");if(deleteResource&&confirm("Delete this resource entry?")){state.resources=state.resources.filter(item=>item.id!==deleteResource.dataset.deleteResource);scheduleSave();renderResources();fillResourceSelect();return;}
+  const close=event.target.closest("[data-close]");if(close)$("#"+close.dataset.close).close();
+});
+
+$("#caseForm").onsubmit=event=>{
+  event.preventDefault();const id=$("#caseId").value;let record=id?caseById(id):null;
+  if(!record){
+    record=normalizeCase({id:uid(),caseNumber:caseNumber(),displayName:$("#caseDisplayName").value,createdAt:nowIso(),documents:DEFAULT_DOCUMENTS.map(([name,category])=>({id:uid(),name,category,status:"needed",due:"",notes:""}))});
+    state.cases.push(record);state.selectedCaseId=record.id;
+  }
+  record.displayName=safeText($("#caseDisplayName").value,120);record.type=$("#caseType").value;record.phone=safeText($("#casePhone").value,50);record.email=safeText($("#caseEmail").value,160);
+  record.reason=safeText($("#caseReason").value,4000);record.assigned=safeText($("#caseAssigned").value,120);record.safeContact=safeText($("#caseSafeContact").value,1500);
+  $("#caseDialog").close();updateCase(record);switchView("intake");toast(id?"Case updated.":"New intake created.");
+};
+$("#intakeForm").onsubmit=event=>{
+  event.preventDefault();const record=selectedCase();if(!record)return;
+  record.displayName=safeText($("#intakeDisplayName").value,120);record.legalName=safeText($("#intakeLegalName").value,160);record.type=$("#intakeCaseType").value;
+  record.phone=safeText($("#intakePhone").value,50);record.email=safeText($("#intakeEmail").value,160);record.contactMethod=$("#intakeContactMethod").value;
+  record.language=safeText($("#intakeLanguage").value,80);record.accessibility=safeText($("#intakeAccessibility").value,300);record.householdSize=Math.min(50,Math.max(1,Number($("#intakeHouseholdSize").value)||1));
+  record.safeContact=safeText($("#intakeSafeContact").value,1500);record.reason=safeText($("#intakeReason").value,4000);record.strengths=safeText($("#intakeStrengths").value,3000);
+  record.status=$("#intakeStatus").value;record.tags=$("#intakeTags").value.split(",").map(item=>safeText(item,80)).filter(Boolean).slice(0,30);record.assigned=safeText($("#intakeAssigned").value,120);
+  updateCase(record);toast("Intake saved.");
+};
+$("#saveNeedsButton").onclick=()=>{
+  const record=selectedCase();if(!record)return toast("Select a case first.");
+  const needs={};
+  for(const category of NEED_CATEGORIES){
+    needs[category]={
+      active:$(`[data-need-active="${CSS.escape(category)}"]`).checked,
+      priority:$(`[data-need-priority="${CSS.escape(category)}"]`).value,
+      notes:safeText($(`[data-need-notes="${CSS.escape(category)}"]`).value,3000)
+    };
+  }
+  record.needs=needs;updateCase(record);toast("Needs assessment saved.");
+};
+$("#addReferralButton").onclick=()=>openReferralDialog();
+$("#referralResource").onchange=()=>{const resource=state.resources.find(item=>item.id===$("#referralResource").value);if(resource){$("#referralOrganization").value=resource.name;$("#referralContact").value=[resource.phone,resource.email].filter(Boolean).join(" · ");$("#referralNeed").value=resource.category;}};
+$("#referralForm").onsubmit=event=>{
+  event.preventDefault();const record=selectedCase(),id=$("#referralId").value;let item=id?record.referrals.find(entry=>entry.id===id):null;
+  const data={id:id||uid(),date:$("#referralDate").value,need:$("#referralNeed").value,resourceId:$("#referralResource").value,organization:safeText($("#referralOrganization").value,180),contact:safeText($("#referralContact").value,200),handoff:$("#referralHandoff").value,status:$("#referralStatus").value,followup:$("#referralFollowup").value,consent:$("#referralConsent").checked,notes:safeText($("#referralNotes").value,3000)};
+  if(item)Object.assign(item,data);else record.referrals.push(data);$("#referralDialog").close();updateCase(record);toast("Referral saved.");
+};
+$("#addDocumentButton").onclick=()=>openDocumentDialog();
+$("#documentForm").onsubmit=event=>{
+  event.preventDefault();const record=selectedCase(),id=$("#documentId").value;let item=id?record.documents.find(entry=>entry.id===id):null;
+  const data={id:id||uid(),name:safeText($("#documentName").value,180),category:$("#documentCategory").value,status:$("#documentStatus").value,due:$("#documentDue").value,notes:safeText($("#documentNotes").value,2000)};
+  if(item)Object.assign(item,data);else record.documents.push(data);$("#documentDialog").close();updateCase(record);toast("Checklist item saved.");
+};
+$("#addAppointmentButton").onclick=()=>openAppointmentDialog();
+$("#appointmentForm").onsubmit=event=>{
+  event.preventDefault();const record=selectedCase(),id=$("#appointmentId").value;let item=id?record.appointments.find(entry=>entry.id===id):null;
+  const data={id:id||uid(),date:$("#appointmentDate").value,time:$("#appointmentTime").value,type:$("#appointmentType").value,purpose:safeText($("#appointmentPurpose").value,240),organization:safeText($("#appointmentOrganization").value,240),status:$("#appointmentStatus").value,support:safeText($("#appointmentSupport").value,2000)};
+  if(item)Object.assign(item,data);else record.appointments.push(data);$("#appointmentDialog").close();updateCase(record);toast("Appointment saved.");
+};
+$("#addNoteButton").onclick=()=>openNoteDialog();
+$("#noteForm").onsubmit=event=>{
+  event.preventDefault();const record=selectedCase(),id=$("#noteId").value;let item=id?record.notes.find(entry=>entry.id===id):null;
+  const data={id:id||uid(),date:$("#noteDate").value,type:$("#noteType").value,visibility:$("#noteVisibility").value,text:safeText($("#noteText").value,6000)};
+  if(item)Object.assign(item,data);else record.notes.push(data);$("#noteDialog").close();updateCase(record);toast("Case note saved.");
+};
+$("#addGoalButton").onclick=()=>openGoalDialog();
+$("#goalForm").onsubmit=event=>{
+  event.preventDefault();const record=selectedCase(),id=$("#goalId").value;let item=id?record.goals.find(entry=>entry.id===id):null;
+  const data={id:id||uid(),title:safeText($("#goalTitle").value,240),owner:$("#goalOwner").value,due:$("#goalDue").value,priority:$("#goalPriority").value,status:$("#goalStatus").value,steps:safeText($("#goalSteps").value,4000),evidence:safeText($("#goalEvidence").value,2000)};
+  if(item)Object.assign(item,data);else record.goals.push(data);$("#goalDialog").close();updateCase(record);toast("Action-plan goal saved.");
+};
+$("#addConsentButton").onclick=()=>openConsentDialog();
+$("#consentForm").onsubmit=event=>{
+  event.preventDefault();const record=selectedCase(),id=$("#consentId").value;let item=id?record.consents.find(entry=>entry.id===id):null;
+  const data={id:id||uid(),type:$("#consentType").value,granted:$("#consentGranted").value,expires:$("#consentExpires").value,status:$("#consentStatus").value,scope:safeText($("#consentScope").value,4000),method:safeText($("#consentMethod").value,500)};
+  if(item)Object.assign(item,data);else record.consents.push(data);$("#consentDialog").close();updateCase(record);toast("Consent record saved.");
+};
+$("#generateExportButton").onclick=generateCaseExport;
+$("#exportScope").addEventListener("change",()=>{$("#exportNotes").checked=$("#exportScope").value==="internal";});
+$("#printExportButton").onclick=()=>{
+  if(!generatedExportHtml)generateCaseExport();if(!generatedExportHtml)return;
+  const win=window.open("","_blank","noopener,noreferrer");if(!win)return toast("The browser blocked the print window.");
+  win.document.open();win.document.write(generatedExportHtml);win.document.close();win.focus();setTimeout(()=>win.print(),250);
+};
+$("#downloadExportButton").onclick=()=>{if(!generatedExportHtml)generateCaseExport();if(generatedExportHtml){const record=selectedCase();download(`CasePath_${record.caseNumber}_${$("#exportScope").value}.html`,generatedExportHtml,"text/html");}};
+$("#addResourceButton").onclick=()=>openResourceDialog();
+$("#resourceForm").onsubmit=event=>{
+  event.preventDefault();const id=$("#resourceId").value;let item=id?state.resources.find(entry=>entry.id===id):null;
+  const data={id:id||uid(),name:safeText($("#resourceName").value,200),category:$("#resourceCategory").value,serviceArea:safeText($("#resourceServiceArea").value,200),phone:safeText($("#resourcePhone").value,80),email:safeText($("#resourceEmail").value,160),url:safeText($("#resourceUrl").value,600),eligibility:safeText($("#resourceEligibility").value,3000),handoff:safeText($("#resourceHandoff").value,3000),active:$("#resourceActive").checked};
+  if(item)Object.assign(item,data);else state.resources.push(data);$("#resourceDialog").close();scheduleSave();renderResources();fillResourceSelect();toast("Resource saved.");
+};
+$("#generateReportButton").onclick=aggregateReport;
+$("#copyReportButton").onclick=async()=>{if(!currentReport)aggregateReport();try{await navigator.clipboard.writeText(currentReport);toast("Aggregate report copied.");}catch{toast("Clipboard access blocked.");}};
+$("#downloadReportButton").onclick=()=>{if(!currentReport)aggregateReport();download("casepath_deidentified_report_"+today()+".json",currentReport);};
+
+$("#protectWorkspaceButton").onclick=()=>$("#protectionDialog").showModal();
+$("#protectionForm").onsubmit=async event=>{
+  event.preventDefault();const first=$("#newPassphrase").value,second=$("#confirmPassphrase").value;
+  if(first.length<12)return alert("Use at least 12 characters.");if(first!==second)return alert("Passphrases do not match.");
+  try{
+    const salt=crypto.getRandomValues(new Uint8Array(16));sessionKey=await deriveKey(first,salt);
+    localStorage.setItem(STORAGE_META,JSON.stringify({schema:"casepath-vault",version:1,iterations:PBKDF2_ITERATIONS,salt:bytesToBase64(salt)}));
+    localStorage.removeItem(STORAGE_PLAIN);await saveNow();$("#protectionDialog").close();$("#newPassphrase").value=$("#confirmPassphrase").value="";
+    renderStorage();toast("Workspace encrypted.");
+  }catch(error){alert("Protection failed: "+error.message);}
+};
+$("#removeProtectionButton").onclick=async()=>{
+  if(!confirm("Remove local encryption and store the workspace as readable browser data?"))return;
+  localStorage.removeItem(STORAGE_META);localStorage.removeItem(STORAGE_CIPHER);sessionKey=null;localStorage.setItem(STORAGE_PLAIN,JSON.stringify(state));renderStorage();toast("Workspace protection removed.");
+};
+$("#lockButton").onclick=()=>{if(isProtected()){sessionKey=null;location.reload();}else toast("Protect the workspace first to use the lock.");};
+$("#unlockButton").onclick=async()=>{
+  const passphrase=$("#unlockPassphrase").value;if(!passphrase)return;
+  $("#unlockStatus").textContent="Deriving key and opening records…";
+  try{
+    const meta=JSON.parse(localStorage.getItem(STORAGE_META)),record=JSON.parse(localStorage.getItem(STORAGE_CIPHER));
+    const key=await deriveKey(passphrase,base64ToBytes(meta.salt));state=await decryptState(record,key);sessionKey=key;
+    $("#lockScreen").hidden=true;$("#unlockPassphrase").value="";renderAll();$("#unlockStatus").textContent="Unlocked.";
+  }catch{$("#unlockStatus").textContent="Unable to unlock. Check the passphrase or import a valid backup.";}
+};
+$("#unlockPassphrase").addEventListener("keydown",event=>{if(event.key==="Enter")$("#unlockButton").click();});
+$("#unlockImportButton").onclick=()=>$("#backupFile").click();
+$("#exportBackupButton").onclick=()=>download("casepath_private_backup_"+today()+".json",JSON.stringify({...state,exportedAt:nowIso()},null,2));
+$("#importBackupButton").onclick=()=>$("#backupFile").click();
+$("#backupFile").onchange=async event=>{
+  const file=event.target.files?.[0];event.target.value="";if(!file)return;
+  if(file.size>MAX_IMPORT_BYTES)return alert("Backup exceeds the 20 MB protected import limit.");
+  try{
+    const imported=normalizeState(JSON.parse(await file.text()));
+    if(!confirm("Replace the current private workspace with this backup?"))return;
+    state=imported;await saveNow();renderAll();toast("Private backup imported.");
+  }catch(error){alert("Backup import failed: "+error.message);}
+};
+$("#persistStorageButton").onclick=async()=>{
+  if(!navigator.storage?.persist)return toast("Persistent storage is unavailable in this browser.");
+  try{const granted=await navigator.storage.persist();toast(granted?"Persistent storage granted.":"Browser retained best-effort storage.");renderStorage();}catch{toast("Persistent storage request failed.");}
+};
+$("#resetWorkspaceButton").onclick=async()=>{
+  if(!confirm("Permanently erase every local CasePath record? Export a backup first."))return;
+  if(!confirm("This cannot be undone. Erase the workspace now?"))return;
+  state=blankState();localStorage.removeItem(STORAGE_META);localStorage.removeItem(STORAGE_CIPHER);sessionKey=null;localStorage.setItem(STORAGE_PLAIN,JSON.stringify(state));renderAll();switchView("dashboard");toast("Local workspace erased.");
+};
+window.addEventListener("pagehide",()=>{if(state&&!isProtected())localStorage.setItem(STORAGE_PLAIN,JSON.stringify(state));});
+
+async function initialize(){
+  renderFormSelects();
+  if(isProtected()){$("#lockScreen").hidden=false;return;}
+  const raw=localStorage.getItem(STORAGE_PLAIN);
+  if(raw){try{state=normalizeState(JSON.parse(raw));}catch{state=blankState();}}
+  else state=blankState();
+  if(!state.resources.length)state.resources=clone(seedResources);
+  await saveNow();renderAll();
+}
+initialize().catch(error=>alert("CasePath failed to initialize: "+error.message));
+})();
+</script>
+</body>
+</html>
