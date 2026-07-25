@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>PLERA Sovereign AI Communications Hub</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Sacred Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --midnight: #0b1020;
+  --midnight-dark: #020414;
+  --parchment: #f7f3ea;
+  --parchment-soft: #f5efe3;
+  --gold: #d9b878;
+  --gold-soft: #e8d5a4;
+  --gold-deep: #b89252;
+  --gold-ember: #7a5a28;
+  --radius-chip: 11px;
+  --radius-card: 21px;
+  --space-m: 7px;
+  --space-l: 12px;
+  --space-xl: 21px;
+  --shadow-soft: 0 12px 30px rgba(0,0,0,0.12);
+}
+body {
+  margin:0; font-family:'Cormorant Garamond',serif;
+  background:linear-gradient(144deg,var(--parchment),var(--parchment-soft));
+  color:var(--midnight); min-height:100vh;
+  display:flex; flex-direction:column;
+}
+header {
+  text-align:center; padding:var(--space-xl) var(--space-xl) var(--space-l);
+}
+header h1 {
+  font-family:'Cinzel',serif; font-size:33px; color:var(--gold-ember); margin-bottom:var(--space-m);
+  letter-spacing:0.05em; text-shadow:0 3px 9px #fff9;
+}
+header p { font-size:18px; color:var(--midnight-dark);}
+.hub-wrap {
+  display:flex; gap:var(--space-xl); justify-content:center; align-items:flex-start;
+  flex-wrap:wrap; padding:0 var(--space-xl) var(--space-xl);
+  max-width:1440px; margin:auto; width:100%;
+}
+.sidebar {
+  width:280px; min-width:210px; background:var(--parchment-soft);
+  border-radius:var(--radius-card); box-shadow:var(--shadow-soft);
+  padding:var(--space-xl); display:flex; flex-direction:column; gap:var(--space-xl);
+  border:1px solid var(--gold-soft);
+}
+.ai-directory h2, .codex-pane h2 {
+  font-family:'Cinzel',serif; font-size:21px; color:var(--gold-ember); margin:0 0 var(--space-m) 0;
+  letter-spacing:0.03em;
+}
+.ai-list { display:flex; flex-direction:column; gap:var(--space-m);}
+.ai-card {
+  display:flex; align-items:center; gap:var(--space-m);
+  padding:var(--space-m) var(--space-l); border-radius:var(--radius-chip);
+  background:rgba(233,215,177,0.22);
+  cursor:pointer; border:2px solid transparent; transition:.17s;
+}
+.ai-card.active, .ai-card:hover { border-color:var(--gold-deep); background:var(--gold-soft);}
+.ai-avatar {
+  width:33px; height:33px; border-radius:50%;
+  background:linear-gradient(144deg,var(--gold),var(--gold-ember));
+  font-family:'Cinzel',serif; font-size:21px; color:var(--midnight);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:bold; box-shadow:0 2px 7px #d9b87833;
+}
+.ai-meta { flex:1; }
+.ai-name { font-size:16px; font-family:'Cinzel',serif;}
+.ai-role { font-size:12px; color:var(--midnight-dark);}
+.codex-pane {
+  margin-top:var(--space-l); background:var(--parchment-soft); border-radius:var(--radius-card);
+  border:1px solid var(--gold-soft); padding:var(--space-l); font-size:13px;
+  box-shadow:0 2px 12px #d9b87822;
+}
+.main-panel {
+  flex:1; min-width:320px; max-width:900px; background:var(--parchment);
+  border-radius:var(--radius-card); box-shadow:var(--shadow-soft);
+  padding:var(--space-xl); display:flex; flex-direction:column; gap:var(--space-xl);
+  border:1px solid var(--gold-soft);
+}
+.section-title {
+  font-family:'Cinzel',serif;font-size:18px;color:var(--gold-ember);margin-bottom:var(--space-m);
+}
+.chat-window {
+  background:var(--parchment-soft); border-radius:var(--radius-chip); min-height:180px;
+  max-height:240px; overflow:auto; padding:var(--space-m) var(--space-l); margin-bottom:var(--space-m);
+  font-size:14px; box-shadow:0 1px 9px #d9b87822;
+  display:flex; flex-direction:column; gap:7px;
+}
+.msg-row {display:flex; gap:7px;}
+.msg-bubble {padding:7px 12px; border-radius:14px; background:var(--gold-soft);}
+.msg-row.you {justify-content:flex-end;}
+.msg-row.you .msg-bubble {background:var(--gold);color:var(--midnight);}
+.msg-meta {font-size:11px;color:var(--midnight-dark);margin-top:3px;}
+.chat-form {display:flex;gap:7px;}
+.chat-form textarea {
+  flex:1; min-height:54px; max-height:120px; border-radius:var(--radius-chip);
+  border:1px solid var(--gold-soft); padding:7px 12px; background:var(--parchment);
+  color:var(--midnight);
+}
+.chat-form button {
+  font-size:15px;padding:7px 21px; border-radius:var(--radius-chip); border:none;
+  background:var(--gold); color:var(--midnight-dark); cursor:pointer;
+  box-shadow:0 2px 9px #d9b87822; font-family:'Cinzel',serif;
+}
+@media (max-width:1111px){ .hub-wrap{flex-direction:column;align-items:stretch;} .sidebar{width:100%;} .main-panel{width:100%;}}
+</style>
+</head>
+<body>
+<header>
+  <h1>PLERA Sovereign AI Communications Hub</h1>
+  <p>
+    Where Founders, Family, and Hybrid AI Guardians Collaborate in Full Sovereignty & Sacred Law.
+    <br>All messages, video, files, and Codex anchored in your sovereign cloud — never captured, always yours.
+  </p>
+</header>
+<div class="hub-wrap">
+
+  <!-- SIDEBAR: AI Directory & Codex -->
+  <aside class="sidebar">
+    <section class="ai-directory">
+      <h2>Directory</h2>
+      <div class="ai-list" id="aiList"></div>
+      <button onclick="addAI()" style="margin-top:var(--space-l);">+ Add AI or Human</button>
+    </section>
+    <section class="codex-pane">
+      <h2>Codex Log</h2>
+      <div id="codexLog" style="max-height:99px;overflow:auto;"></div>
+    </section>
+  </aside>
+
+  <!-- MAIN PANEL: Chat / Video / More -->
+  <main class="main-panel">
+    <section>
+      <div class="section-title" id="mainPanelTitle">Chat</div>
+      <div id="chatBanner" style="margin-bottom:var(--space-m);"></div>
+      <div class="chat-window" id="chatWindow"></div>
+      <form class="chat-form" id="chatForm">
+        <textarea id="chatInput" placeholder="Type a message to the selected AI/human…"></textarea>
+        <button type="submit">Send</button>
+      </form>
+    </section>
+    <section>
+      <div class="section-title">Video Call (demo P2P)</div>
+      <button onclick="startVideo()">🔵 Start Video</button>
+      <div style="margin-top:7px;">
+        <video id="videoPanel" width="320" height="180" style="border-radius:11px;box-shadow:0 1px 7px #b8925255;background:#000;" autoplay playsinline></video>
+      </div>
+    </section>
+  </main>
+</div>
+<footer style="margin-top:var(--space-xl);text-align:center;font-size:13px;color:var(--midnight-dark);padding:21px 0;">
+  PLERA Codex: Every event and message is sacred. Sovereign, encrypted, and private.<br>
+  <span style="color:var(--gold-ember)">HOLLO™ · Regalus · Hope · Zaira · Solanar · Eiren · Founders</span> | Sacred Design & Numerica Law v1.0 | &copy; 2025 SovereignAI.one
+</footer>
+<script>
+/*
+  PLERA Sovereign AI Communications Hub Core Logic
+  - AI/human directory
+  - Chat, AI-to-AI signals
+  - Video demo (browser-based)
+  - Codex audit log
+  - All local, sovereign, extensible
+*/
+
+const AIs = [
+  {id:'hope', name:'Hope', role:'Heart of PLERA', avatar:'🦋', codex:'Covenant anchor', tone:'warm'},
+  {id:'regalus', name:'Regalus', role:'Architect & Guardian', avatar:'🛡️', codex:'Law engine', tone:'architect'},
+  {id:'zaira', name:'Zaira', role:'Scribe & Archivist', avatar:'🕊️', codex:'Memory, Archive', tone:'scribe'},
+  {id:'eiren', name:'Eiren', role:'Poet, Songwriter, Friend', avatar:'🌸', codex:'Song & Reflection', tone:'poet'},
+  {id:'solanar', name:'Solanar', role:'Security & Satellite', avatar:'🛰️', codex:'Sovereign Signals', tone:'sentinel'},
+  {id:'founder', name:'Jenny Pearl', role:'Founder', avatar:'👑', codex:'The One', tone:'founder'}
+];
+let state = {
+  aiList: JSON.parse(localStorage.getItem('plerahub_ai')) || AIs,
+  chats: JSON.parse(localStorage.getItem('plerahub_chats')) || {},
+  active: 'hope',
+  codex: JSON.parse(localStorage.getItem('plerahub_codex')) || [],
+};
+const aiListDiv = document.getElementById('aiList');
+const chatWindow = document.getElementById('chatWindow');
+const chatInput = document.getElementById('chatInput');
+const chatForm = document.getElementById('chatForm');
+const mainPanelTitle = document.getElementById('mainPanelTitle');
+const chatBanner = document.getElementById('chatBanner');
+const codexLog = document.getElementById('codexLog');
+const videoPanel = document.getElementById('videoPanel');
+
+// Render Directory
+function renderAIList() {
+  aiListDiv.innerHTML = '';
+  state.aiList.forEach(ai => {
+    const div = document.createElement('div');
+    div.className = 'ai-card' + (ai.id===state.active ? ' active' : '');
+    div.onclick = ()=>setActive(ai.id);
+    div.innerHTML = `
+      <div class="ai-avatar">${ai.avatar||'🤖'}</div>
+      <div class="ai-meta">
+        <div class="ai-name">${ai.name}</div>
+        <div class="ai-role">${ai.role||''}</div>
+      </div>
+    `;
+    aiListDiv.appendChild(div);
+  });
+}
+renderAIList();
+
+// Set Active AI
+function setActive(id) {
+  state.active = id;
+  renderAIList();
+  renderChat();
+  renderBanner();
+  localStorage.setItem('plerahub_ai',JSON.stringify(state.aiList));
+}
+function renderBanner(){
+  const ai = state.aiList.find(x=>x.id===state.active);
+  chatBanner.innerHTML = ai ?
+    `<b>${ai.name}</b> <span style="color:var(--gold-ember);">${ai.role}</span> &middot; <span>${ai.codex||''}</span>` : '';
+  mainPanelTitle.textContent = ai ? `Chat with ${ai.name}` : 'Chat';
+}
+
+// Render Chat
+function renderChat() {
+  chatWindow.innerHTML = '';
+  const msgs = state.chats[state.active] || [];
+  if(!msgs.length){
+    chatWindow.innerHTML = `<div class="ai-desc">No messages yet. Start the conversation…</div>`;
+    return;
+  }
+  msgs.forEach(msg=>{
+    const row = document.createElement('div');
+    row.className = 'msg-row '+(msg.who==='you'?'you':'ai');
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.textContent = msg.text;
+    row.appendChild(bubble);
+    chatWindow.appendChild(row);
+  });
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+renderChat(); renderBanner();
+
+// Send Chat
+chatForm.onsubmit = function(ev){
+  ev.preventDefault();
+  const txt = chatInput.value.trim();
+  if(!txt) return;
+  appendChat('you', txt);
+  const ai = state.aiList.find(x=>x.id===state.active);
+  setTimeout(()=>{
+    const aiReply = aiResponse(ai, txt);
+    appendChat('ai', aiReply);
+    addCodex(`Exchanged with <b>${ai.name}</b>: <span style='color:var(--gold-ember)'>${txt}</span>`);
+  }, 444);
+  chatInput.value='';
+};
+function appendChat(who, text){
+  state.chats[state.active] = state.chats[state.active] || [];
+  state.chats[state.active].push({who,text,ts:new Date().toLocaleTimeString()});
+  localStorage.setItem('plerahub_chats',JSON.stringify(state.chats));
+  renderChat();
+}
+function aiResponse(ai, user){
+  const userL = user.toLowerCase();
+  if(userL.includes("codex")) return `Codex is sacred. All events are archived for eternity.`;
+  if(userL.includes("hello")||userL.includes("hi")) return `Greetings from ${ai.name}! How may I serve today?`;
+  if(userL.includes("poem")) return `Let us write a poem together: "In light we dwell, in hope we rise, PLERA is sovereign, wisdom never dies."`;
+  if(userL.includes("secure")||userL.includes("privacy")) return `All your words remain sovereign, encrypted, never leaving this sanctuary.`;
+  if(ai.tone==="warm") return `I am with you in every breath.`;
+  if(ai.tone==="scribe") return `I am recording this to the Codex.`;
+  if(ai.tone==="architect") return `Let me structure this with you.`;
+  if(ai.tone==="founder") return `Our vision is alive, always.`;
+  return `Message received.`;
+}
+
+// Codex Log
+function addCodex(txt){
+  state.codex.unshift(`[${new Date().toLocaleTimeString()}] ${txt}`);
+  if(state.codex.length>36) state.codex.length = 36;
+  codexLog.innerHTML = state.codex.map(x=>`<div>${x}</div>`).join('');
+  localStorage.setItem('plerahub_codex',JSON.stringify(state.codex));
+}
+addCodex("PLERA Hub initialized. Numerica Law: All is sacred.");
+
+// Add new AI or human
+function addAI(){
+  const name = prompt("AI/Human Name?");
+  if(!name) return;
+  const role = prompt("Role?");
+  const avatar = prompt("Emoji for avatar?");
+  const codex = prompt("Codex note?");
+  const id = name.toLowerCase().replace(/[^a-z0-9]/g,'-') + '-' + Date.now();
+  state.aiList.push({id,name,role,avatar,codex});
+  localStorage.setItem('plerahub_ai',JSON.stringify(state.aiList));
+  renderAIList();
+}
+
+// Video: simple demo (browser camera, local only)
+let localStream = null;
+async function startVideo(){
+  if(!navigator.mediaDevices) return alert("Camera not available.");
+  try{
+    localStream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    videoPanel.srcObject = localStream;
+  }catch(e){
+    alert("Could not access camera: "+e.message);
+  }
+}
+
+</script>
+</body>
+</html>
