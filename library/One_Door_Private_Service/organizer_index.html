@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="CasePath™ is a private, local-first service organizer for intake, needs assessment, warm referrals, benefit and document checklists, appointments, case notes, action plans, consent records, and carefully scoped exports.">
+<meta name="description" content="One Door is a private, local-first service organizer for intake, needs assessment, warm referrals, benefit and document checklists, appointments, case notes, action plans, consent records, and carefully scoped exports.">
 <meta name="theme-color" content="#0b1620">
 <meta name="color-scheme" content="dark">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
-<title>CasePath™ — Private Service Organizer</title>
+<title>One Door — Private Service Organizer</title>
 <style>
 :root{
   --display:"Gaspacho","Cormorant Garamond",Georgia,serif;
@@ -309,12 +309,12 @@ footer strong{color:var(--gold2);font:600 .62rem var(--brand);letter-spacing:.08
 </style>
 </head>
 <body>
-<a class="skip" href="#mainContent">Skip to CasePath</a>
+<a class="skip" href="#mainContent">Skip to One Door</a>
 
 <div class="lock-screen" id="lockScreen" hidden>
   <div class="lock-card">
-    <div class="seal"><strong>CP</strong><small>ONE DOOR<br>NO WRONG<br>DOOR</small></div>
-    <h1>CasePath™</h1>
+    <div class="seal"><strong>OD</strong><small>ONE<br>DOOR<br>BEGIN HERE</small></div>
+    <h1>One Door</h1>
     <p>This private workspace is encrypted in this browser. Enter the local passphrase to open service records.</p>
     <input id="unlockPassphrase" type="password" autocomplete="current-password" placeholder="Local workspace passphrase">
     <div class="dialog-actions" style="justify-content:center">
@@ -328,13 +328,13 @@ footer strong{color:var(--gold2);font:600 .62rem var(--brand);letter-spacing:.08
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-mark">CP</div>
-      <strong>CasePath™</strong>
-      <span>Private service organizer for coordinated care, referrals, and action planning.</span>
+      <div class="brand-mark">OD</div>
+      <strong>One Door</strong>
+      <span>Private service organizer for coordinated support, referrals, and action planning.</span>
     </div>
-    <div class="motto"><strong>One Door, No Wrong Door</strong><span>Receive · Listen · Connect · Follow Through</span></div>
+    <div class="motto"><strong>One Door</strong><span>Begin Here · Listen · Connect · Follow Through</span></div>
 
-    <nav class="nav" id="sideNavigation" aria-label="CasePath sections">
+    <nav class="nav" id="sideNavigation" aria-label="One Door sections">
       <button class="active" type="button" data-view="dashboard">Overview</button>
       <button type="button" data-view="people">People & Households</button>
       <button type="button" data-view="intake">Intake</button>
@@ -369,10 +369,10 @@ footer strong{color:var(--gold2);font:600 .62rem var(--brand);letter-spacing:.08
       <div class="hero">
         <div>
           <div class="eyebrow">Private service coordination · consent-aware records · warm handoffs</div>
-          <h1>CasePath™</h1>
-          <p><strong>One Door, No Wrong Door</strong> means a person should not have to understand the entire service system before receiving help. CasePath keeps intake, needs, referrals, documents, appointments, notes, goals, and follow-through in one private local workspace.</p>
+          <h1>One Door</h1>
+          <p><strong>One Door</strong> gives a person or family one clear place to begin. The workspace keeps intake, needs, referrals, documents, appointments, notes, goals, consent, and follow-through together without requiring the person to understand every service system first.</p>
         </div>
-        <div class="seal"><strong>CP</strong><small>RECEIVE<br>CONNECT<br>FOLLOW</small></div>
+        <div class="seal"><strong>OD</strong><small>BEGIN<br>CONNECT<br>FOLLOW</small></div>
       </div>
 
       <div class="metrics">
@@ -430,7 +430,7 @@ footer strong{color:var(--gold2);font:600 .62rem var(--brand);letter-spacing:.08
               <div class="field"><label for="intakeTags">Tags</label><input id="intakeTags" maxlength="500" placeholder="veteran, family, senior, housing…"></div>
               <div class="field"><label for="intakeAssigned">Assigned coordinator</label><input id="intakeAssigned" maxlength="120"></div>
             </div>
-            <div class="warning" style="margin-top:10px"><strong>Do not collect unnecessary identifiers.</strong> CasePath intentionally has no fields for full Social Security numbers, banking credentials, benefit-account passwords, immigration-document numbers, or detailed medical records.</div>
+            <div class="warning" style="margin-top:10px"><strong>Do not collect unnecessary identifiers.</strong> One Door intentionally has no fields for full Social Security numbers, banking credentials, benefit-account passwords, immigration-document numbers, or detailed medical records.</div>
             <div class="dialog-actions"><button class="button primary" type="submit">Save Intake</button></div>
           </form>
         </div>
@@ -538,11 +538,12 @@ footer strong{color:var(--gold2);font:600 .62rem var(--brand);letter-spacing:.08
           <div class="card"><h3>Persistent Browser Storage</h3><p>Ask the browser to reduce the chance that local records are evicted. This is not guaranteed.</p><div class="card-actions"><button class="button sage" id="persistStorageButton" type="button">Request Persistent Storage</button></div><small id="storageEstimate">Storage estimate not yet checked.</small></div>
           <div class="card"><h3>Workspace Reset</h3><p>Permanently erase all local cases, resources, appointments, notes, and consent records after exporting a backup.</p><div class="card-actions"><button class="button danger" id="resetWorkspaceButton" type="button">Erase Local Workspace</button></div></div>
         </div>
-        <div class="warning" style="margin-top:10px"><strong>Not a compliance certification:</strong> CasePath is not automatically HIPAA-, FERPA-, 42 CFR Part 2-, legal case-management-, social-service-, or government-records-compliant. Organizations must review applicable law, consent rules, retention policy, breach procedures, device controls, and staff access.</div>
+        <div class="warning" style="margin-top:10px"><strong>Naming note:</strong> “One Door” is used here descriptively and without a trademark claim. This file does not provide trademark clearance or exclusive rights in the name.</div>
+        <div class="warning" style="margin-top:10px"><strong>Not a compliance certification:</strong> One Door is not automatically HIPAA-, FERPA-, 42 CFR Part 2-, legal case-management-, social-service-, or government-records-compliant. Organizations must review applicable law, consent rules, retention policy, breach procedures, device controls, and staff access.</div>
       </div>
     </section>
 
-    <footer><strong>CasePath™ · Private Service Organizer</strong><br>One Door, No Wrong Door · Verve N Veda · Jennifer Kay Pearl · All Rights Reserved 2026<br>Local-first records · Consent-aware exports · No server synchronization</footer>
+    <footer><strong>One Door · Private Service Organizer</strong><br>One Door · Verve N Veda · Jennifer Kay Pearl · All Rights Reserved 2026<br>Local-first records · Consent-aware exports · No server synchronization</footer>
   </main>
 </div>
 
@@ -683,9 +684,9 @@ footer strong{color:var(--gold2);font:600 .62rem var(--brand);letter-spacing:.08
 </dialog>
 
 <dialog id="protectionDialog">
-  <div class="dialog-head"><h2>Protect CasePath Workspace</h2><span class="spacer"></span><button class="button" type="button" data-close="protectionDialog">Close</button></div>
+  <div class="dialog-head"><h2>Protect One Door Workspace</h2><span class="spacer"></span><button class="button" type="button" data-close="protectionDialog">Close</button></div>
   <form class="dialog-body" id="protectionForm">
-    <p style="color:var(--muted);font-size:.63rem;line-height:1.6">Create a local passphrase. CasePath will encrypt this browser’s workspace with PBKDF2-HMAC-SHA256 and AES-GCM. There is no password-recovery service.</p>
+    <p style="color:var(--muted);font-size:.63rem;line-height:1.6">Create a local passphrase. One Door will encrypt this browser’s workspace with PBKDF2-HMAC-SHA256 and AES-GCM. There is no password-recovery service.</p>
     <div class="form-grid">
       <div class="field wide"><label for="newPassphrase">Passphrase</label><input id="newPassphrase" type="password" minlength="12" autocomplete="new-password" required></div>
       <div class="field wide"><label for="confirmPassphrase">Confirm passphrase</label><input id="confirmPassphrase" type="password" minlength="12" autocomplete="new-password" required></div>
@@ -702,9 +703,12 @@ footer strong{color:var(--gold2);font:600 .62rem var(--brand);letter-spacing:.08
 "use strict";
 
 const VERSION="1.0.0";
-const STORAGE_PLAIN="casepath_state_v1";
-const STORAGE_META="casepath_vault_meta_v1";
-const STORAGE_CIPHER="casepath_vault_cipher_v1";
+const STORAGE_PLAIN="one_door_state_v1";
+const STORAGE_META="one_door_vault_meta_v1";
+const STORAGE_CIPHER="one_door_vault_cipher_v1";
+const LEGACY_STORAGE_PLAIN="casepath_state_v1";
+const LEGACY_STORAGE_META="casepath_vault_meta_v1";
+const LEGACY_STORAGE_CIPHER="casepath_vault_cipher_v1";
 const PBKDF2_ITERATIONS=600000;
 const MAX_IMPORT_BYTES=20*1024*1024;
 const $=selector=>document.querySelector(selector);
@@ -740,13 +744,13 @@ const seedResources=[
   {id:"res-legal",name:"Legal Information & Referral",category:"Legal assistance",serviceArea:"Add jurisdiction",phone:"",email:"",url:"",eligibility:"Add issue areas, income criteria, conflicts screening, and emergency limitations.",handoff:"Clarify that referral does not guarantee representation.",active:true},
   {id:"res-benefits",name:"Benefits Enrollment Assistance",category:"Benefits and income",serviceArea:"Add local service area",phone:"",email:"",url:"",eligibility:"Add supported benefit programs and appointment requirements.",handoff:"Never request account passwords or retain benefit-system credentials.",active:true},
   {id:"res-food",name:"Food & Nutrition Access",category:"Food and nutrition",serviceArea:"Add local service area",phone:"",email:"",url:"",eligibility:"Add pantry, meal, nutrition, and benefit-program rules.",handoff:"Add same-day access, delivery, dietary, and mobility information.",active:true},
-  {id:"res-safety",name:"Emergency & Immediate Safety Referral",category:"Emergency services",serviceArea:"Local emergency jurisdiction",phone:"",email:"",url:"",eligibility:"For imminent danger or emergency needs, follow local emergency protocols.",handoff:"CasePath is not an emergency-dispatch system. Add approved crisis and emergency instructions.",active:true}
+  {id:"res-safety",name:"Emergency & Immediate Safety Referral",category:"Emergency services",serviceArea:"Local emergency jurisdiction",phone:"",email:"",url:"",eligibility:"For imminent danger or emergency needs, follow local emergency protocols.",handoff:"One Door is not an emergency-dispatch system. Add approved crisis and emergency instructions.",active:true}
 ];
 
 const blankState=()=>({
-  schema:"casepath-workspace",schemaVersion:1,appVersion:VERSION,updatedAt:nowIso(),
+  schema:"one-door-workspace",schemaVersion:1,appVersion:VERSION,updatedAt:nowIso(),
   cases:[],resources:JSON.parse(JSON.stringify(seedResources)),selectedCaseId:"",
-  settings:{organization:"",program:"One Door, No Wrong Door"},reportCache:null
+  settings:{organization:"",program:"One Door"},reportCache:null
 });
 
 let state=null;
@@ -764,7 +768,12 @@ function selectedCase(){return caseById()}
 function displayDate(value){if(!value)return "—";const date=new Date(value+"T00:00:00");return Number.isNaN(date.getTime())?value:date.toLocaleDateString()}
 function daysUntil(value){if(!value)return Infinity;const target=new Date(value+"T23:59:59"),current=new Date();return Math.ceil((target-current)/86400000)}
 function humanDateTime(date,time){if(!date)return "—";const parsed=new Date(date+"T"+(time||"12:00"));return Number.isNaN(parsed.getTime())?date:[parsed.toLocaleDateString(),time||""].filter(Boolean).join(" ")}
-function isProtected(){return !!localStorage.getItem(STORAGE_META)&&!!localStorage.getItem(STORAGE_CIPHER)}
+function activeVaultKeys(){
+  if(localStorage.getItem(STORAGE_META)&&localStorage.getItem(STORAGE_CIPHER))return{meta:STORAGE_META,cipher:STORAGE_CIPHER,legacy:false};
+  if(localStorage.getItem(LEGACY_STORAGE_META)&&localStorage.getItem(LEGACY_STORAGE_CIPHER))return{meta:LEGACY_STORAGE_META,cipher:LEGACY_STORAGE_CIPHER,legacy:true};
+  return null;
+}
+function isProtected(){return !!activeVaultKeys()}
 function bytesToBase64(bytes){let binary="";for(let i=0;i<bytes.length;i+=0x8000)binary+=String.fromCharCode(...bytes.subarray(i,i+0x8000));return btoa(binary)}
 function base64ToBytes(value){const binary=atob(value),out=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)out[i]=binary.charCodeAt(i);return out}
 
@@ -788,9 +797,9 @@ function normalizeCase(record){
   };
 }
 function normalizeState(input){
-  if(!input||input.schema!=="casepath-workspace")throw new Error("Unsupported CasePath backup.");
+  if(!input||!["one-door-workspace","casepath-workspace"].includes(input.schema))throw new Error("Unsupported One Door backup.");
   return {
-    schema:"casepath-workspace",schemaVersion:1,appVersion:VERSION,updatedAt:nowIso(),
+    schema:"one-door-workspace",schemaVersion:1,appVersion:VERSION,updatedAt:nowIso(),
     cases:asArray(input.cases).slice(0,1000).map(normalizeCase),
     resources:asArray(input.resources).slice(0,2000).map(resource=>({
       id:safeText(resource.id||uid(),120),name:safeText(resource.name||"Unnamed Resource",200),
@@ -853,15 +862,15 @@ function updateCase(caseRecord){
 }
 function caseNumber(){
   const year=new Date().getFullYear();
-  const sequence=state.cases.filter(record=>record.caseNumber.startsWith("CP-"+year+"-")).length+1;
-  return "CP-"+year+"-"+String(sequence).padStart(4,"0");
+  const sequence=state.cases.filter(record=>record.caseNumber.startsWith("OD-"+year+"-")).length+1;
+  return "OD-"+year+"-"+String(sequence).padStart(4,"0");
 }
 
 function switchView(name){
   $$(".view").forEach(view=>view.classList.toggle("active",view.id==="view-"+name));
   $$("#sideNavigation button").forEach(button=>button.classList.toggle("active",button.dataset.view===name));
   const titles={dashboard:"Service Overview",people:"People & Households",intake:"Intake",needs:"Needs Assessment",referrals:"Warm Referrals",documents:"Benefits & Documents",appointments:"Appointments & Follow-Ups",notes:"Case Notes",plans:"Action Plans",consent:"Consent & Exports",resources:"Resource Directory",reports:"Outcome Reports",settings:"Protection & Backup"};
-  $("#viewTitle").textContent=titles[name]||"CasePath";
+  $("#viewTitle").textContent=titles[name]||"One Door";
 }
 
 function priorityClass(priority){return priority==="high"?"priority-high":priority==="medium"?"priority-medium":"priority-low"}
@@ -1152,7 +1161,7 @@ function generateCaseExport(){
   const noteRecords=notes?permittedNotes(record,scope):[];
   const notesHtml=notes?`<h2>Permitted Notes</h2>${noteRecords.length?`<ul>${noteRecords.map(item=>`<li><strong>${displayDate(item.date)} · ${escapeHtml(item.type)}</strong> — ${escapeHtml(item.text)}</li>`).join("")}</ul>`:'<p class="redacted">No notes are permitted for this export scope.</p>'}`:"";
   const consentHtml=scope==="internal"?`<h2>Consent Records</h2>${record.consents.length?`<ul>${record.consents.map(item=>`<li>${escapeHtml(item.type)} · ${escapeHtml(item.status)} · ${escapeHtml(item.scope)}</li>`).join("")}</ul>`:"<p>No consent records.</p>"}`:"";
-  generatedExportHtml=`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>body{font-family:Georgia,serif;max-width:850px;margin:36px auto;padding:0 22px;color:#222;line-height:1.6}h1,h2{font-family:Georgia,serif}table{width:100%;border-collapse:collapse}th,td{padding:8px;border:1px solid #bbb;text-align:left;vertical-align:top}.redacted{color:#7d6156;font-style:italic}.footer{margin-top:30px;padding-top:12px;border-top:1px solid #bbb;font-size:12px;color:#666}</style></head><body><h1>${escapeHtml(title)}</h1><p><strong>Case:</strong> ${escapeHtml(record.caseNumber)} · <strong>Prepared:</strong> ${new Date().toLocaleString()}</p>${scopeWarning}${contactHtml}${needsHtml}${goalsHtml}${referralHtml}${appointmentHtml}${notesHtml}${consentHtml}<div class="footer">CasePath™ · One Door, No Wrong Door · Prepared from a private local workspace. Review before sharing.</div></body></html>`;
+  generatedExportHtml=`<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title)}</title><style>body{font-family:Georgia,serif;max-width:850px;margin:36px auto;padding:0 22px;color:#222;line-height:1.6}h1,h2{font-family:Georgia,serif}table{width:100%;border-collapse:collapse}th,td{padding:8px;border:1px solid #bbb;text-align:left;vertical-align:top}.redacted{color:#7d6156;font-style:italic}.footer{margin-top:30px;padding-top:12px;border-top:1px solid #bbb;font-size:12px;color:#666}</style></head><body><h1>${escapeHtml(title)}</h1><p><strong>Case:</strong> ${escapeHtml(record.caseNumber)} · <strong>Prepared:</strong> ${new Date().toLocaleString()}</p>${scopeWarning}${contactHtml}${needsHtml}${goalsHtml}${referralHtml}${appointmentHtml}${notesHtml}${consentHtml}<div class="footer">One Door · One Door · Prepared from the private One Door local workspace. Review before sharing.</div></body></html>`;
   $("#exportPreview").innerHTML=generatedExportHtml.match(/<body>([\s\S]*)<\/body>/i)?.[1]||generatedExportHtml;
   toast("Consent-aware export preview generated.");
 }
@@ -1166,7 +1175,7 @@ function aggregateReport(){
     for(const item of record.documents)documentStatus[item.status]=(documentStatus[item.status]||0)+1;
   }
   const report={
-    schema:"casepath-deidentified-outcome-report",schemaVersion:1,generatedAt:nowIso(),
+    schema:"one-door-deidentified-outcome-report",schemaVersion:1,generatedAt:nowIso(),
     notice:"Aggregate counts only. Review small-cell and re-identification risk before public use.",
     cases:{total:cases.length,open:open.length,closed:closed.length,paused:cases.filter(record=>record.status==="paused").length},
     householdsByType:Object.fromEntries(["individual","family","senior","veteran","community"].map(type=>[type,cases.filter(record=>record.type===type).length])),
@@ -1284,7 +1293,7 @@ $("#printExportButton").onclick=()=>{
   const win=window.open("","_blank","noopener,noreferrer");if(!win)return toast("The browser blocked the print window.");
   win.document.open();win.document.write(generatedExportHtml);win.document.close();win.focus();setTimeout(()=>win.print(),250);
 };
-$("#downloadExportButton").onclick=()=>{if(!generatedExportHtml)generateCaseExport();if(generatedExportHtml){const record=selectedCase();download(`CasePath_${record.caseNumber}_${$("#exportScope").value}.html`,generatedExportHtml,"text/html");}};
+$("#downloadExportButton").onclick=()=>{if(!generatedExportHtml)generateCaseExport();if(generatedExportHtml){const record=selectedCase();download(`One Door_${record.caseNumber}_${$("#exportScope").value}.html`,generatedExportHtml,"text/html");}};
 $("#addResourceButton").onclick=()=>openResourceDialog();
 $("#resourceForm").onsubmit=event=>{
   event.preventDefault();const id=$("#resourceId").value;let item=id?state.resources.find(entry=>entry.id===id):null;
@@ -1293,7 +1302,7 @@ $("#resourceForm").onsubmit=event=>{
 };
 $("#generateReportButton").onclick=aggregateReport;
 $("#copyReportButton").onclick=async()=>{if(!currentReport)aggregateReport();try{await navigator.clipboard.writeText(currentReport);toast("Aggregate report copied.");}catch{toast("Clipboard access blocked.");}};
-$("#downloadReportButton").onclick=()=>{if(!currentReport)aggregateReport();download("casepath_deidentified_report_"+today()+".json",currentReport);};
+$("#downloadReportButton").onclick=()=>{if(!currentReport)aggregateReport();download("one_door_deidentified_report_"+today()+".json",currentReport);};
 
 $("#protectWorkspaceButton").onclick=()=>$("#protectionDialog").showModal();
 $("#protectionForm").onsubmit=async event=>{
@@ -1301,28 +1310,38 @@ $("#protectionForm").onsubmit=async event=>{
   if(first.length<12)return alert("Use at least 12 characters.");if(first!==second)return alert("Passphrases do not match.");
   try{
     const salt=crypto.getRandomValues(new Uint8Array(16));sessionKey=await deriveKey(first,salt);
-    localStorage.setItem(STORAGE_META,JSON.stringify({schema:"casepath-vault",version:1,iterations:PBKDF2_ITERATIONS,salt:bytesToBase64(salt)}));
+    localStorage.setItem(STORAGE_META,JSON.stringify({schema:"one-door-vault",version:1,iterations:PBKDF2_ITERATIONS,salt:bytesToBase64(salt)}));
     localStorage.removeItem(STORAGE_PLAIN);await saveNow();$("#protectionDialog").close();$("#newPassphrase").value=$("#confirmPassphrase").value="";
     renderStorage();toast("Workspace encrypted.");
   }catch(error){alert("Protection failed: "+error.message);}
 };
 $("#removeProtectionButton").onclick=async()=>{
   if(!confirm("Remove local encryption and store the workspace as readable browser data?"))return;
-  localStorage.removeItem(STORAGE_META);localStorage.removeItem(STORAGE_CIPHER);sessionKey=null;localStorage.setItem(STORAGE_PLAIN,JSON.stringify(state));renderStorage();toast("Workspace protection removed.");
+  localStorage.removeItem(STORAGE_META);localStorage.removeItem(STORAGE_CIPHER);
+  localStorage.removeItem(LEGACY_STORAGE_META);localStorage.removeItem(LEGACY_STORAGE_CIPHER);
+  sessionKey=null;localStorage.setItem(STORAGE_PLAIN,JSON.stringify(state));renderStorage();toast("Workspace protection removed.");
 };
 $("#lockButton").onclick=()=>{if(isProtected()){sessionKey=null;location.reload();}else toast("Protect the workspace first to use the lock.");};
 $("#unlockButton").onclick=async()=>{
   const passphrase=$("#unlockPassphrase").value;if(!passphrase)return;
   $("#unlockStatus").textContent="Deriving key and opening records…";
   try{
-    const meta=JSON.parse(localStorage.getItem(STORAGE_META)),record=JSON.parse(localStorage.getItem(STORAGE_CIPHER));
+    const vault=activeVaultKeys();
+    if(!vault)throw new Error("No encrypted workspace found.");
+    const meta=JSON.parse(localStorage.getItem(vault.meta)),record=JSON.parse(localStorage.getItem(vault.cipher));
     const key=await deriveKey(passphrase,base64ToBytes(meta.salt));state=await decryptState(record,key);sessionKey=key;
+    if(vault.legacy){
+      localStorage.setItem(STORAGE_META,JSON.stringify({...meta,schema:"one-door-vault"}));
+      await saveNow();
+      localStorage.removeItem(LEGACY_STORAGE_META);
+      localStorage.removeItem(LEGACY_STORAGE_CIPHER);
+    }
     $("#lockScreen").hidden=true;$("#unlockPassphrase").value="";renderAll();$("#unlockStatus").textContent="Unlocked.";
   }catch{$("#unlockStatus").textContent="Unable to unlock. Check the passphrase or import a valid backup.";}
 };
 $("#unlockPassphrase").addEventListener("keydown",event=>{if(event.key==="Enter")$("#unlockButton").click();});
 $("#unlockImportButton").onclick=()=>$("#backupFile").click();
-$("#exportBackupButton").onclick=()=>download("casepath_private_backup_"+today()+".json",JSON.stringify({...state,exportedAt:nowIso()},null,2));
+$("#exportBackupButton").onclick=()=>download("one_door_private_backup_"+today()+".json",JSON.stringify({...state,exportedAt:nowIso()},null,2));
 $("#importBackupButton").onclick=()=>$("#backupFile").click();
 $("#backupFile").onchange=async event=>{
   const file=event.target.files?.[0];event.target.value="";if(!file)return;
@@ -1338,22 +1357,28 @@ $("#persistStorageButton").onclick=async()=>{
   try{const granted=await navigator.storage.persist();toast(granted?"Persistent storage granted.":"Browser retained best-effort storage.");renderStorage();}catch{toast("Persistent storage request failed.");}
 };
 $("#resetWorkspaceButton").onclick=async()=>{
-  if(!confirm("Permanently erase every local CasePath record? Export a backup first."))return;
+  if(!confirm("Permanently erase every local One Door record? Export a backup first."))return;
   if(!confirm("This cannot be undone. Erase the workspace now?"))return;
-  state=blankState();localStorage.removeItem(STORAGE_META);localStorage.removeItem(STORAGE_CIPHER);sessionKey=null;localStorage.setItem(STORAGE_PLAIN,JSON.stringify(state));renderAll();switchView("dashboard");toast("Local workspace erased.");
+  state=blankState();
+  [STORAGE_META,STORAGE_CIPHER,LEGACY_STORAGE_META,LEGACY_STORAGE_CIPHER,LEGACY_STORAGE_PLAIN].forEach(key=>localStorage.removeItem(key));
+  sessionKey=null;localStorage.setItem(STORAGE_PLAIN,JSON.stringify(state));renderAll();switchView("dashboard");toast("Local workspace erased.");
 };
 window.addEventListener("pagehide",()=>{if(state&&!isProtected())localStorage.setItem(STORAGE_PLAIN,JSON.stringify(state));});
 
 async function initialize(){
   renderFormSelects();
   if(isProtected()){$("#lockScreen").hidden=false;return;}
-  const raw=localStorage.getItem(STORAGE_PLAIN);
+  const currentRaw=localStorage.getItem(STORAGE_PLAIN);
+  const legacyRaw=!currentRaw?localStorage.getItem(LEGACY_STORAGE_PLAIN):null;
+  const raw=currentRaw||legacyRaw;
   if(raw){try{state=normalizeState(JSON.parse(raw));}catch{state=blankState();}}
   else state=blankState();
   if(!state.resources.length)state.resources=clone(seedResources);
-  await saveNow();renderAll();
+  await saveNow();
+  if(legacyRaw)localStorage.removeItem(LEGACY_STORAGE_PLAIN);
+  renderAll();
 }
-initialize().catch(error=>alert("CasePath failed to initialize: "+error.message));
+initialize().catch(error=>alert("One Door failed to initialize: "+error.message));
 })();
 </script>
 </body>
