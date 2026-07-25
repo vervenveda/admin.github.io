@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sovereign Workout Builder — Quantum Edition</title>
+
+<style>
+:root{
+  --bg:#050508;
+  --ink:#f2f2ee;
+  --muted:#9a9aa2;
+  --gold:#d4af37;
+  --gold-soft:rgba(212,175,55,0.2);
+  --panel:#0c0c12;
+  --panel-soft:#11111a;
+  --chip-bg:#11131d;
+  --chip-on:#d4af37;
+  --chip-on-text:#050508;
+  --accent:#5ee0ff;
+  --accent-soft:rgba(94,224,255,0.12);
+  --radius:16px;
+  --shadow:0 26px 70px rgba(0,0,0,0.65);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+*{box-sizing:border-box;}
+
+html,body{
+  margin:0;
+  padding:0;
+  height:100%;
+  background:radial-gradient(circle at top, #111322, var(--bg));
+  color:var(--ink);
+}
+
+body{
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
+
+/* App shell */
+.app{
+  width:100%;
+  max-width:1000px;
+  padding:1.75rem 1.5rem 2.5rem;
+}
+
+/* Header */
+.app-header{
+  display:flex;
+  justify-content:space-between;
+  gap:1rem;
+  align-items:flex-start;
+  margin-bottom:1.2rem;
+}
+
+h1{
+  margin:0 0 .3rem;
+  font-weight:300;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--gold);
+  font-size:1.2rem;
+}
+
+.tagline{
+  margin:0;
+  color:var(--muted);
+  font-size:0.9rem;
+}
+
+.seed{
+  font-size:0.78rem;
+  color:var(--muted);
+  text-align:right;
+}
+
+/* Control bar */
+.control-bar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.8rem 1.2rem;
+  align-items:center;
+  margin-bottom:1.3rem;
+}
+
+.control-group{
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+  color:var(--muted);
+  font-size:0.85rem;
+}
+
+.control-group label{
+  font-size:0.78rem;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.control-group input[type="range"]{
+  width:140px;
+}
+
+.chip-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.4rem;
+}
+
+.chip{
+  display:inline-flex;
+  align-items:center;
+  gap:0.35rem;
+  padding:0.25rem 0.65rem;
+  border-radius:999px;
+  background:var(--chip-bg);
+  border:1px solid rgba(255,255,255,0.09);
+  font-size:0.78rem;
+  cursor:pointer;
+  user-select:none;
+}
+
+.chip input{
+  appearance:none;
+  width:0;
+  height:0;
+  margin:0;
+  padding:0;
+}
+
+.chip.on{
+  background:var(--chip-on);
+  border-color:var(--chip-on);
+  color:var(--chip-on-text);
+}
+
+/* Panels */
+.panel{
+  background:var(--panel);
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,0.06);
+  box-shadow:var(--shadow);
+  padding:1.1rem 1.1rem 1rem;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1.05fr 1.1fr;
+  gap:1.3rem;
+  margin-bottom:1.3rem;
+}
+
+@media (max-width:820px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
+
+.panel h2{
+  margin:0 0 .3rem;
+  font-weight:500;
+  font-size:1rem;
+}
+
+.panel p{
+  margin:0 0 .7rem;
+  color:var(--muted);
+  font-size:0.86rem;
+}
+
+/* Exercise pool */
+.exercise-pool{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:0.5rem;
+}
+
+.exercise-card{
+  border-radius:0.9rem;
+  border:1px solid rgba(255,255,255,0.08);
+  background:var(--panel-soft);
+  padding:0.55rem 0.6rem;
+  font-size:0.86rem;
+  cursor:grab;
+  display:flex;
+  flex-direction:column;
+  gap:0.25rem;
+  transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease;
+}
+
+.exercise-card:hover{
+  border-color:var(--gold);
+  box-shadow:0 10px 26px rgba(0,0,0,0.55);
+  transform:translateY(-1px);
+}
+
+.exercise-name{
+  font-weight:500;
+}
+
+.exercise-meta{
+  font-size:0.72rem;
+  color:var(--muted);
+}
+
+/* Routine */
+.routine{
+  min-height:210px;
+  border-radius:1rem;
+  border:1px dashed rgba(255,255,255,0.14);
+  padding:0.7rem;
+  background:rgba(0,0,0,0.15);
+  display:flex;
+  flex-direction:column;
+  gap:0.55rem;
+}
+
+.routine-empty{
+  font-size:0.86rem;
+  color:var(--muted);
+  text-align:center;
+  padding:1.4rem 0.9rem;
+}
+
+.routine-empty strong{
+  color:var(--gold);
+}
+
+.routine.drop-target{
+  border-color:var(--accent);
+  box-shadow:0 0 0 1px var(--accent-soft);
+}
+
+.routine-item{
+  border-radius:0.9rem;
+  background:rgba(10,10,18,0.92);
+  border:1px solid rgba(255,255,255,0.1);
+  padding:0.55rem 0.6rem;
+  display:grid;
+  grid-template-columns:1.4fr 1.5fr auto;
+  gap:0.4rem;
+  align-items:center;
+}
+
+@media (max-width:600px){
+  .routine-item{
+    grid-template-columns:1fr;
+    align-items:flex-start;
+  }
+}
+
+.routine-main{
+  display:flex;
+  flex-direction:column;
+  gap:0.14rem;
+}
+
+.routine-name{
+  font-size:0.9rem;
+  font-weight:500;
+}
+
+.routine-focus{
+  font-size:0.72rem;
+  color:var(--muted);
+}
+
+.routine-controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.4rem;
+  align-items:center;
+}
+
+.routine-controls label{
+  font-size:0.78rem;
+  color:var(--muted);
+}
+
+.routine-controls input{
+  background:#070710;
+  border:1px solid rgba(255,255,255,0.14);
+  color:var(--ink);
+  padding:0.25rem 0.35rem;
+  border-radius:6px;
+  width:60px;
+  font-size:0.8rem;
+}
+
+.routine-actions{
+  display:flex;
+  justify-content:space-between;
+  gap:0.5rem;
+  margin-top:0.6rem;
+}
+
+.small-btn{
+  border-radius:20px;
+  padding:0.3rem 0.6rem;
+  font-size:0.72rem;
+}
+
+/* Buttons */
+button{
+  background:transparent;
+  border:1px solid var(--gold);
+  color:var(--gold);
+  padding:0.45rem 0.9rem;
+  border-radius:999px;
+  cursor:pointer;
+  font-size:0.82rem;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+
+button:hover{
+  background:var(--gold);
+  color:#000;
+}
+
+button.ghost{
+  border-color:rgba(255,255,255,0.15);
+  color:var(--muted);
+}
+
+button.ghost:hover{
+  background:rgba(255,255,255,0.08);
+  color:var(--ink);
+}
+
+/* Day note */
+.day-note-wrap{
+  margin-top:0.7rem;
+  display:flex;
+  flex-direction:column;
+  gap:0.35rem;
+}
+
+.day-note-label{
+  font-size:0.78rem;
+  color:var(--muted);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+
+#dayNote{
+  width:100%;
+  min-height:56px;
+  resize:vertical;
+  background:#070710;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.16);
+  color:var(--ink);
+  padding:0.45rem 0.55rem;
+  font-size:0.8rem;
+  font-family:inherit;
+}
+
+#dayNote::placeholder{
+  color:#70707a;
+}
+
+/* Session summary + coach */
+.session-summary{
+  margin-top:0.6rem;
+  font-size:0.82rem;
+  color:var(--muted);
+}
+
+.session-summary strong{
+  color:var(--gold);
+}
+
+.band-label{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0.15rem 0.6rem;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+  font-size:0.7rem;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  margin-left:0.35rem;
+}
+
+.coach-line{
+  display:block;
+  margin-top:0.25rem;
+  font-size:0.78rem;
+  color:#c4c4ff;
+}
+
+/* Progress */
+.progress-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:0.4rem;
+  gap:0.6rem;
+}
+
+.progress-meta{
+  font-size:0.78rem;
+  color:var(--muted);
+  text-align:right;
+}
+
+.progress-panel canvas{
+  width:100%;
+  height:220px;
+  display:block;
+  border-radius:0.8rem;
+  background:#05050a;
+  margin-bottom:0.6rem;
+}
+
+.log-list{
+  display:flex;
+  flex-direction:column;
+  gap:0.35rem;
+  max-height:150px;
+  overflow-y:auto;
+  padding-right:0.25rem;
+}
+
+.log-item{
+  border-radius:0.7rem;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.06);
+  padding:0.4rem 0.55rem;
+  font-size:0.8rem;
+  display:flex;
+  justify-content:space-between;
+  gap:0.5rem;
+}
+
+.log-item-main{
+  display:flex;
+  flex-direction:column;
+  gap:0.1rem;
+}
+
+.log-item span.delta{
+  color:var(--accent);
+}
+
+.log-note{
+  font-size:0.72rem;
+  color:var(--muted);
+}
+
+.log-empty{
+  font-size:0.8rem;
+  color:var(--muted);
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+  <header class="app-header">
+    <div>
+      <h1>Workout Builder</h1>
+      <p class="tagline">No accounts. No audience. Just you versus yesterday.</p>
+    </div>
+    <div class="seed">
+      <div>Quantum session seed:</div>
+      <div id="seedLabel"></div>
+    </div>
+  </header>
+
+  <div class="control-bar">
+    <div class="control-group">
+      <label for="intensity">Intensity</label>
+      <input id="intensity" type="range" min="1" max="5" value="3">
+      <span id="intensityLabel">3 / 5</span>
+    </div>
+
+    <div class="control-group">
+      <span style="font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;">Focus</span>
+      <div class="chip-row">
+        <label class="chip on">
+          <input type="radio" name="focus" value="balanced" checked>
+          Balanced
+        </label>
+        <label class="chip">
+          <input type="radio" name="focus" value="strength">
+          Strength
+        </label>
+        <label class="chip">
+          <input type="radio" name="focus" value="core">
+          Core
+        </label>
+        <label class="chip">
+          <input type="radio" name="focus" value="conditioning">
+          Conditioning
+        </label>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <button id="quantumBtn">Quantum Build</button>
+      <button id="clearBtn" class="ghost">Clear Routine</button>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- EXERCISES -->
+    <section class="panel">
+      <h2>Exercise Pool</h2>
+      <p>Drag or tap to add. Quantum Build uses these as its deck.</p>
+      <div id="exercisePool" class="exercise-pool"></div>
+    </section>
+
+    <!-- ROUTINE -->
+    <section class="panel">
+      <h2>Today's Routine</h2>
+      <p>Shape it yourself, or let the Quantum Builder suggest a pattern.</p>
+
+      <div id="routine" class="routine" aria-label="Today's routine">
+        <div id="routineEmpty" class="routine-empty">
+          Drag exercises here, tap an exercise card, or hit <strong>Quantum Build</strong> to auto-generate a session.
+        </div>
+      </div>
+
+      <div class="day-note-wrap">
+        <div class="day-note-label">Day Note</div>
+        <textarea id="dayNote" placeholder="How did today's session feel? Wins, struggles, anything you want to remember."></textarea>
+      </div>
+
+      <div class="routine-actions">
+        <button id="saveBtn">Save Session</button>
+        <button id="saveAndClearBtn" class="ghost">Save + New</button>
+      </div>
+
+      <div id="sessionSummary" class="session-summary"></div>
+    </section>
+  </div>
+
+  <!-- PROGRESS -->
+  <section class="panel progress-panel">
+    <div class="progress-header">
+      <h2>Progress</h2>
+      <div class="progress-meta" id="progressMeta"></div>
+    </div>
+    <canvas id="chart"></canvas>
+    <div id="sessionLog" class="log-list"></div>
+  </section>
+
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* =========================
+     DOM & CONSTANTS
+     ========================= */
+  const routineEl = document.getElementById("routine");
+  const routineEmptyEl = document.getElementById("routineEmpty");
+  const poolEl = document.getElementById("exercisePool");
+  const saveBtn = document.getElementById("saveBtn");
+  const saveAndClearBtn = document.getElementById("saveAndClearBtn");
+  const quantumBtn = document.getElementById("quantumBtn");
+  const clearBtn = document.getElementById("clearBtn");
+  const intensitySlider = document.getElementById("intensity");
+  const intensityLabel = document.getElementById("intensityLabel");
+  const focusChips = document.querySelectorAll(".chip");
+  const seedLabel = document.getElementById("seedLabel");
+  const sessionSummaryEl = document.getElementById("sessionSummary");
+  const chartCanvas = document.getElementById("chart");
+  const progressMetaEl = document.getElementById("progressMeta");
+  const sessionLogEl = document.getElementById("sessionLog");
+  const dayNoteEl = document.getElementById("dayNote");
+
+  const K_LOG = "sovereign_workout_log_v2";
+  const dpr = window.devicePixelRatio || 1;
+
+  // Simple quantum-ish seed just for display
+  const seed = Math.floor(Math.random() * 1_000_000);
+  seedLabel.textContent = "#" + seed.toString().padStart(6,"0");
+
+  /* =========================
+     EXERCISE DECK
+     ========================= */
+  const EXERCISES = [
+    { id:"pushups",       name:"Push-ups",          focus:"upper",  kind:"strength",     label:"Upper · Push" },
+    { id:"squats",        name:"Squats",           focus:"lower",  kind:"strength",     label:"Lower · Strength" },
+    { id:"lunges",        name:"Lunges",           focus:"lower",  kind:"strength",     label:"Lower · Unilateral" },
+    { id:"plank",         name:"Plank",            focus:"core",   kind:"core",         label:"Core · Hold" },
+    { id:"glutebridge",   name:"Glute Bridge",     focus:"posterior", kind:"strength",  label:"Posterior chain" },
+    { id:"wallsit",       name:"Wall Sit",         focus:"lower",  kind:"core",         label:"Legs · Isometric" },
+    { id:"mountain",      name:"Mountain Climbers",focus:"cardio", kind:"conditioning", label:"Core · Conditioning" },
+    { id:"burpees",       name:"Burpees",          focus:"cardio", kind:"conditioning", label:"Full body · Power" },
+    { id:"rows",          name:"Inverted Rows",    focus:"upper",  kind:"strength",     label:"Upper · Pull" },
+    { id:"deadbug",       name:"Dead Bug",         focus:"core",   kind:"core",         label:"Spine-friendly core" }
+  ];
+
+  function buildExercisePool(){
+    poolEl.innerHTML = "";
+    EXERCISES.forEach(ex => {
+      const card = document.createElement("div");
+      card.className = "exercise-card";
+      card.draggable = true;
+      card.dataset.id = ex.id;
+      card.innerHTML = `
+        <div class="exercise-name">${ex.name}</div>
+        <div class="exercise-meta">${ex.label}</div>
+      `;
+      card.addEventListener("dragstart", () => {
+        draggedExerciseId = ex.id;
+      });
+      card.addEventListener("click", () => {
+        addExercise(ex);
+      });
+      poolEl.appendChild(card);
+    });
+  }
+
+  /* =========================
+     ROUTINE MANAGEMENT
+     ========================= */
+  let draggedExerciseId = null;
+
+  function getIntensity(){
+    return Number(intensitySlider.value || 3);
+  }
+
+  function getFocus(){
+    const checked = document.querySelector('input[name="focus"]:checked');
+    return checked ? checked.value : "balanced";
+  }
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]] = [a[j],a[i]];
+    }
+    return a;
+  }
+
+  function updateRoutineEmpty(){
+    const hasItems = routineEl.querySelectorAll(".routine-item").length > 0;
+    routineEmptyEl.style.display = hasItems ? "none" : "block";
+  }
+
+  function suggestSets(ex){
+    const I = getIntensity(); // 1–5
+    const base = 2 + Math.round(I / 2); // 3–4-ish
+    const jitter = (Math.random() < 0.35 ? (Math.random() < 0.5 ? -1 : 1) : 0);
+    return Math.max(2, Math.min(6, base + jitter));
+  }
+
+  function suggestReps(ex){
+    const I = getIntensity();
+    let minR = 8, maxR = 15;
+    if(ex.kind === "conditioning"){
+      minR = 12; maxR = 24;
+    }else if(ex.kind === "core"){
+      minR = 10; maxR = 20;
+    }else if(ex.kind === "strength"){
+      minR = 6; maxR = 14;
+    }
+    // Higher intensity -> trend lower reps, lower spread
+    const bias = (6 - I) / 5; // 1 at I=1, ~0.2 at I=5
+    const rand = Math.random() * bias + Math.random() * (1-bias);
+    const reps = Math.round(minR + rand*(maxR - minR));
+    return Math.max(4, reps);
+  }
+
+  function addExercise(ex, options = {}){
+    const setsDefault = options.sets ?? suggestSets(ex);
+    const repsDefault = options.reps ?? suggestReps(ex);
+
+    const row = document.createElement("div");
+    row.className = "routine-item";
+    row.dataset.id = ex.id;
+    row.innerHTML = `
+      <div class="routine-main">
+        <div class="routine-name">${ex.name}</div>
+        <div class="routine-focus">${ex.label}</div>
+      </div>
+      <div class="routine-controls">
+        <label>Sets
+          <input type="number" min="1" max="20" value="${setsDefault}">
+        </label>
+        <label>Reps
+          <input type="number" min="1" max="50" value="${repsDefault}">
+        </label>
+      </div>
+      <div class="routine-controls">
+        <button type="button" class="small-btn ghost remove-btn">Remove</button>
+      </div>
+    `;
+    row.querySelector(".remove-btn").addEventListener("click", () => {
+      row.remove();
+      updateRoutineEmpty();
+      updateSessionPreview();
+    });
+    routineEl.appendChild(row);
+    updateRoutineEmpty();
+    updateSessionPreview();
+  }
+
+  function clearRoutine(){
+    routineEl.querySelectorAll(".routine-item").forEach(el => el.remove());
+    updateRoutineEmpty();
+    updateSessionPreview();
+    dayNoteEl.value = "";
+  }
+
+  function computeRoutineStats(){
+    const rows = routineEl.querySelectorAll(".routine-item");
+    let total = 0;
+    let exerciseCount = 0;
+    const detail = [];
+
+    rows.forEach(row => {
+      const name = row.querySelector(".routine-name").textContent.trim();
+      const inputs = row.querySelectorAll("input");
+      const sets = Number(inputs[0].value) || 0;
+      const reps = Number(inputs[1].value) || 0;
+      const volume = sets * reps;
+      if(volume > 0){
+        total += volume;
+        exerciseCount++;
+        detail.push({ name, sets, reps, volume });
+      }
+    });
+
+    return { total, exerciseCount, detail };
+  }
+
+  function classifyBand(total){
+    if(total <= 0) return "—";
+    if(total < 70) return "Spark";
+    if(total < 160) return "Build";
+    if(total < 260) return "Surge";
+    return "Beast Mode";
+  }
+
+  function makeCoachMessage(total, prevTotal){
+    if(prevTotal == null){
+      return "First logged session — you just set your baseline. Great place to build from.";
+    }
+    const delta = total - prevTotal;
+    if(delta > 40){
+      return "Big jump from last time — you pushed hard. Make sure recovery and sleep match the effort.";
+    }
+    if(delta > 5){
+      return "You nudged the workload upward. Quiet progression like this compounds fast.";
+    }
+    if(delta >= -5 && delta <= 5){
+      return "You stayed in the same zone. Consistency is a quiet superpower.";
+    }
+    if(delta < -40){
+      return "Volume came down a lot — treat this as a deload. Listening to your body is strength.";
+    }
+    return "You eased off a bit — that’s valid. Not every day has to be a peak day.";
+  }
+
+  function updateSessionPreview(){
+    const { total, exerciseCount } = computeRoutineStats();
+    if(!exerciseCount){
+      sessionSummaryEl.textContent = "";
+      return;
+    }
+    const band = classifyBand(total);
+    sessionSummaryEl.innerHTML =
+      `Preview: <strong>${total}</strong> total reps across <strong>${exerciseCount}</strong> exercise${exerciseCount!==1?"s":""}. ` +
+      `<span class="band-label">${band}</span>`;
+  }
+
+  /* =========================
+     QUANTUM BUILD
+     ========================= */
+  function quantumBuild(){
+    const I = getIntensity();
+    const focus = getFocus();
+
+    let pool = EXERCISES.slice();
+    if(focus === "strength"){
+      pool = EXERCISES.filter(e => e.kind === "strength" || e.kind === "core");
+    }else if(focus === "core"){
+      pool = EXERCISES.filter(e => e.kind === "core" || e.focus === "posterior");
+    }else if(focus === "conditioning"){
+      pool = EXERCISES.filter(e => e.kind === "conditioning" || e.kind === "core");
+    }
+    if(pool.length < 4) pool = EXERCISES.slice();
+
+    const shuffled = shuffle(pool);
+    const minCount = 3;
+    const maxCount = 7;
+    const intensityFactor = (I - 1) / 4; // 0–1
+    const baseSpan = minCount + Math.round(intensityFactor * (maxCount - minCount));
+    const noise = (Math.random() < 0.5 ? 0 : 1);
+    const desired = Math.min(maxCount, Math.max(minCount, baseSpan + noise));
+    const chosen = shuffled.slice(0, desired);
+
+    clearRoutine();
+    chosen.forEach(ex => addExercise(ex));
+  }
+
+  /* =========================
+     LOCAL STORAGE
+     ========================= */
+  function loadLog(){
+    try{
+      const raw = localStorage.getItem(K_LOG);
+      if(!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function saveLog(log){
+    localStorage.setItem(K_LOG, JSON.stringify(log));
+  }
+
+  function saveSessionCore(options = { clearAfter:false }){
+    const { total, exerciseCount, detail } = computeRoutineStats();
+    if(!exerciseCount){
+      sessionSummaryEl.textContent = "Add at least one exercise before saving.";
+      return;
+    }
+    const log = loadLog();
+    const prev = log[log.length-1];
+    const prevTotal = prev ? prev.total : null;
+    const band = classifyBand(total);
+    const note = (dayNoteEl.value || "").trim();
+    const coach = makeCoachMessage(total, prevTotal);
+
+    const entry = {
+      ts: new Date().toISOString(),
+      total,
+      exerciseCount,
+      intensity: getIntensity(),
+      focus: getFocus(),
+      detail,
+      note,
+      coach
+    };
+    log.push(entry);
+    saveLog(log);
+
+    sessionSummaryEl.innerHTML =
+      `Session saved: <strong>${total}</strong> total reps across <strong>${exerciseCount}</strong> exercises. ` +
+      `<span class="band-label">${band}</span>` +
+      `<span class="coach-line">Quantum Coach: ${coach}</span>`;
+
+    drawChart(log);
+    renderLog(log);
+
+    if(options.clearAfter){
+      clearRoutine();
+    }
+  }
+
+  /* =========================
+     CHART
+     ========================= */
+  function setupChartCanvas(){
+    const rect = chartCanvas.getBoundingClientRect();
+    const heightPx = rect.height || 220;
+    chartCanvas.width = rect.width * dpr;
+    chartCanvas.height = heightPx * dpr;
+    const ctx = chartCanvas.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    return ctx;
+  }
+
+  function drawChart(log = loadLog()){
+    const ctx = setupChartCanvas();
+    const rect = chartCanvas.getBoundingClientRect();
+    const W = rect.width;
+    const H = rect.height || 220;
+
+    ctx.clearRect(0,0,W,H);
+
+    if(!log.length){
+      ctx.fillStyle = "#666";
+      ctx.font = "12px system-ui, sans-serif";
+      ctx.fillText("No sessions yet. Save a workout to see your line.", 16, 32);
+      progressMetaEl.textContent = "";
+      return;
+    }
+
+    const margin = { top:20, right:14, bottom:26, left:40 };
+    const innerW = W - margin.left - margin.right;
+    const innerH = H - margin.top - margin.bottom;
+
+    const totals = log.map(e => e.total);
+    const maxTotal = Math.max(10, ...totals);
+    const minTotal = 0;
+    const count = log.length;
+    const stepX = count > 1 ? innerW/(count-1) : 0;
+
+    // Grid
+    ctx.strokeStyle = "rgba(255,255,255,0.06)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for(let i=0;i<=4;i++){
+      const y = margin.top + (innerH/4)*i;
+      ctx.moveTo(margin.left, y);
+      ctx.lineTo(W - margin.right, y);
+    }
+    ctx.stroke();
+
+    // Axes
+    ctx.strokeStyle = "rgba(255,255,255,0.25)";
+    ctx.beginPath();
+    ctx.moveTo(margin.left, margin.top);
+    ctx.lineTo(margin.left, H - margin.bottom);
+    ctx.moveTo(margin.left, H - margin.bottom);
+    ctx.lineTo(W - margin.right, H - margin.bottom);
+    ctx.stroke();
+
+    // Y labels
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.font = "11px system-ui, sans-serif";
+    for(let i=0;i<=4;i++){
+      const t = i/4;
+      const val = Math.round(maxTotal * (1 - t));
+      const y = margin.top + innerH * t;
+      ctx.fillText(String(val), 6, y+4);
+    }
+
+    // Line
+    ctx.strokeStyle = "#d4af37";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    log.forEach((entry, i) => {
+      const x = margin.left + (stepX * i);
+      const ratio = (entry.total - minTotal) / (maxTotal - minTotal || 1);
+      const y = margin.top + innerH*(1 - ratio);
+      if(i === 0) ctx.moveTo(x,y);
+      else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    // Points
+    ctx.fillStyle = "#d4af37";
+    log.forEach((entry, i) => {
+      const x = margin.left + (stepX * i);
+      const ratio = (entry.total - minTotal) / (maxTotal - minTotal || 1);
+      const y = margin.top + innerH*(1 - ratio);
+      ctx.beginPath();
+      ctx.arc(x,y,3.2,0,Math.PI*2);
+      ctx.fill();
+    });
+
+    const last = log[log.length-1];
+    const best = Math.max(...totals);
+    const band = classifyBand(last.total);
+    progressMetaEl.textContent =
+      `Last: ${last.total} reps · Best: ${best} · Band: ${band}`;
+  }
+
+  /* =========================
+     LOG RENDER
+     ========================= */
+  function renderLog(log = loadLog()){
+    sessionLogEl.innerHTML = "";
+    if(!log.length){
+      const p = document.createElement("div");
+      p.className = "log-empty";
+      p.textContent = "No saved sessions yet.";
+      sessionLogEl.appendChild(p);
+      return;
+    }
+    const lastFive = log.slice(-5).reverse();
+    lastFive.forEach((entry, idx) => {
+      const prev = log[log.length - (idx+2)];
+      const delta = prev ? entry.total - prev.total : null;
+      const div = document.createElement("div");
+      div.className = "log-item";
+      const dateStr = new Date(entry.ts).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+      const band = classifyBand(entry.total);
+
+      let deltaStr = "";
+      if(delta !== null){
+        if(delta > 0) deltaStr = `+${delta} vs prev`;
+        else if(delta < 0) deltaStr = `${delta} vs prev`;
+        else deltaStr = "same as prev";
+      }
+
+      const noteShort = entry.note ? entry.note.slice(0,70) + (entry.note.length>70 ? "…" : "") : "";
+      const coachShort = entry.coach ? entry.coach.slice(0,80) + (entry.coach.length>80 ? "…" : "") : "";
+
+      div.innerHTML = `
+        <div class="log-item-main">
+          <span>${dateStr} · ${entry.total} reps</span>
+          <span class="delta" style="font-size:0.75rem;">${deltaStr ? deltaStr : ""}</span>
+          ${coachShort ? `<span class="log-note">Coach: ${coachShort}</span>` : ""}
+          ${noteShort ? `<span class="log-note">Note: ${noteShort}</span>` : ""}
+        </div>
+        <div style="text-align:right;">
+          <span class="band-label" style="margin:0;">${band}</span>
+          <div style="font-size:0.72rem;color:var(--muted);margin-top:0.12rem;">
+            Int ${entry.intensity} · ${entry.focus}
+          </div>
+        </div>
+      `;
+      sessionLogEl.appendChild(div);
+    });
+  }
+
+  /* =========================
+     EVENTS
+     ========================= */
+  intensitySlider.addEventListener("input", () => {
+    intensityLabel.textContent = `${intensitySlider.value} / 5`;
+    updateSessionPreview();
+  });
+
+  focusChips.forEach(chip => {
+    const input = chip.querySelector("input");
+    chip.addEventListener("click", () => {
+      focusChips.forEach(c => c.classList.remove("on"));
+      chip.classList.add("on");
+      input.checked = true;
+      updateSessionPreview();
+    });
+  });
+
+  // Drag + drop
+  routineEl.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    routineEl.classList.add("drop-target");
+  });
+  routineEl.addEventListener("dragleave", () => {
+    routineEl.classList.remove("drop-target");
+  });
+  routineEl.addEventListener("drop", (e) => {
+    e.preventDefault();
+    routineEl.classList.remove("drop-target");
+    if(!draggedExerciseId) return;
+    const ex = EXERCISES.find(x => x.id === draggedExerciseId);
+    if(ex) addExercise(ex);
+    draggedExerciseId = null;
+  });
+
+  quantumBtn.addEventListener("click", quantumBuild);
+  clearBtn.addEventListener("click", clearRoutine);
+  saveBtn.addEventListener("click", () => saveSessionCore({ clearAfter:false }));
+  saveAndClearBtn.addEventListener("click", () => saveSessionCore({ clearAfter:true }));
+
+  window.addEventListener("resize", () => {
+    drawChart();
+  });
+
+  /* =========================
+     INIT
+     ========================= */
+  function init(){
+    buildExercisePool();
+    intensityLabel.textContent = `${intensitySlider.value} / 5`;
+    updateRoutineEmpty();
+    const log = loadLog();
+    drawChart(log);
+    renderLog(log);
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
