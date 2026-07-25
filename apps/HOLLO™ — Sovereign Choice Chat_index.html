@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HOLLO™ — Sovereign Choice Chat</title>
+
+<!-- PLERA Sacred Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+/* ==============================
+   HOLLO™ — PLERA Sacred UI
+   Fully Sovereign, Choice-Based P2P
+   ============================== */
+
+/* Root Colors & Sacred Numbers */
+:root {
+  --midnight:#0b1020; 
+  --midnight-dark:#020414;
+  --parchment:#f7f3ea;
+  --parchment-light:#f0e9dc;
+  --gold:#d9b878;
+  --gold-light:#e8d5a4;
+  --accent:#7a5a28;
+
+  --radius-small:7px;
+  --radius-medium:11px;
+  --radius-large:21px;
+
+  --space-s:3px;
+  --space-m:7px;
+  --space-l:12px;
+  --space-xl:21px;
+}
+
+/* Body & Layout */
+body {
+  margin:0;
+  font-family:'Cormorant Garamond', serif;
+  background:var(--parchment);
+  color:var(--midnight);
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+#hollo-app {
+  max-width:960px;
+  margin:auto;
+  padding:var(--space-xl);
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:var(--space-l);
+}
+
+/* Header */
+header {
+  grid-column:1/-1;
+  text-align:center;
+  margin-bottom:var(--space-xl);
+}
+header h1 {
+  font-family:'Cinzel', serif;
+  font-size:33px;
+  margin-bottom:var(--space-m);
+}
+header p {
+  font-size:18px;
+  margin:0;
+}
+
+/* Video Area */
+.video-area {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:var(--space-m);
+  background:var(--parchment-light);
+  padding:var(--space-l);
+  border-radius:var(--radius-medium);
+}
+.video-panel {
+  background:#000;
+  border-radius:var(--radius-medium);
+  min-height:140px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.video-panel video {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* Sidebar */
+.sidebar {
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-m);
+}
+.card {
+  background:var(--parchment-light);
+  padding:var(--space-l);
+  border-radius:var(--radius-medium);
+  box-shadow:0 3px 7px rgba(0,0,0,0.1);
+}
+.card h4 {
+  margin:0 0 var(--space-m) 0;
+  font-family:'Cinzel', serif;
+}
+
+/* Input & Buttons */
+input, select, button {
+  font-family:'Cormorant Garamond', serif;
+}
+input, select {
+  width:100%;
+  padding:var(--space-m);
+  margin-bottom:var(--space-m);
+  border-radius:var(--radius-small);
+  border:1px solid var(--gold);
+}
+button {
+  padding:var(--space-m);
+  border:none;
+  border-radius:var(--radius-small);
+  background:var(--gold);
+  color:var(--midnight-dark);
+  cursor:pointer;
+  font-size:16px;
+  transition:0.33s;
+}
+button:hover { background:var(--gold-light); }
+
+/* Member Directory */
+.member-list {
+  max-height:300px;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-m);
+}
+.member {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:var(--space-m);
+  border-radius:var(--radius-small);
+  background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+.member button {
+  flex-shrink:0;
+}
+
+/* Invite Modal */
+.modal-backdrop {
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:50;
+}
+.modal {
+  background:var(--parchment);
+  padding:var(--space-xl);
+  border-radius:var(--radius-medium);
+  box-shadow:0 7px 21px rgba(0,0,0,0.25);
+  max-width:360px;
+  text-align:center;
+}
+.modal h4 { margin-bottom:var(--space-m); }
+.modal button { margin-top:var(--space-m); }
+
+/* Footer */
+footer {
+  grid-column:1/-1;
+  margin-top:var(--space-xl);
+  text-align:center;
+  font-size:12px;
+  color:var(--midnight-dark);
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>HOLLO™ Sovereign Chat</h1>
+  <p>Connect with other members by choice. Privacy & sovereignty respected.</p>
+</header>
+
+<div id="hollo-app">
+
+  <!-- Video Area -->
+  <div class="video-area" id="videoArea">
+    <div class="video-panel" id="placeholderPanel">
+      <div style="color:#fff;">No active chats</div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+
+    <!-- Member Search -->
+    <div class="card">
+      <h4>Search Members</h4>
+      <input id="searchInput" placeholder="Search by name..." />
+      <div class="member-list" id="memberList"></div>
+    </div>
+
+    <!-- Invite Section -->
+    <div class="card">
+      <h4>Incoming Invites</h4>
+      <div id="inviteList"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Invite Modal -->
+<div class="modal-backdrop" id="inviteModal" style="display:none">
+  <div class="modal">
+    <h4>Incoming Chat Invite</h4>
+    <p id="inviteText"></p>
+    <button id="acceptInviteBtn">Accept</button>
+    <button id="declineInviteBtn">Decline</button>
+  </div>
+</div>
+
+<footer>
+  <p>HOLLO™ — PLERA Sacred Design System v1.0 | Fully Sovereign | Privacy Respected</p>
+</footer>
+
+<script>
+/* =============================
+   HOLLO™ Choice-Based Peer Connect
+   Fully Sovereign P2P
+============================= */
+
+// Sample member database (localStorage optional)
+const members = [
+  {id:'u1', name:'Jenny Pearl'},
+  {id:'u2', name:'Maya Light'},
+  {id:'u3', name:'Kai Sol'},
+  {id:'u4', name:'Luna Ray'}
+];
+
+let invites = [];
+let localStream = null;
+const pcs = {};
+const remoteStreams = {};
+
+// DOM refs
+const memberList = document.getElementById('memberList');
+const searchInput = document.getElementById('searchInput');
+const inviteList = document.getElementById('inviteList');
+const videoArea = document.getElementById('videoArea');
+const placeholderPanel = document.getElementById('placeholderPanel');
+const inviteModal = document.getElementById('inviteModal');
+const inviteText = document.getElementById('inviteText');
+const acceptBtn = document.getElementById('acceptInviteBtn');
+const declineBtn = document.getElementById('declineInviteBtn');
+
+let currentInvite = null;
+
+// =======================
+// Render Member List
+function renderMembers(filter=''){
+  memberList.innerHTML='';
+  members.filter(m=>m.name.toLowerCase().includes(filter.toLowerCase()))
+    .forEach(m=>{
+      const div = document.createElement('div');
+      div.className='member';
+      div.innerHTML = `<span>${m.name}</span>`;
+      const btn = document.createElement('button');
+      btn.textContent='Invite';
+      btn.onclick = ()=>sendInvite(m);
+      div.appendChild(btn);
+      memberList.appendChild(div);
+    });
+}
+renderMembers();
+
+// Search input
+searchInput.addEventListener('input',(e)=>renderMembers(e.target.value));
+
+// =======================
+// Invite Logic
+function sendInvite(member){
+  alert(`Sovereign invite sent to ${member.name} (demo — actual P2P signaling not included)`);
+  // Demo: auto-populate the receiver invite list
+  invites.push({from:'You', to:member.name});
+  renderInvites();
+}
+
+// Render incoming invites
+function renderInvites(){
+  inviteList.innerHTML='';
+  invites.forEach((inv,i)=>{
+    const div = document.createElement('div');
+    div.style.marginBottom='5px';
+    div.textContent=`Invite from ${inv.from} to chat with ${inv.to}`;
+    const btn = document.createElement('button');
+    btn.textContent='Respond';
+    btn.onclick = ()=>openInviteModal(inv,i);
+    div.appendChild(btn);
+    inviteList.appendChild(div);
+  });
+}
+
+// Invite Modal
+function openInviteModal(inv,index){
+  currentInvite=index;
+  inviteText.textContent=`${inv.from} invites you to chat with ${inv.to}`;
+  inviteModal.style.display='flex';
+}
+acceptBtn.onclick = ()=>{
+  inviteModal.style.display='none';
+  startCallWithMember(invites[currentInvite].to);
+  invites.splice(currentInvite,1);
+  renderInvites();
+};
+declineBtn.onclick = ()=>{
+  inviteModal.style.display='none';
+  invites.splice(currentInvite,1);
+  renderInvites();
+};
+
+// =======================
+// P2P Call (Demo — placeholder)
+async function startCallWithMember(memberName){
+  if(!localStream){
+    localStream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+    addLocalVideo(localStream);
+  }
+  const panel = document.createElement('div');
+  panel.className='video-panel';
+  const v = document.createElement('video');
+  v.autoplay=true; v.playsInline=true; v.srcObject=localStream;
+  panel.appendChild(v);
+  videoArea.appendChild(panel);
+  if(placeholderPanel) placeholderPanel.style.display='none';
+  alert(`Connected with ${memberName} (demo stream)`);
+}
+
+// Add Local Video
+function addLocalVideo(stream){
+  const panel = document.createElement('div');
+  panel.className='video-panel';
+  const v = document.createElement('video');
+  v.autoplay=true; v.playsInline=true; v.muted=true;
+  v.srcObject=stream;
+  panel.appendChild(v);
+  videoArea.insertBefore(panel,videoArea.firstChild);
+}
+</script>
+</body>
+</html>
