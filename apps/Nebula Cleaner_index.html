@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Nebula Code Cleaner™ — Sovereign Edition</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --nebula1:#0b0427;
+      --nebula2:#1a0b47;
+      --accent1:#7ac9ff;
+      --accent2:#b6bfff;
+      --panel-bg:rgba(15,20,35,0.92);
+      --border-glow:rgba(122,201,255,0.45);
+      --radius:14px;
+      --shadow:0 0 24px rgba(0,0,0,0.6);
+      --font-main:'Brandon Grotesque',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100vh;
+      font-family:var(--font-main);
+      color:#f5f7ff;
+      background:radial-gradient(circle at 50% 20%,var(--nebula2) 0%,var(--nebula1) 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+
+    #starfield{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:0;
+      background:transparent;
+      pointer-events:none;
+    }
+
+    .app{
+      position:relative;
+      z-index:1;
+      max-width:1100px;
+      width:100%;
+      margin:40px 16px;
+      padding:26px 22px 22px;
+      border-radius:var(--radius);
+      background:var(--panel-bg);
+      box-shadow:var(--shadow);
+      border:1px solid var(--border-glow);
+      backdrop-filter:blur(14px);
+      box-sizing:border-box;
+    }
+
+    h1{
+      font-size:26px;
+      margin:0 0 6px;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      text-align:center;
+      letter-spacing:1px;
+    }
+    .lead{
+      text-align:center;
+      color:#c5d9ff;
+      font-size:14px;
+      margin:0 0 18px;
+    }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:18px;
+    }
+    .panel{
+      flex:1 1 320px;
+      background:rgba(255,255,255,0.03);
+      border-radius:var(--radius);
+      border:1px solid rgba(255,255,255,0.12);
+      padding:14px 14px 16px;
+      box-shadow:inset 0 0 12px rgba(0,0,0,0.25);
+      display:flex;
+      flex-direction:column;
+      min-height:280px;
+      box-sizing:border-box;
+    }
+    .panel h2{
+      font-size:16px;
+      color:#b7ccff;
+      margin:0 0 6px;
+    }
+
+    .controls-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      margin-bottom:8px;
+      font-size:13px;
+      color:#b8c8e8;
+    }
+    .controls-row label{
+      display:flex;
+      align-items:center;
+      gap:5px;
+    }
+    select{
+      background:rgba(0,0,0,0.36);
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.25);
+      color:#f5f7ff;
+      padding:5px 8px;
+      font-size:13px;
+    }
+    input[type="checkbox"]{
+      accent-color:var(--accent1);
+    }
+
+    textarea{
+      width:100%;
+      flex:1;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.18);
+      background:rgba(4,8,18,0.94);
+      color:#f5f7ff;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New", monospace;
+      font-size:13px;
+      padding:9px 10px;
+      resize:vertical;
+      min-height:180px;
+      line-height:1.4;
+      box-shadow:inset 0 0 6px rgba(0,0,0,0.5);
+      box-sizing:border-box;
+    }
+    textarea::placeholder{color:#6d7c9c;}
+
+    button{
+      background:linear-gradient(180deg,#3a8dff,#0066ff);
+      border:none;
+      border-radius:8px;
+      padding:7px 12px;
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      box-shadow:0 0 8px rgba(58,141,255,0.6);
+      font-size:13px;
+      transition:all .18s;
+      white-space:nowrap;
+    }
+    button:hover{
+      transform:translateY(-1px);
+      box-shadow:0 0 12px rgba(58,141,255,0.85);
+    }
+    button.secondary{
+      background:linear-gradient(180deg,#3a3f5c,#242636);
+      color:#c5d9ff;
+      box-shadow:none;
+    }
+    button.small{
+      font-size:12px;
+      padding:5px 9px;
+    }
+
+    .ai-panel{
+      margin-top:10px;
+      padding:9px 10px 11px;
+      border-radius:10px;
+      background:rgba(3,10,26,0.92);
+      border:1px solid rgba(122,201,255,0.45);
+      box-shadow:0 0 14px rgba(10,150,255,0.28);
+      font-size:12.5px;
+      color:#d5e0ff;
+    }
+    .ai-header{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      margin-bottom:5px;
+      font-weight:600;
+      color:#9fd1ff;
+      font-size:12px;
+    }
+    .ai-header .dot{
+      width:9px;height:9px;border-radius:50%;
+      background:radial-gradient(circle,#7ac9ff,#1a8bff);
+      box-shadow:0 0 8px #7ac9ff;
+    }
+    .ai-body{
+      line-height:1.5;
+      white-space:pre-line;
+    }
+
+    footer{
+      margin-top:18px;
+      text-align:center;
+      font-size:11px;
+      color:#9fb0db;
+    }
+    footer a{
+      color:#9dd2ff;
+      text-decoration:none;
+    }
+    footer a:hover{text-decoration:underline;}
+
+    @media (max-width:800px){
+      body{
+        align-items:flex-start;
+        padding-top:10px;
+        overflow:auto;
+      }
+      .app{
+        margin:18px 10px;
+        padding:18px 12px 14px;
+      }
+      .panel{
+        min-height:220px;
+      }
+    }
+  </style>
+</head>
+<body>
+<canvas id="starfield" aria-hidden="true"></canvas>
+
+<div class="app" role="application">
+  <h1>Nebula Code Cleaner™</h1>
+  <p class="lead">
+    Paste HTML, CSS, JS, or JSON. Beautify, compact, and get quick “AI-style” hints — all offline, in your browser.
+  </p>
+
+  <div class="row">
+    <!-- Left: Input -->
+    <section class="panel">
+      <h2>Input Code</h2>
+      <div class="controls-row">
+        <label>
+          Language
+          <select id="langSelect">
+            <option value="auto">Auto-detect</option>
+            <option value="html">HTML</option>
+            <option value="css">CSS</option>
+            <option value="js">JavaScript</option>
+            <option value="json">JSON</option>
+          </select>
+        </label>
+        <button id="beautifyBtn">Beautify</button>
+        <button id="compactBtn" class="secondary">Compact</button>
+        <button id="clearBtn" class="secondary small">Clear</button>
+        <label>
+          <input type="checkbox" id="trimCheckbox">
+          Trim trailing spaces
+        </label>
+      </div>
+      <textarea id="codeInput" placeholder="Paste any messy code here…"></textarea>
+    </section>
+
+    <!-- Right: Output + AI hints -->
+    <section class="panel">
+      <h2>Clean Output</h2>
+      <div class="controls-row">
+        <button id="copyOutBtn">Copy Output</button>
+        <button id="swapBtn" class="secondary small">Swap ↔</button>
+      </div>
+      <textarea id="codeOutput" placeholder="Beautified / compacted code will appear here…" readonly></textarea>
+
+      <div class="ai-panel" id="aiPanel">
+        <div class="ai-header">
+          <span class="dot"></span>
+          <span>Aurora Hint Engine (local helper)</span>
+        </div>
+        <div class="ai-body" id="aiBody">
+Paste some code and run Beautify — I’ll share a short summary of line length, indentation, and a few gentle improvement ideas.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer>
+    Nebula Code Cleaner™ v1.1 • Designed for KhaeZip &amp; SixBit Bun toolchain • Local &amp; private — no uploads, no tracking.
+  </footer>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  /* ---------- Starfield background (matching toolchain) ---------- */
+  (function initStarfield(){
+    const canvas = $("starfield");
+    if(!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let stars = [];
+
+    function resize(){
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      stars = [];
+      for(let i=0;i<180;i++){
+        stars.push({
+          x:Math.random()*canvas.width,
+          y:Math.random()*canvas.height,
+          r:Math.random()*1.6+0.2,
+          dx:(Math.random()-0.5)*0.1,
+          dy:(Math.random()-0.5)*0.1,
+          a:Math.random()*0.8+0.2
+        });
+      }
+    }
+    window.addEventListener("resize",resize);
+    resize();
+
+    (function loop(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(const s of stars){
+        ctx.beginPath();
+        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fillStyle = `rgba(255,255,255,${s.a})`;
+        ctx.fill();
+        s.x += s.dx;
+        s.y += s.dy;
+        if(s.x<0) s.x = canvas.width;
+        if(s.x>canvas.width) s.x = 0;
+        if(s.y<0) s.y = canvas.height;
+        if(s.y>canvas.height) s.y = 0;
+      }
+      requestAnimationFrame(loop);
+    })();
+  })();
+
+  /* ---------- Core elements ---------- */
+  const langSelect   = $("langSelect");
+  const codeInput    = $("codeInput");
+  const codeOutput   = $("codeOutput");
+  const aiBody       = $("aiBody");
+  const trimCheckbox = $("trimCheckbox");
+
+  const STATE_KEY = "nebulaCleanerState";
+
+  function saveState(lastMode){
+    try{
+      const state = {
+        lang: langSelect.value,
+        input: codeInput.value,
+        output: codeOutput.value,
+        lastMode: lastMode || null,
+        trim: !!trimCheckbox.checked
+      };
+      localStorage.setItem(STATE_KEY, JSON.stringify(state));
+    }catch(e){
+      // ignore storage errors
+    }
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STATE_KEY);
+      if(!raw) return;
+      const s = JSON.parse(raw);
+      if(s.lang) langSelect.value = s.lang;
+      if(typeof s.input === "string") codeInput.value = s.input;
+      if(typeof s.output === "string") codeOutput.value = s.output;
+      if(typeof s.trim === "boolean") trimCheckbox.checked = s.trim;
+    }catch(e){
+      // ignore parse errors
+    }
+  }
+  loadState();
+
+  $("beautifyBtn").onclick = () => runCleaner("beautify");
+  $("compactBtn").onclick  = () => runCleaner("compact");
+  $("clearBtn").onclick    = () => {
+    codeInput.value = "";
+    codeOutput.value = "";
+    aiBody.textContent =
+      "Paste some code and run Beautify — I’ll share a short summary of line length, indentation, and a few gentle improvement ideas.";
+    saveState(null);
+  };
+  $("copyOutBtn").onclick  = async () => {
+    const txt = codeOutput.value;
+    if (!txt) { alert("No output to copy yet."); return; }
+    try {
+      await navigator.clipboard.writeText(txt);
+      alert("Output copied to clipboard.");
+    } catch {
+      alert("Copy failed — your browser may block clipboard access.");
+    }
+  };
+  $("swapBtn").onclick     = () => {
+    const inVal = codeInput.value;
+    const outVal = codeOutput.value;
+    if (!outVal) return;
+    codeInput.value = outVal;
+    codeOutput.value = inVal;
+    saveState(null);
+  };
+
+  /* Keyboard shortcuts */
+  window.addEventListener("keydown", e => {
+    if((e.metaKey || e.ctrlKey) && e.key === "Enter" && !e.shiftKey){
+      e.preventDefault();
+      runCleaner("beautify");
+    } else if((e.metaKey || e.ctrlKey) && e.key === "Enter" && e.shiftKey){
+      e.preventDefault();
+      runCleaner("compact");
+    }
+  });
+
+  /* Tab insertion in textareas */
+  [codeInput, codeOutput].forEach(area => {
+    area.addEventListener("keydown", e => {
+      if(e.key === "Tab"){
+        e.preventDefault();
+        const start = area.selectionStart;
+        const end   = area.selectionEnd;
+        const val   = area.value;
+        const insert = "  ";
+        area.value = val.slice(0,start) + insert + val.slice(end);
+        area.selectionStart = area.selectionEnd = start + insert.length;
+      }
+    });
+  });
+
+  function runCleaner(mode){
+    const raw = codeInput.value;
+    if (!raw.trim()) {
+      alert("Paste some code first.");
+      return;
+    }
+    const lang = detectLang(raw, langSelect.value);
+    let result = raw;
+
+    if (mode === "beautify") {
+      if (lang === "html")       result = beautifyHtml(raw);
+      else if (lang === "json")  result = beautifyJson(raw);
+      else if (lang === "js")    result = beautifyJs(raw);
+      else if (lang === "css")   result = beautifyCss(raw);
+      else                       result = simpleBeautify(raw);
+    } else if (mode === "compact") {
+      if (lang === "json") result = compactJson(raw);
+      else                 result = compactGeneric(raw);
+    }
+
+    if (trimCheckbox.checked){
+      result = result
+        .split(/\r?\n/)
+        .map(l => l.replace(/\s+$/,""))
+        .join("\n");
+    }
+
+    codeOutput.readOnly = false;
+    codeOutput.value = result;
+    codeOutput.readOnly = true;
+
+    aiBody.innerHTML = hintForCode(result, lang)
+      .replace(/\n/g,"<br>");
+
+    saveState(mode);
+  }
+
+  function detectLang(code, chosen){
+    if (chosen !== "auto") return chosen;
+    const sample = code.trim();
+
+    if (/^\s*[{[]/.test(sample)) {
+      try { JSON.parse(sample); return "json"; } catch {}
+    }
+    if (/<[a-zA-Z!/?]/.test(sample)) return "html";
+    if (/^@?[a-zA-Z\-]+\s*{/.test(sample) && /;/.test(sample) && !/function\s|\=\>/.test(sample)) {
+      return "css";
+    }
+    if (/function\s|\=\>|\bconst\b|\blet\b|\bvar\b/.test(sample)) return "js";
+    return "js";
+  }
+
+  /* ---------- Beautifiers ---------- */
+
+  function beautifyHtml(html){
+    html = html.replace(/>\s+</g, "><");
+    const tokens = html.split(/(?=<)/g);
+    let indent = 0;
+    const out = [];
+    const selfClosing = /^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/i;
+
+    for (let token of tokens) {
+      token = token.trim();
+      if (!token) continue;
+
+      if (token.startsWith("</")) {
+        indent = Math.max(0, indent - 1);
+      }
+
+      out.push("  ".repeat(indent) + token);
+
+      const openMatch = token.match(/^<([a-zA-Z0-9\-]+)(\s|>|\/>)/);
+      if (openMatch && !token.startsWith("</")) {
+        const tag = openMatch[1];
+        if (!selfClosing.test(tag) && !token.endsWith("/>") && !/^<!/.test(token)) {
+          indent++;
+        }
+      }
+    }
+    return out.join("\n");
+  }
+
+  function beautifyJson(str){
+    try {
+      const obj = JSON.parse(str);
+      return JSON.stringify(obj, null, 2);
+    } catch {
+      return str;
+    }
+  }
+
+  function beautifyJs(js){
+    const lines = js.split(/\r?\n/);
+    let indent = 0;
+    const out = [];
+    for (let raw of lines) {
+      let line = raw.trim();
+      if (!line) { out.push(""); continue; }
+
+      const closing = (line.match(/}/g) || []).length;
+      const opening = (line.match(/{/g) || []).length;
+
+      if (closing && closing >= opening) {
+        indent = Math.max(indent - closing, 0);
+      }
+
+      out.push("  ".repeat(indent) + line);
+
+      if (opening > closing) {
+        indent += (opening - closing);
+      }
+    }
+    return out.join("\n");
+  }
+
+  function beautifyCss(css){
+    const lines = css.split(/\r?\n/);
+    let indent = 0;
+    const out = [];
+    for (let raw of lines) {
+      let line = raw.trim();
+      if (!line) { out.push(""); continue; }
+
+      if (line.startsWith("}")) {
+        indent = Math.max(0, indent - 1);
+      }
+      out.push("  ".repeat(indent) + line);
+
+      if (line.endsWith("{")) {
+        indent++;
+      }
+    }
+    return out.join("\n");
+  }
+
+  function simpleBeautify(text){
+    return text
+      .split(/;\s*/g)
+      .map(s => s.trim())
+      .filter(Boolean)
+      .map(s => s + ";")
+      .join("\n");
+  }
+
+  /* ---------- Compactors ---------- */
+
+  function compactGeneric(code){
+    return code
+      .split(/\r?\n/)
+      .map(l => l.trim())
+      .filter(l => l.length && !l.startsWith("//"))
+      .join("\n");
+  }
+
+  function compactJson(str){
+    try {
+      const obj = JSON.parse(str);
+      return JSON.stringify(obj);
+    } catch {
+      return compactGeneric(str);
+    }
+  }
+
+  /* ---------- Hint Engine (mini “AI” helper) ---------- */
+
+  function hintForCode(code, lang){
+    const lines = code.split(/\r?\n/);
+    const lineCount = lines.length;
+    const charCount = code.length;
+    const avgLen = lineCount ? (charCount / lineCount).toFixed(1) : 0;
+
+    const longLines = lines.filter(l => l.length > 120).length;
+    const blankLines = lines.filter(l => !l.trim()).length;
+
+    const indentSamples = lines
+      .map(l => (l.match(/^(\s+)/) || [null,""])[1])
+      .filter(Boolean)
+      .map(s => s.replace(/\t/g,"  ").length);
+
+    const indentSet = [...new Set(indentSamples)].sort((a,b)=>a-b);
+    let indentMsg = "No indentation patterns detected yet.";
+    if (indentSet.length) {
+      indentMsg = `Indentation levels used: ${indentSet.join(", ")} spaces (tabs counted as 2).`;
+    }
+
+    const todoCount = (code.match(/TODO|FIXME/gi) || []).length;
+
+    let kind = {
+      html:  "HTML layout",
+      css:   "CSS stylesheet",
+      js:    "JavaScript snippet",
+      json:  "JSON data",
+      other: "code snippet"
+    }[lang] || "code snippet";
+
+    let msg = "";
+    msg += `I’m reading a ${kind} of about ${lineCount} lines (${charCount} characters).\n`;
+    msg += `Average line length is ~${avgLen} characters.\n`;
+    msg += indentMsg + "\n";
+
+    if (longLines > 0) {
+      msg += `• ${longLines} line(s) are longer than 120 characters — consider breaking them for readability.\n`;
+    }
+    if (blankLines > 0) {
+      msg += `• There are ${blankLines} blank line(s); a few are healthy, many may be simplified.\n`;
+    }
+
+    if (lang === "html") {
+      if (!/<!doctype/i.test(code)) {
+        msg += "• You might add <!DOCTYPE html> at the top if this is a full page.\n";
+      }
+      if (!/<head>/i.test(code) && /<html/i.test(code)) {
+        msg += "• Consider including a <head> with meta charset and viewport for a complete document.\n";
+      }
+    } else if (lang === "js") {
+      if (!/use strict/.test(code)) {
+        msg += "• For larger scripts, 'use strict'; at the top can help catch subtle issues.\n";
+      }
+    } else if (lang === "json") {
+      try {
+        JSON.parse(code);
+      } catch {
+        msg += "• This JSON may not parse cleanly yet — check for trailing commas or mismatched quotes.\n";
+      }
+    }
+
+    if (todoCount) {
+      msg += `• I see ${todoCount} TODO/FIXME note(s) — gentle reminder to revisit them when you’re ready.\n`;
+    }
+
+    msg += "\nThis helper runs entirely in your browser — no external AI calls, just simple structural observations.";
+
+    return msg;
+  }
+</script>
+</body>
+</html>
