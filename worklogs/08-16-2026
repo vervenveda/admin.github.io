@@ -1,0 +1,932 @@
+Khaemenes Academy — Hardening & Continuity Worklog
+
+Date: August 16, 2026
+Project: Khaemenes Academy / Verve N Veda
+Scope: Pre-K through Grade 08, Academy continuity, NAIB delegation, Archaemenes mentoring, learner records, certification, and Middle School transition architecture
+
+Overview
+
+Today’s work focused on unifying the learner-continuity architecture across Khaemenes Academy and hardening the educational progression from Preschool through Middle School.
+
+The central goal was not to rewrite the curriculum. The curriculum itself was preserved wherever it was already strong. Instead, the work concentrated on identity authority, mentor continuity, NAIB delegation, learner-scoped records, adult verification, certification rules, legacy migration safety, and transitions between school stages.
+
+The emerging Academy-wide model is:
+
+Academy Family Registry
+        ↓
+NAIB intake / resource direction / delegation
+        ↓
+Khaemenes Academy
+        ↓
+Archaemenes · institutional Academy mentor
+        ↓
+Developmental / grade / course context
+        ↓
+Assessment evidence
+        ↓
+Adult verification
+        ↓
+Learner-scoped formal record
+        ↓
+Certificate / readiness / transition
+
+This architecture is intended to remain consistent as the Academy grows upward into High School and Higher Learning.
+
+1. Canonical Intelligence & Mentoring Architecture
+
+NAIB
+
+NAIB is now treated consistently as the Academy ecosystem’s:
+
+front-desk administrator;
+
+AI Resources Director;
+
+intake layer;
+
+intent interpreter;
+
+delegation intelligence;
+
+resource and destination router.
+
+NAIB receives a visitor’s context and determines where that person should go.
+
+A destination can be:
+
+Khaemenes Academy;
+
+a school stage;
+
+a specialist AI platform;
+
+a game or practice resource;
+
+a knowledge or research resource;
+
+a civic resource;
+
+an emergency resource;
+
+the 333 communications hub;
+
+a family-account resource;
+
+a Higher Learning pathway;
+
+another Verve N Veda platform.
+
+Canonical wording:
+
+NAIB receives, interprets, delegates, and connects.
+
+NAIB does not become the permanent academic mentor.
+
+Archaemenes
+
+Archaemenes is the institutional AI mentor of Khaemenes Academy.
+
+Developmental presentation changes by stage, but identity does not.
+
+Examples:
+
+Preschool / early stages — child-appropriate presentation;
+
+Elementary — Young Scholar;
+
+Middle School — Academy Scholar.
+
+Archaemenes:
+
+mentors;
+
+helps organize thinking;
+
+provides hints and learning guidance;
+
+supports evidence-based reasoning;
+
+does not grade;
+
+does not award mastery;
+
+does not control formal promotion.
+
+Specialist AIs
+
+Other specialist platforms retain their own specialist AIs.
+
+Examples already established:
+
+MoirAI — The Refrain music mentor;
+
+Eiren — language arts / literary mentor;
+
+Archaemenes — Khaemenes Academy mentor.
+
+A learner may interact with multiple specialist AIs depending on platform and subject.
+
+The Family Registry therefore must not treat one mentorId as a permanent global learner authority.
+
+2. Pre-K Through Grade 05 Architecture Alignment
+
+A terminology and runtime alignment pass was completed across Preschool, Kinder Garden, and Elementary.
+
+The older model implied that NAIB “assigned” or “owned” the learner’s mentor.
+
+That has been corrected.
+
+The aligned sequence is now:
+
+Family Registry
+    ↓
+NAIB delegation
+    ↓
+Khaemenes Academy
+    ↓
+Archaemenes
+    ↓
+Developmental presentation
+    ↓
+Course / lesson / resource context
+
+Preschool
+
+Preschool documentation and runtime language were updated so that:
+
+NAIB delegates;
+
+Khaemenes Academy provides Archaemenes;
+
+Archaemenes remains the Academy mentor;
+
+the public UI no longer implies that NAIB owns the mentor relationship.
+
+The transition compatibility seam remains in place so older assignMentor() calls do not break while the Academy migrates to delegate().
+
+Kinder Garden
+
+Kinder Garden was aligned to the same authority model.
+
+The old conceptual statement:
+
+“NAIB decides WHO mentors.”
+
+was replaced by the newer model:
+
+NAIB decides WHERE the visitor should go. Khaemenes Academy provides Archaemenes.
+
+The Kinder companion system still chooses lesson-relevant resources, but it is no longer treated as a competing mentor authority.
+
+Elementary
+
+Elementary was updated to the same structure:
+
+Family Registry
+    ↓
+NAIB
+    ↓
+Khaemenes Academy
+    ↓
+Archaemenes · Young Scholar
+    ↓
+Grade 01–05
+    ↓
+Assessment
+    ↓
+Adult verification
+    ↓
+Certificate
+
+3. Elementary School Hardening
+
+Repository: vervenveda/Khaemenes_Elementary.github.io
+
+Working branch: hardening/archaemenes-elementary
+
+Status after today’s validation work:
+
+branch ahead of main;
+
+main remains untouched;
+
+curriculum preserved;
+
+architecture hardened;
+
+static validation completed.
+
+Elementary Root
+
+The root Elementary portal now clearly separates:
+
+Academy Family identity;
+
+formal grade placement;
+
+NAIB delegation;
+
+Archaemenes mentoring;
+
+grade-specific course records;
+
+local learner preferences;
+
+adult verification;
+
+certification.
+
+The root page does not create a second child identity.
+
+It also does not allow a pinned grade preference to override formal Academy placement.
+
+4. Grades 01–05 Unified Record Model
+
+All five Elementary grades now use learner-scoped formal records.
+
+Formal learner state is based on:
+
+active Academy learner;
+
+correct school stage;
+
+correct formal grade;
+
+grade-specific record store.
+
+Each grade keeps its own course data while the Academy Family Registry remains authoritative for learner identity and placement.
+
+Certification Standard
+
+Grades 01–05 now follow the stronger completion rule:
+
+36 / 36 verified weekly mastery results at 80%+
++ Midterm at 80%+
++ Final at 80%+
++ Portfolio approval
+
+The mentor never becomes the grader.
+
+Formal evidence is separated from learner-facing practice.
+
+5. Multi-Learner Legacy Migration Repair
+
+During validation, an important cross-grade issue was identified.
+
+Older shared localStorage records could potentially be rewritten with the latest learner’s state. That created a risk that a second sibling or learner using the same browser could inherit a previous learner’s compatibility snapshot.
+
+This was corrected across Grades 01–05.
+
+The hardened approach now uses:
+
+learner-scoped formal record storage;
+
+read-only historical legacy keys;
+
+one-time migration claims;
+
+no rewriting of the old shared record;
+
+protection against silent multi-learner migration.
+
+This was one of the most important integrity fixes completed today.
+
+6. Grade 04 Final Cleanup
+
+Grade 04 had two remaining implementation differences from the other grades.
+
+These were corrected:
+
+The Teacher / Family Tools record controller was moved out of inline script into:
+
+assets/grade4-records.js
+
+The certificate page’s duplicate print control / print ID issue was cleaned up.
+
+Grade 04 now follows the same architecture as the other Elementary grades.
+
+7. Elementary Static Validation
+
+Static validation was performed after hardening.
+
+Validated areas included:
+
+Grade 01–05 learner eligibility;
+
+formal grade isolation;
+
+learner-scoped records;
+
+multi-learner migration protection;
+
+certificate gates;
+
+adult verification boundary;
+
+Grade 05 → Middle School boundary;
+
+no silent auto-promotion;
+
+Archaemenes continuity;
+
+NAIB delegation semantics.
+
+Remaining checks are deployment/browser checks only:
+
+real Family Registry profile switching;
+
+two actual learners on the same device;
+
+teacher record persistence across reload;
+
+certificate lock/unlock/print behavior;
+
+CSP behavior;
+
+mobile layout;
+
+print layout;
+
+deployed link traversal.
+
+8. Middle School Initial Audit
+
+Repository: vervenveda/Khaemenes_Middle.github.io
+
+The Middle School repository was inspected before hardening.
+
+The root portal was already modern and visually strong, but the Grade 06–08 record architecture still followed the older shared-record pattern.
+
+The main issues identified were:
+
+learner-editable formal scores;
+
+shared localStorage records;
+
+average-based certification;
+
+no learner-scoped Grade 06–08 continuity;
+
+no direct NAIB v2 delegation integration;
+
+no Academy Scholar continuity inside grade portals;
+
+adult verification not separated from learner entry;
+
+stale README language;
+
+missing stronger root hardening.
+
+The curriculum itself was not considered the problem.
+
+9. Grade 06 Hardening
+
+Repository: vervenveda/Khaemenes_Middle.github.io
+
+Middle hardening branch: hardening/archaemenes-grade06
+
+Grade 06 was the first Middle School grade moved onto the hardened architecture.
+
+Grade 06 Eligibility
+
+Formal records now require:
+
+stage: middle
+grade: grade-06
+
+Grade 06 Continuity
+
+A new learner-scoped continuity layer was created.
+
+It:
+
+reads the active learner from the Academy Family Registry;
+
+requires formal Grade 06 placement;
+
+delegates through NAIB when available;
+
+resolves Archaemenes as the Khaemenes Academy mentor;
+
+uses the academy-scholar presentation;
+
+keeps formal Grade 06 course state separate by learner.
+
+Grade 06 Adult Verification
+
+The learner-facing portal no longer allows direct editing of:
+
+learner name;
+
+weekly mastery;
+
+midterm;
+
+final;
+
+portfolio approval.
+
+Teacher / Family Tools now serves as the adult verification surface.
+
+It records:
+
+weekly mastery;
+
+midterm;
+
+final;
+
+portfolio / capstone approval.
+
+Grade 06 Certification
+
+Grade 06 now requires:
+
+36 / 36 verified weeks at 80%+
++ Midterm at 80%+
++ Final at 80%+
++ Portfolio / capstone approved
+
+The old weekly-average-only rule was removed.
+
+Grade 06 Legacy Migration
+
+The historical shared key is now migration input only.
+
+A one-time migration claim prevents one old browser record from being copied into multiple learners.
+
+Grade 06 Validation
+
+Grade 06 was statically validated after hardening.
+
+No additional defect was found during the final Grade 06 validation pass.
+
+10. Grade 07 Hardening
+
+Grade 07 was hardened immediately after Grade 06 using the same Middle School architecture.
+
+Grade 07 Eligibility
+
+stage: middle
+grade: grade-07
+
+Grade 07 Architecture
+
+Family Registry
+    ↓
+NAIB delegation
+    ↓
+Khaemenes Academy
+    ↓
+Archaemenes · Academy Scholar
+    ↓
+Grade 07
+    ↓
+Adult-verified evidence
+    ↓
+Learner-scoped record
+    ↓
+Certificate / Grade 08 readiness
+
+Grade 07 Certification
+
+Grade 07 now requires:
+
+36 / 36 verified weeks at 80%+
++ Midterm at 80%+
++ Final at 80%+
++ Portfolio / capstone approved
+
+Grade 07 Advancement Boundary
+
+Grade 07 completion does not automatically rewrite the learner as Grade 08.
+
+Formal advancement remains a deliberate Academy / family action.
+
+11. Grade 08 Hardening
+
+Grade 08 was hardened on the same Middle School branch.
+
+Grade 08 Eligibility
+
+stage: middle
+grade: grade-08
+
+Grade 08 Student Record Boundary
+
+The learner-facing page no longer allows the student to directly enter:
+
+weekly mastery;
+
+midterm;
+
+final;
+
+portfolio approval;
+
+High School transition completion.
+
+These are now adult-reviewed formal evidence.
+
+Grade 08 Certification
+
+Grade 08 has one additional gate beyond Grades 06–07:
+
+36 / 36 verified weeks at 80%+
++ Midterm at 80%+
++ Final at 80%+
++ Portfolio / capstone approved
++ High School transition plan reviewed and complete
+
+Grade 08 High School Boundary
+
+Completing Grade 08 does not automatically move the learner into High School.
+
+Readiness evidence and formal placement are kept separate.
+
+12. Middle School Hardening Branch Status
+
+The Middle School hardening work for Grades 06–08 is currently unified on:
+
+hardening/archaemenes-grade06
+
+At the end of the Grade 08 pass, the branch was:
+
+28 commits ahead of main
+
+0 commits behind
+
+main unchanged.
+
+The branch now contains hardened Grade 06, Grade 07, and Grade 08 architecture in one line of work.
+
+13. Grade 05 → Middle School Bridge Audit
+
+Before the connection interruption, we returned to Grade 05 to inspect the transition into Middle School.
+
+Important finding:
+
+The Elementary root already contains a Middle School bridge and correctly states that:
+
+the learner keeps the same Academy identity;
+
+Middle School lives in a separate repository;
+
+promotion remains deliberate;
+
+NAIB may delegate the learner to the next campus;
+
+course records remain owned by the course that created them.
+
+Grade 05 itself already describes Middle School readiness and links into the larger Elementary continuity architecture.
+
+However, this bridge still needs a more explicit advanced learner pathway.
+
+14. Advanced Learner / Accelerated Trajectory Design
+
+The next improvement should support learners who are ready to work above nominal grade level without corrupting formal placement.
+
+The correct model should be:
+
+Formal Academy placement
+        ≠
+Learning access / advanced resource access
+
+A Grade 05 learner may remain formally:
+
+stage: elementary
+grade: grade-05
+
+while receiving access to:
+
+Grade 06 preview material;
+
+advanced mathematics;
+
+advanced reading;
+
+research;
+
+science;
+
+projects;
+
+Middle School resource sampling;
+
+readiness diagnostics;
+
+challenge tracks.
+
+This allows acceleration without silently rewriting the learner’s grade.
+
+Proposed Advanced Bridge Model
+
+Grade 05 learner
+    ↓
+Adult / Academy readiness review
+    ↓
+Advanced pathway flag or recommendation
+    ↓
+NAIB delegation to approved Middle School preview resources
+    ↓
+Archaemenes continues mentoring
+    ↓
+Formal Grade 05 placement remains unchanged
+    ↓
+Promotion occurs only through explicit Academy / family action
+
+This should become a deliberate “Advanced Pathway” rather than an automatic promotion mechanism.
+
+15. Planned Grade 05 Bridge Enhancements
+
+The Grade 05 portal should gain a dedicated Middle School transition section that includes:
+
+Middle School preview;
+
+advanced learner challenge pathway;
+
+Grade 06 readiness checklist;
+
+research / capstone bridge;
+
+advanced mathematics preview;
+
+reading and writing readiness;
+
+executive-function readiness;
+
+family / evaluator review;
+
+clear statement that preview access does not change formal grade placement.
+
+Recommended copy concept:
+
+Ready for more?
+Advanced Grade 05 scholars may explore selected Grade 06 resources with family or educator guidance. Preview access supports challenge and readiness; formal Academy placement remains Grade 05 until deliberately changed in the Academy Family Profile.
+
+16. Middle School Root Portal — Next Update
+
+After auditing the Grade 05 bridge, the Middle School landing page should be updated to receive learners coming from Elementary in a clearer and more intelligent way.
+
+The updated Middle School portal should recognize three entry patterns:
+
+1. Standard Grade 06 Entry
+
+Learner is formally placed in Grade 06.
+
+The portal should direct them immediately to Grade 06.
+
+2. Advanced Grade 05 Preview Entry
+
+Learner is formally Grade 05 but has entered through an approved advanced pathway.
+
+The portal should:
+
+clearly label the experience as preview / advanced exploration;
+
+allow selected Middle School resources;
+
+prevent formal Grade 06 record writes;
+
+keep Grade 05 placement intact.
+
+3. Existing Grade 07 / 08 Learner
+
+The portal should recognize formal placement and point directly to the correct grade.
+
+17. Middle School Root Architecture Target
+
+The updated Middle School root should eventually follow:
+
+Academy Family Registry
+        ↓
+NAIB delegation
+        ↓
+Middle School campus
+        ↓
+Formal learner placement / preview context
+        ↓
+Archaemenes · Academy Scholar
+        ↓
+Grade 06 / 07 / 08
+        ↓
+Course-specific records
+
+The root should not become a gradebook.
+
+It should serve as:
+
+a learner doorway;
+
+a campus navigator;
+
+a family continuity surface;
+
+an Archaemenes presentation layer;
+
+a resource gateway;
+
+a transition bridge from Elementary;
+
+a transition bridge to High School.
+
+18. Central Family Registry — Important Upstream Dependency
+
+A major Academy-wide dependency remains in the central Family Registry.
+
+The shared Academy Family Registry still needs its own hardening pass so it can formally distinguish:
+
+stage
+grade
+
+For example:
+
+{
+  "stage": "middle",
+  "grade": "grade-06"
+}
+
+instead of only:
+
+{
+  "stage": "middle"
+}
+
+The Registry also needs to stop treating mentorId / mentorIdentity as authoritative permanent learner fields.
+
+Desired Family Registry responsibility:
+
+identity;
+
+family relationship;
+
+formal school stage;
+
+formal grade;
+
+adult authority;
+
+placement changes.
+
+It should not own:
+
+one global mentor;
+
+course mastery;
+
+course grades;
+
+course certification.
+
+19. Security & Integrity Principles Reinforced Today
+
+Across the work completed today, the following principles were repeatedly enforced:
+
+no public-facing secrets;
+
+no second learner identity at school or grade level;
+
+no automatic promotion;
+
+no learner-controlled certification authority;
+
+no universal mentor field;
+
+no permanent NAIB-owned mentor assignment;
+
+learner-scoped formal records;
+
+legacy migration must be non-destructive;
+
+shared legacy records must not migrate into multiple learners;
+
+course records remain owned by the course;
+
+adult verification remains separate from learner practice;
+
+mentor guidance remains separate from mastery authority.
+
+20. Repository / Branch Summary
+
+Khaemenes Elementary
+
+Repository:
+
+vervenveda/Khaemenes_Elementary.github.io
+
+Hardening branch:
+
+hardening/archaemenes-elementary
+
+Work completed:
+
+Elementary root hardening;
+
+Archaemenes continuity;
+
+NAIB delegation alignment;
+
+Grades 01–05 learner-scoped records;
+
+adult verification;
+
+certificate hardening;
+
+multi-learner legacy migration repair;
+
+Grade 04 runtime cleanup;
+
+Grade 05 Middle School transition boundary;
+
+static validation.
+
+Khaemenes Middle
+
+Repository:
+
+vervenveda/Khaemenes_Middle.github.io
+
+Hardening branch:
+
+hardening/archaemenes-grade06
+
+Work completed:
+
+Grade 06 hardening;
+
+Grade 06 static validation;
+
+Grade 07 hardening;
+
+Grade 07 static validation;
+
+Grade 08 hardening;
+
+Grade 08 static validation;
+
+Academy Scholar presentation;
+
+adult verification;
+
+learner-scoped records;
+
+stronger certification;
+
+transition gates;
+
+no silent promotion.
+
+Current branch state after Grade 08:
+
+28 commits ahead of main;
+
+0 behind;
+
+main untouched.
+
+21. Next Work Session
+
+Recommended continuation order:
+
+Finish the Grade 05 → Middle School bridge.
+
+Add an Advanced Learner / accelerated preview pathway.
+
+Audit Grade 05 readiness against Grade 06 entry expectations.
+
+Update the Middle School root landing page to consume the new bridge.
+
+Add Middle School root Family Registry + NAIB + Archaemenes continuity.
+
+Preserve preview access separately from formal grade placement.
+
+Validate the full Elementary → Middle transition.
+
+Return to the central Academy Family Registry and implement the stage + grade model.
+
+Once the Registry is upgraded, browser-test the hardened Elementary and Middle branches.
+
+Merge only after explicit approval.
+
+22. Academy Continuity Principle
+
+The work completed today establishes a single educational continuity rule:
+
+One learner identity. One Academy relationship. Multiple courses, specialists, and developmental stages.
+
+The learner should be able to move from Preschool to Kinder Garden, Elementary, Middle School, High School, and Higher Learning without repeatedly rebuilding identity or losing continuity.
+
+NAIB helps the learner reach the correct destination.
+
+Khaemenes Academy provides Archaemenes as the institutional academic mentor.
+
+Each course owns its own learning evidence.
+
+Adults verify formal mastery.
+
+Promotion remains deliberate.
+
+Advanced learners may move faster through resources without losing the integrity of formal placement.
+
+Jennifer Kay Pearl · Khaemenes Academy · Verve N Veda
+Worklog date: August 16, 2026
