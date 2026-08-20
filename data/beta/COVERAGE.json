@@ -1,0 +1,27 @@
+{
+  "format": "vnv-beta-coverage-admin-snapshot-v1",
+  "source": "https://vervenveda.com/beta/COVERAGE.json",
+  "sourceRepository": "vervenveda/vervenveda.github.io",
+  "syncedAt": "2026-08-20",
+  "program": "Verve N Veda Public Beta Program",
+  "status": "active",
+  "summary": {
+    "trackedRepositories": 20,
+    "directIndexSurfacesCovered": 1315,
+    "unresolvedVisibleIndexSurfacesInTrackedRepositories": 0,
+    "releaseHoldRepositories": 1
+  },
+  "privacy": {
+    "publicRouteMetadataOnly": true,
+    "learnerIdsExcluded": true,
+    "familyIdsExcluded": true,
+    "gradesExcludedFromFeedbackSource": true,
+    "answersExcluded": true,
+    "formValuesExcluded": true,
+    "queryStringsExcluded": true,
+    "hashesExcluded": true,
+    "browserStorageExcluded": true,
+    "credentialsExcluded": true
+  },
+  "administrativeNote": "This private-repository snapshot is for administrative visibility. The public Beta doorway remains https://vervenveda.com/beta/. High School coverage remains on hardening/archaemenes-highschool until deliberate release."
+}
