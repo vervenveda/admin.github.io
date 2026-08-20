@@ -1,0 +1,69 @@
+{
+  "schema": "khaemenes-admin-brood-manifest",
+  "version": 1,
+  "name": "Araneae Admin Brood",
+  "mode": "private-local-first-defensive",
+  "authority": {
+    "default": "observe",
+    "autonomousConsequentialAction": false,
+    "humanFinalAuthority": true,
+    "selfElevation": false
+  },
+  "flow": ["observe", "compare", "correlate", "explain", "recommend", "human-review"],
+  "weblings": [
+    {
+      "id": "sentry",
+      "name": "Sentry",
+      "purpose": "Detect unusual administrator gate, session, and access-state evidence.",
+      "domains": ["session", "access", "admin-state"]
+    },
+    {
+      "id": "ledger",
+      "name": "Ledger",
+      "purpose": "Verify assessment, record, review, and credential-handoff integrity.",
+      "domains": ["assessment", "records", "handoff", "credential-evidence"]
+    },
+    {
+      "id": "weaver",
+      "name": "Weaver",
+      "purpose": "Detect expected-state drift in configuration, repositories, and approved routing references.",
+      "domains": ["configuration", "repository", "routing", "drift"]
+    },
+    {
+      "id": "hashling",
+      "name": "Hashling",
+      "purpose": "Check hashes, manifests, component versions, and integrity claims.",
+      "domains": ["sha256", "manifest", "component-version", "integrity"]
+    },
+    {
+      "id": "vaultling",
+      "name": "Vaultling",
+      "purpose": "Detect evidence that secrets or key material have crossed an approved custody boundary.",
+      "domains": ["secret-boundary", "key-custody", "sensitive-material"]
+    },
+    {
+      "id": "quill",
+      "name": "Quill",
+      "purpose": "Check administrative audit/worklog continuity and unexplained change evidence.",
+      "domains": ["audit", "worklog", "change-history"]
+    },
+    {
+      "id": "beacon",
+      "name": "Beacon",
+      "purpose": "Assess backup, recovery, continuity, and known-good readiness evidence.",
+      "domains": ["backup", "recovery", "continuity", "known-good"]
+    }
+  ],
+  "severity": ["info", "watch", "investigate", "critical"],
+  "prohibited": [
+    "autonomous deletion",
+    "autonomous credential changes",
+    "autonomous access revocation",
+    "autonomous repository mutation",
+    "arbitrary third-party crawling",
+    "authentication bypass",
+    "execution of untrusted downloads",
+    "secret exfiltration",
+    "authority self-elevation"
+  ]
+}
