@@ -1,0 +1,27 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"khaemenes-swarm-convergence-v1",
+  "title":"Verve N Veda Swarm Convergence Contract",
+  "type":"object",
+  "additionalProperties":false,
+  "required":["schema","version","broodId","name","status","sourceOfTruth","statusView","contract","authority"],
+  "properties":{
+    "schema":{"const":"khaemenes-swarm-convergence"},
+    "version":{"const":1},
+    "broodId":{"type":"string","pattern":"^[a-z0-9][a-z0-9-]{1,63}$"},
+    "name":{"type":"string","minLength":1,"maxLength":120},
+    "status":{"enum":["available","developing","paused","degraded","unknown"]},
+    "sourceOfTruth":{"type":"string","minLength":1,"maxLength":300},
+    "statusView":{"type":["string","null"],"maxLength":300},
+    "contract":{"type":["string","null"],"maxLength":300},
+    "authority":{
+      "type":"object","additionalProperties":false,
+      "required":["humanFinalAuthority","autonomousConsequentialAction","crossBroodWrites"],
+      "properties":{
+        "humanFinalAuthority":{"const":true},
+        "autonomousConsequentialAction":{"const":false},
+        "crossBroodWrites":{"const":false}
+      }
+    }
+  }
+}
