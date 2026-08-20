@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Khaemenes Assessment Review Desk</title>
+<style>
+:root{--bg:#090b0f;--panel:#141820;--panel2:#1b2029;--ink:#f5efe5;--muted:#b8ae9d;--gold:#d8b45f;--gold2:#f1dda0;--line:rgba(216,180,95,.28);--good:#9ed8ad;--bad:#efa0a0;--warn:#f1d28b;--formal:Cinzel,"Palatino Linotype",Palatino,Georgia,serif;--body:"Brandon Grotesque","Avenir Next",Avenir,"Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box}body{margin:0;min-width:320px;min-height:100vh;color:var(--ink);background:radial-gradient(circle at 50% 0,rgba(216,180,95,.10),transparent 32rem),linear-gradient(145deg,#050608,var(--bg));font:400 16px/1.55 var(--body)}
+main{width:min(1180px,calc(100% - 30px));margin:auto;padding:32px 0 60px}.hero,.card{border:1px solid var(--line);border-radius:14px;background:rgba(20,24,32,.94);box-shadow:0 16px 42px rgba(0,0,0,.22)}.hero{text-align:center;padding:30px 22px}.hero .eyebrow{margin:0;color:var(--gold);font:700 .72rem var(--formal);letter-spacing:.17em;text-transform:uppercase}.hero h1{margin:.55rem 0 .7rem;font:500 clamp(2.2rem,5vw,4.3rem)/1 var(--formal)}.hero p{max-width:820px;margin:.5rem auto;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}.card{padding:18px}.full{grid-column:1/-1}.card h2{margin:.1rem 0 .8rem;color:var(--gold2);font:600 1.08rem var(--formal)}.small{font-size:.84rem;color:var(--muted)}label{display:block;margin:.75rem 0 .3rem;color:#eadfce;font-weight:700}input,select,textarea{width:100%;border:1px solid rgba(255,255,255,.14);border-radius:8px;background:#0c1015;color:var(--ink);padding:.7rem;font:inherit}textarea{min-height:110px;resize:vertical}.row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button,.filebtn{border:1px solid var(--line);border-radius:8px;background:#171c23;color:var(--ink);padding:.7rem .9rem;font-weight:800;cursor:pointer}.primary{color:#211707;background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:transparent}.danger{border-color:rgba(239,160,160,.35);color:#ffdede}.filebtn input{display:none}.status{margin-top:12px;padding:11px;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:var(--muted);background:#0d1116}.status.good{color:var(--good);border-color:rgba(158,216,173,.28)}.status.bad{color:var(--bad);border-color:rgba(239,160,160,.28)}.status.warn{color:var(--warn)}
+.evidence{display:grid;gap:8px;margin-top:10px}.ev{padding:11px;border:1px solid rgba(255,255,255,.10);border-radius:8px;background:#0d1116}.ev strong{color:#f3dda0}.ev span{display:block;color:var(--muted);font-size:.82rem}.checks{display:grid;gap:8px;margin-top:10px}.check{display:flex;gap:9px;align-items:flex-start;padding:9px;border:1px solid rgba(255,255,255,.09);border-radius:8px;background:#0d1116}.check input{width:auto;margin-top:.22rem}.check label{margin:0;font-weight:600}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}pre{max-height:340px;overflow:auto;padding:12px;border-radius:8px;background:#090c10;color:#ddd;font-size:.76rem;white-space:pre-wrap}.notice{margin-top:14px;padding:13px;border:1px solid var(--line);border-radius:9px;background:rgba(216,180,95,.06);color:#e9dfcf}
+@media(max-width:760px){.grid,.row{grid-template-columns:1fr}.full{grid-column:auto}}@media print{button,.filebtn,.input-only{display:none!important}body{background:#fff;color:#111}.hero,.card{background:#fff;border-color:#bbb;box-shadow:none}.small,.status{color:#444}}
+</style>
+</head>
+<body>
+<main>
+<section class="hero"><p class="eyebrow">Private Administration</p><h1>Khaemenes Assessment Review Desk</h1><p>Human review sits between confidential grading and credential signing. This desk verifies graded-result integrity, gathers retained evidence, records the administrator's decision, and exports an approved record handoff. No answer keys or signing private keys belong here.</p></section>
+<div class="notice"><strong>Boundary:</strong> assessment questions/keys remain in the private Assessment Authority. Signing-key custody remains in the offline signer vault. This desk receives only graded result packages and produces only an administrator-approved handoff.</div>
+<div class="grid">
+<section class="card">
+<h2>1 · Import graded evidence</h2>
+<p class="small">Import one or more JSON files produced by the private grader. The desk verifies each package's SHA-256 self-consistency digest before accepting it.</p>
+<label class="filebtn">Choose graded result files<input id="files" type="file" accept="application/json,.json" multiple></label>
+<div class="actions"><button id="clearEvidence" class="danger" type="button">Clear Evidence</button></div>
+<div id="evidenceStatus" class="status">No graded evidence loaded.</div>
+<div id="evidence" class="evidence"></div>
+</section>
+<section class="card">
+<h2>2 · Learner & course record</h2>
+<div class="row"><div><label for="recordId">Record ID</label><input id="recordId"></div><div><label for="learnerId">Learner ID</label><input id="learnerId"></div></div>
+<label for="learnerName">Learner name</label><input id="learnerName">
+<div class="row"><div><label for="courseCode">Course code</label><input id="courseCode" value="KH-MATH-PA"></div><div><label for="courseTitle">Course title</label><input id="courseTitle" value="Khaemenes Global Pre-Algebra"></div></div>
+<div class="row"><div><label for="academicYear">Academic year</label><input id="academicYear" value="2026-2027"></div><div><label for="completionDate">Completion date</label><input id="completionDate" type="date"></div></div>
+<div class="row"><div><label for="finalPercent">Official final percent</label><input id="finalPercent" type="number" min="0" max="100" step="0.01"></div><div><label for="letterGrade">Letter grade</label><input id="letterGrade"></div></div>
+<div class="row"><div><label for="credit">Credit awarded</label><input id="credit" type="number" min="0" step="0.25"></div><div><label for="issuer">Issuer</label><input id="issuer" value="Khaemenes Academy"></div></div>
+<p class="small">The official course grade and credit are administrator decisions based on retained course evidence. They are not automatically calculated from the secure exam score.</p>
+</section>
+<section class="card">
+<h2>3 · Administrative review</h2>
+<label for="reviewedBy">Reviewed by</label><input id="reviewedBy" autocomplete="name">
+<div class="checks">
+<div class="check"><input id="identityVerified" type="checkbox"><label for="identityVerified">Learner identity and stable learner ID verified.</label></div>
+<div class="check"><input id="evidenceReviewed" type="checkbox"><label for="evidenceReviewed">Retained course evidence and imported graded results reviewed.</label></div>
+<div class="check"><input id="scoreReviewed" type="checkbox"><label for="scoreReviewed">Assessment scores and assessment versions reviewed.</label></div>
+<div class="check"><input id="creditReviewed" type="checkbox"><label for="creditReviewed">Final grade and any credit decision reviewed.</label></div>
+</div>
+<label for="notes">Review notes</label><textarea id="notes" placeholder="Optional internal notes; avoid unnecessary sensitive details."></textarea>
+</section>
+<section class="card">
+<h2>4 · Approve handoff</h2>
+<p class="small">Approval creates a file for the offline credential signer. Nothing is transmitted by this page.</p>
+<div class="actions"><button class="primary" id="approve" type="button">Approve & Prepare Handoff</button><button id="download" type="button">Download Approved Handoff</button></div>
+<div id="approvalStatus" class="status warn">Awaiting review.</div>
+</section>
+<section class="card full">
+<h2>Approved handoff preview</h2><pre id="preview">No approved handoff prepared.</pre>
+</section>
+</div>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),enc=new TextEncoder();
+const state={evidence:[],approved:null};
+function hex(buf){return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+async function sha256(text){return hex(await crypto.subtle.digest('SHA-256',enc.encode(text)))}
+function cloneWithoutIntegrity(obj){const c=structuredClone(obj);delete c.integrity;return c}
+function setStatus(id,text,cls=''){const el=$(id);el.textContent=text;el.className='status '+cls}
+function uid(prefix){const a=new Uint8Array(9);crypto.getRandomValues(a);return prefix+'-'+[...a].map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase()}
+function download(name,obj){const blob=new Blob([JSON.stringify(obj,null,2)+'\n'],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},0)}
+function normalizeLearner(g){return g?.learner||{}}
+async function validateGraded(g){if(!g||typeof g!=='object')throw new Error('Not a JSON object');if(!g.assessmentId||!g.assessmentVersion||!g.courseCode||!g.score)throw new Error('Missing graded-result fields');if(g.reviewStatus!=='administrator-review-required')throw new Error('Unexpected reviewStatus');if(g.authoritative!==false||g.signed!==false)throw new Error('Expected unsigned grader output');if(!g.integrity||g.integrity.algorithm!=='SHA-256'||!g.integrity.digest)throw new Error('Missing SHA-256 integrity block');const actual=await sha256(JSON.stringify(cloneWithoutIntegrity(g)));if(actual!==String(g.integrity.digest).toLowerCase())throw new Error('Integrity digest mismatch');return true}
+function renderEvidence(){const box=$('evidence');box.innerHTML='';state.evidence.forEach(g=>{const d=document.createElement('div');d.className='ev';d.innerHTML='<strong></strong><span></span><span></span>';d.children[0].textContent=g.assessmentId;d.children[1].textContent=`${g.assessmentVersion} · ${g.score.earned}/${g.score.possible} · ${g.score.percent}%`;d.children[2].textContent=`Graded ${g.gradedAt} · integrity ${g.integrity.digest.slice(0,16)}…`;box.append(d)});setStatus('evidenceStatus',state.evidence.length?`${state.evidence.length} verified graded package(s) loaded.`:'No graded evidence loaded.',state.evidence.length?'good':'')}
+function hydrateFromEvidence(){if(!state.evidence.length)return;const first=state.evidence[0],learner=normalizeLearner(first);$('courseCode').value=first.courseCode||$('courseCode').value;$('learnerId').value=learner.learnerId||learner.id||$('learnerId').value;$('learnerName').value=learner.learnerName||learner.name||learner.nickname||$('learnerName').value;if(!$('recordId').value)$('recordId').value=uid('KH-RECORD')}
+$('files').addEventListener('change',async e=>{for(const f of [...(e.target.files||[])]){try{const g=JSON.parse(await f.text());await validateGraded(g);const duplicate=state.evidence.some(x=>x.assessmentId===g.assessmentId&&x.assessmentVersion===g.assessmentVersion);if(!duplicate)state.evidence.push(g)}catch(err){setStatus('evidenceStatus',`${f.name}: ${err.message}`,'bad');return}}const learners=new Set(state.evidence.map(g=>{const l=normalizeLearner(g);return l.learnerId||l.id||''}).filter(Boolean));const courses=new Set(state.evidence.map(g=>g.courseCode));if(learners.size>1){setStatus('evidenceStatus','Loaded results belong to more than one learner. Clear evidence and review separately.','bad');return}if(courses.size>1){setStatus('evidenceStatus','Loaded results belong to more than one course. Clear evidence and review separately.','bad');return}hydrateFromEvidence();renderEvidence()});
+$('clearEvidence').addEventListener('click',()=>{state.evidence=[];state.approved=null;$('files').value='';$('preview').textContent='No approved handoff prepared.';renderEvidence();setStatus('approvalStatus','Awaiting review.','warn')});
+function value(id){return $(id).value.trim()}
+function required(id,label){const v=value(id);if(!v)throw new Error(label+' is required.');return v}
+function build(){if(!state.evidence.length)throw new Error('At least one verified graded result is required.');const checks={identityVerified:$('identityVerified').checked,evidenceReviewed:$('evidenceReviewed').checked,scoreReviewed:$('scoreReviewed').checked,creditDecisionReviewed:$('creditReviewed').checked};if(Object.values(checks).some(v=>v!==true))throw new Error('All four administrative checks must be completed.');const finalPercent=Number(required('finalPercent','Official final percent'));if(!Number.isFinite(finalPercent)||finalPercent<0||finalPercent>100)throw new Error('Official final percent must be 0–100.');const creditRaw=value('credit'),credit=creditRaw===''?null:Number(creditRaw);if(credit!==null&&(!Number.isFinite(credit)||credit<0))throw new Error('Credit must be blank or non-negative.');const reviewedAt=new Date().toISOString();const versions=state.evidence.map(g=>g.assessmentVersion).join(' + ');const record={recordId:required('recordId','Record ID'),learnerId:required('learnerId','Learner ID'),learnerName:value('learnerName')||null,courseCode:required('courseCode','Course code'),courseTitle:required('courseTitle','Course title'),academicYear:required('academicYear','Academic year'),completionDate:required('completionDate','Completion date'),finalPercent,letterGrade:value('letterGrade')||null,credit,assessmentVersion:versions,issuedAt:reviewedAt,issuer:required('issuer','Issuer')};const evidence=state.evidence.map(g=>({assessmentId:g.assessmentId,assessmentVersion:g.assessmentVersion,score:g.score,gradedAt:g.gradedAt,sourceIntegrity:{algorithm:g.integrity.algorithm,digest:g.integrity.digest}}));return{schemaVersion:'1.0',kind:'khaemenes-admin-approved-record',reviewId:uid('KH-REVIEW'),record,approval:{status:'approved',reviewedBy:required('reviewedBy','Reviewer name'),reviewedAt,notes:value('notes')||null,checks},evidence}}
+$('approve').addEventListener('click',()=>{try{state.approved=build();$('preview').textContent=JSON.stringify(state.approved,null,2);setStatus('approvalStatus','Approved handoff prepared. Transfer this file to the offline credential signer.','good')}catch(e){state.approved=null;setStatus('approvalStatus',e.message,'bad')}});
+$('download').addEventListener('click',()=>{if(!state.approved)return setStatus('approvalStatus','Prepare an approved handoff first.','bad');download('khaemenes-admin-approved-'+state.approved.record.recordId+'.json',state.approved)});
+$('recordId').value=uid('KH-RECORD');$('completionDate').value=new Date().toISOString().slice(0,10);renderEvidence();
+})();
+</script>
+</body>
+</html>
