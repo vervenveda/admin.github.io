@@ -1,0 +1,44 @@
+{
+  "schema": "khaemenes-beta-brood-manifest",
+  "version": 1,
+  "status": "private-admin-contract",
+  "program": "Verve N Veda / Khaemenes Academy Beta Program",
+  "parent": "Araneae",
+  "humanFinalAuthority": true,
+  "rules": {
+    "observationIsAuthority": false,
+    "autonomousRemediation": false,
+    "destructiveActions": false,
+    "credentialChanges": false,
+    "repositoryWrites": false,
+    "learnerDataCollection": "minimum-necessary-only",
+    "reportingPath": ["spyder", "araneae-correlation", "admin-review"]
+  },
+  "spyders": [
+    {
+      "class": "sentinel",
+      "name": "Sentinel Spyder",
+      "role": "Observe approved Beta public surfaces for availability, Beta doorway presence, expected assets, redirects and page-level integrity signals."
+    },
+    {
+      "class": "repo",
+      "name": "Repo Spyder",
+      "role": "Observe approved Beta-participating repositories for release, workflow, manifest and known-good reference drift through authorized repository integrations."
+    },
+    {
+      "class": "beta",
+      "name": "Beta Spyder",
+      "role": "Lead Beta child. Correlate explicit Beta participation signals, user-shared report metadata and page failure indicators without silently collecting report text or learner data."
+    },
+    {
+      "class": "recovery",
+      "name": "Recovery Spyder",
+      "role": "Observe sanitized continuity and recovery-readiness metadata for Beta-participating surfaces without accessing recovery secrets."
+    },
+    {
+      "class": "directory",
+      "name": "Directory Spyder",
+      "role": "Compare the approved Beta surface inventory with current public participation and report missing, stale or unexpected entries."
+    }
+  ]
+}
