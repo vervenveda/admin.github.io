@@ -1,0 +1,34 @@
+# Signing material and vaults
+*.pem
+*.key
+*.jwk
+*.p12
+*.pfx
+*.vault.json
+private-keys/
+vault/
+
+# Assessment review working files
+graded-output*.json
+*graded-result*.json
+khaemenes-admin-approved-*.json
+khaemenes-signed-record-*.json
+assessment-responses/
+student-responses/
+student-records/
+records/private/
+
+# Secrets and local configuration
+.env
+.env.*
+*.secret
+*.secrets
+secrets/
+
+# Local/editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+node_modules/
+*.log
