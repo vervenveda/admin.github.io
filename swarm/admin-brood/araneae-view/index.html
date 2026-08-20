@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Araneae — Read-Only Command View</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root{color-scheme:dark}
+    *{box-sizing:border-box}
+    body{margin:0;background:#080b10;color:#eef2f4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:1180px;margin:0 auto;padding:28px 20px 48px}
+    h1,h2,h3{font-family:Georgia,"Times New Roman",serif}
+    .eyebrow{letter-spacing:.14em;text-transform:uppercase;color:#b9c1c9;font-size:.75rem}
+    .notice,.panel,.card{border:1px solid #303946;background:#10161e;border-radius:14px}
+    .notice{padding:14px 16px;margin:18px 0}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
+    .card{padding:16px}.big{font-size:1.8rem;font-weight:800}.muted{color:#aeb9c4}
+    .panel{padding:18px;margin:18px 0;overflow:auto}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    th,td{padding:10px;border-bottom:1px solid #29313b;text-align:left;white-space:nowrap}
+    th{color:#d7b56d}
+    .ok{color:#a8e6b1}.warn{color:#f5d28a}.bad{color:#ff9d9d}
+    ul{padding-left:20px}li{margin:12px 0}.stamp{margin-top:22px;color:#8c98a5;font-size:.82rem}
+    .error{border-color:#7a3434;background:#1b1010}
+    @media(max-width:800px){.grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.grid{grid-template-columns:1fr}}
+    @media print{body{background:#fff;color:#000}.notice,.panel,.card{background:#fff;border-color:#999}.muted,.stamp{color:#444}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Verve N Veda Admin Brood · Araneae</div>
+  <h1>Read-Only Command View</h1>
+  <div class="notice"><strong>Display bridge only.</strong> This page can read the sanitized Spyder Cloud snapshot. It cannot activate, pause, repair, remediate, roll back, or modify repository/registry state.</div>
+
+  <div id="status" class="notice">Loading sanitized Araneae snapshot…</div>
+  <div id="content" hidden></div>
+</main>
+<script>
+(() => {
+  'use strict';
+  const SNAPSHOT_URL='https://raw.githubusercontent.com/vervenveda/spyder-cloud/main/VIEW/generated/snapshot.json';
+  const status=document.getElementById('status');
+  const content=document.getElementById('content');
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const klass=v=>v===true?'ok':v===false?'bad':'warn';
+
+  function validate(s){
+    return s && s.schema==='khaemenes-araneae-command-view' && s.version===1 && s.capabilities?.readOnly===true && s.capabilities?.registryWrites===false && Array.isArray(s.brood);
+  }
+
+  function render(s){
+    const rows=s.brood.map(x=>`<tr><td>${esc(x.spyderClass)}</td><td>${esc(x.state)}</td><td>${esc(x.health)}</td><td>${esc(x.continuityStatus)}</td><td class="${klass(x.manifestValid)}">${x.manifestValid?'✓':'✕'}</td><td class="${klass(x.privacyContractValid)}">${x.privacyContractValid?'✓':'✕'}</td><td class="${klass(x.reportingContractValid)}">${x.reportingContractValid?'✓':'✕'}</td><td>${esc(x.lastEventAt||'—')}</td></tr>`).join('');
+    const events=(s.recentAdministrativeEvents||[]).length
+      ? s.recentAdministrativeEvents.map(e=>`<li><strong>${esc(e.eventType)}</strong> · ${esc(e.subject)} · ${esc(e.outcome)}<br><span class="muted">${esc(e.summary)}</span></li>`).join('')
+      : '<li>No administrative journal events recorded yet.</li>';
+    const recovery=s.integrity?.recovery
+      ? `<div class="card"><h3>Recovery baseline</h3><div class="big ${s.integrity.recovery.match?'ok':'warn'}">${s.integrity.recovery.match?'MATCH':'DRIFT'}</div><div class="muted">${esc(s.integrity.recovery.baselineId||'')}</div></div>`
+      : '<div class="card"><h3>Recovery baseline</h3><div class="big">NOT SET</div><div class="muted">No baseline supplied to snapshot.</div></div>';
+
+    content.innerHTML=`
+      <div class="grid">
+        <div class="card"><h3>Registered</h3><div class="big">${esc(s.summary?.registered)}</div></div>
+        <div class="card"><h3>Paused</h3><div class="big">${esc(s.summary?.paused)}</div></div>
+        <div class="card"><h3>Healthy</h3><div class="big">${esc(s.summary?.healthy)}</div></div>
+        <div class="card"><h3>Unknown health</h3><div class="big">${esc(s.summary?.unknownHealth)}</div></div>
+      </div>
+      <section class="panel"><h2>Brood continuity</h2><table><thead><tr><th>Class</th><th>State</th><th>Health</th><th>Continuity</th><th>Manifest</th><th>Privacy</th><th>Route</th><th>Last event</th></tr></thead><tbody>${rows}</tbody></table></section>
+      <div class="grid">
+        <div class="card"><h3>Commissioning ledger</h3><div class="big ${s.integrity?.ledger?.ok?'ok':'bad'}">${s.integrity?.ledger?.ok?'VALID':'ATTENTION'}</div><div class="muted">${esc(s.integrity?.ledger?.entries||0)} entries</div></div>
+        <div class="card"><h3>Administrative journal</h3><div class="big ${s.integrity?.journal?.ok?'ok':'bad'}">${s.integrity?.journal?.ok?'VALID':'ATTENTION'}</div><div class="muted">${esc(s.integrity?.journal?.entries||0)} entries</div></div>
+        ${recovery}
+        <div class="card"><h3>Authority</h3><div class="big">HUMAN</div><div class="muted">Explicit administration required.</div></div>
+      </div>
+      <section class="panel"><h2>Recent administrative history</h2><ul>${events}</ul></section>
+      <section class="panel"><h2>Privacy boundary</h2><p class="muted">Snapshot excludes learner data, family data, Beta report bodies, credentials, secrets, and raw security evidence.</p></section>
+      <div class="stamp">Snapshot generated: ${esc(s.generatedAt||'unknown')}</div>`;
+    status.textContent='Sanitized Spyder Cloud snapshot connected.';
+    status.className='notice ok';
+    content.hidden=false;
+  }
+
+  fetch(SNAPSHOT_URL,{cache:'no-store'})
+    .then(r=>{if(!r.ok)throw new Error(`snapshot HTTP ${r.status}`);return r.json();})
+    .then(s=>{if(!validate(s))throw new Error('snapshot safety contract failed');render(s);})
+    .catch(err=>{
+      status.className='notice error';
+      status.innerHTML='<strong>Snapshot unavailable.</strong> The Admin Brood remains unchanged and no fallback write/action is attempted.<br><span class="muted">'+esc(err.message)+'</span>';
+    });
+})();
+</script>
+</body>
+</html>
