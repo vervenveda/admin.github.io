@@ -1,0 +1,29 @@
+{
+  "schema":"khaemenes-swarm-convergence-registry",
+  "version":1,
+  "updatedAt":"2026-08-20T13:49:00Z",
+  "broods":[
+    {
+      "schema":"khaemenes-swarm-convergence",
+      "version":1,
+      "broodId":"araneae-admin-brood",
+      "name":"Araneae Admin Brood",
+      "status":"available",
+      "sourceOfTruth":"https://github.com/vervenveda/spyder-cloud",
+      "statusView":"./admin-brood/araneae-view/",
+      "contract":"./admin-brood/manifest.json",
+      "authority":{"humanFinalAuthority":true,"autonomousConsequentialAction":false,"crossBroodWrites":false}
+    },
+    {
+      "schema":"khaemenes-swarm-convergence",
+      "version":1,
+      "broodId":"beta-brood",
+      "name":"Beta Brood",
+      "status":"developing",
+      "sourceOfTruth":"./beta-brood/brood-manifest.json",
+      "statusView":null,
+      "contract":"./beta-brood/admin-report.schema.json",
+      "authority":{"humanFinalAuthority":true,"autonomousConsequentialAction":false,"crossBroodWrites":false}
+    }
+  ]
+}
