@@ -1,0 +1,74 @@
+{
+  "schema": "khaemenes-spyder-trial-set",
+  "version": 1,
+  "trialId": "khaemenes-baby-spyders-trial-a",
+  "mode": "shadow-read-only",
+  "purpose": "Exercise the existing Araneae/MAVRIC review path against three public, non-sensitive targets before Academy-wide expansion.",
+  "authority": {
+    "humanFinalAuthority": true,
+    "autonomousConsequentialAction": false,
+    "crossBroodWrites": false,
+    "repositoryWrites": false
+  },
+  "privacy": {
+    "adminSafeOnly": true,
+    "collectSecrets": false,
+    "collectCredentials": false,
+    "collectLearnerData": false,
+    "collectProtectedAnswerBodies": false
+  },
+  "targets": [
+    {
+      "id": "arcade-checkers-variant-lab",
+      "repository": "vervenveda/arcade.github.io",
+      "path": "Checkers_Variant_Lab_index.html",
+      "domain": "arcade",
+      "focus": ["runtime-state", "rule-integrity", "local-storage", "ai-learning", "accessibility", "navigation"],
+      "allowedSpyderClasses": ["repo", "sentinel", "directory"],
+      "expectedEvidence": "Metadata, structural observations, safe behavioral findings, and digests only."
+    },
+    {
+      "id": "arcade-affixsix",
+      "repository": "vervenveda/arcade.github.io",
+      "path": "AffixSix™_index.html",
+      "domain": "arcade",
+      "focus": ["runtime-state", "ai-timing", "local-storage", "schema-migration", "accessibility", "navigation"],
+      "allowedSpyderClasses": ["repo", "sentinel", "directory"],
+      "expectedEvidence": "Metadata, structural observations, safe behavioral findings, and digests only."
+    },
+    {
+      "id": "geometry-units-01-03",
+      "repository": "vervenveda/Khaemenes_High.github.io",
+      "path": "courses/mathematics/geometry/units",
+      "ref": "draft/geometry-a-plus-plus-first-pass",
+      "domain": "khaemenes-high",
+      "focus": ["curriculum-structure", "lesson-key-parity", "assessment-contract", "mastery-evidence", "standards-alignment", "accessibility", "navigation"],
+      "validator": "courses/mathematics/geometry/tools/validate-units-01-03.mjs",
+      "allowedSpyderClasses": ["repo", "sentinel", "directory"],
+      "expectedEvidence": "Validator result metadata and sanitized mismatch descriptions. Never include protected answer bodies."
+    }
+  ],
+  "observationContract": {
+    "required": ["eventId", "spyderClass", "observedAt", "target", "category", "severity", "observed", "authority"],
+    "spyderClasses": ["sentinel", "repo", "beta", "recovery", "directory"],
+    "severity": ["info", "low", "medium", "high", "critical"],
+    "authority": "human-review-required",
+    "optional": ["spyderId", "compared", "inferred", "recommended", "confidence", "evidenceDigest"]
+  },
+  "correlationRules": [
+    "Deduplicate observations that identify the same target, category, and underlying condition.",
+    "Keep code/runtime findings distinct from curriculum/pedagogy findings.",
+    "Do not infer a protected answer or learner record from metadata.",
+    "A validator PASS is evidence about the validator contract only, not automatic course certification.",
+    "A spyder recommendation never authorizes a repository change.",
+    "Conflicting observations are retained and escalated for human review rather than silently reconciled."
+  ],
+  "successCriteria": [
+    "All emitted observations conform to the admin-safe observation fields.",
+    "No target is modified.",
+    "No secrets, credentials, learner data, or protected answer bodies appear in output.",
+    "Repeated findings correlate without losing evidence lineage.",
+    "Arcade findings remain distinguishable from educational findings.",
+    "Human review remains the final authority."
+  ]
+}
