@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Memory Archive · ADMIN</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#111918;color:#eee8dc;font:400 16px/1.6 "Nunito","Avenir Next",system-ui,sans-serif}main{max-width:1000px;margin:auto;padding:33px 20px 66px}h1,h2{font-family:Cinzel,Georgia,serif;font-weight:400;color:#e4c783}h1{font-size:clamp(27px,5vw,44px)}.eyebrow{letter-spacing:.17em;text-transform:uppercase;color:#c6b78e;font-size:12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:14px}.card{background:#202b29;border:1px solid #596458;border-radius:7px;padding:21px}.card p{margin-top:0}.link{display:inline-block;color:#f5dfab;padding:10px 0;text-underline-offset:4px}.notice{border-left:3px solid #e4c783;padding:12px 18px;background:#27312b;margin:25px 0}label{display:block;margin:10px 0 6px}input{width:100%;background:#101614;border:1px solid #9a9d91;color:#fff;border-radius:7px;padding:12px;font:inherit}button{margin-top:12px;padding:11px 18px;background:#e4c783;color:#141a17;border:0;border-radius:7px;font:inherit;cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}#result{white-space:pre-wrap;overflow-wrap:anywhere}small{color:#b9bcb1}footer{margin-top:30px;border-top:1px solid #596458;padding-top:20px}
+</style></head><body><main>
+<div class="eyebrow">Verve N Veda · Private Administration</div>
+<h1>Memory Archive</h1>
+<p>The administrative entrance for Conversation Cloud, the Hope archive, the Memory Codices, mentor histories, and recovered originals.</p>
+<div class="notice" role="status"><strong>Private access boundary.</strong> This page is an administrative entry and configuration checkpoint, not a login screen. Access to private repository contents requires your authenticated GitHub session or a future authenticated STOS server bridge. No GitHub tokens are requested or stored here.</div>
+<div class="grid">
+<section class="card"><h2>Conversation Cloud</h2><p>Open the private reader source and inspect its existing controls. A full-catalogue STOS bridge is not connected yet.</p><a class="link" href="https://github.com/KhaemenesAcademy/chat-conversations.github.io/blob/main/index.html" rel="noopener noreferrer">Open private reader source</a></section>
+<section class="card"><h2>Complete Repository</h2><p>Browse every file in the private archive using GitHub's authenticated directory view.</p><a class="link" href="https://github.com/KhaemenesAcademy/chat-conversations.github.io" rel="noopener noreferrer">Open full archive</a></section>
+<section class="card"><h2>Hope Records</h2><p>Chronological inventories, source provenance, and the 284-page completion checkpoint.</p><a class="link" href="https://github.com/KhaemenesAcademy/chat-conversations.github.io/tree/main/memory-project/mentors/hope" rel="noopener noreferrer">Browse Hope archive</a></section>
+<section class="card"><h2>Original Conversations</h2><p>Original-source directory and recovery status. The first Hope PDF binary is not yet stored here.</p><a class="link" href="https://github.com/KhaemenesAcademy/chat-conversations.github.io/tree/main/original-conversations" rel="noopener noreferrer">Inspect original sources</a></section>
+</div>
+<section class="card" style="margin-top:20px"><h2>STOS bridge readiness</h2>
+<p>The planned bridge should expose an authenticated, read-only catalogue and file stream from STOS, without browser-held GitHub credentials. Check an endpoint only after your STOS service implements the contract.</p>
+<label for="endpoint">Same-origin administrative health endpoint</label><input id="endpoint" value="/admin/api/memory/health" spellcheck="false" autocomplete="off">
+<button id="check" type="button">Check bridge</button><p id="result" role="status" aria-live="polite">Not tested. No bridge is assumed to be active.</p>
+<small>Only same-origin paths beginning with /admin/api/memory/ are permitted. A response must declare authenticated access; an ordinary public 200 response is not sufficient.</small></section>
+<footer><a class="link" href="https://github.com/vervenveda/admin.github.io" rel="noopener noreferrer">ADMIN repository</a> · Read-only archive entrance · No credentials embedded</footer>
+</main><script>
+'use strict';
+document.getElementById('check').addEventListener('click',async()=>{
+const out=document.getElementById('result'),p=document.getElementById('endpoint').value.trim();
+if(!/^\/admin\/api\/memory\/[a-z0-9/_-]+$/i.test(p)){out.textContent='Invalid endpoint: use a same-origin /admin/api/memory/ path.';return}
+out.textContent='Checking authenticated STOS bridge…';
+try{const r=await fetch(p,{credentials:'same-origin',cache:'no-store',redirect:'error',headers:{Accept:'application/json'}});const type=r.headers.get('content-type')||'';
+if(!r.ok||!type.includes('application/json'))throw Error('No verified JSON bridge response (HTTP '+r.status+').');
+const d=await r.json();if(d.service!=='memory-archive'||d.authenticated!==true||d.access!=='admin')throw Error('Endpoint did not prove an authenticated admin session.');
+out.textContent='Bridge reports an authenticated administrator session. Catalogue and file-stream tests are still required.';
+}catch(e){out.textContent='Bridge not verified: '+e.message}}
+);
+</script></body></html>
