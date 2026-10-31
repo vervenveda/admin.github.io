@@ -1,0 +1,3 @@
+# ADMIN local gate restoration — 2026-10-31
+
+Restores the V-badge-inspired local 10-digit gate inside private ADMIN only, using the same V2 localStorage record and sessionStorage key names as the former public homepage. Uses PBKDF2-SHA256 120,000 iterations, 16-byte random salt, change-code verification, lock and show/hide controls. The code is first-use initialized in each browser and **is not authentication**. This page must be accessed through a genuinely authenticated private GitHub or STOS environment. GitHub Pages should remain disabled. Existing apps were not edited. The ADMIN homepage has been replaced from its former dark preview to a dashboard; browser QA pending. Do not treat direct URLs to subpages as protected by this client-side overlay.
