@@ -8,6 +8,19 @@
 :root[data-admin-theme="parchment"]{color-scheme:light;--surface:#f7f3ea;--ink:#17251f;--header:#f0e9dc;--header-border:#c4ac79;--card-bg:#fffdf7;--card-border:#c5b38e;--muted:#4c594f;--card-copy:#39483f;--notice-bg:#e9e4d6;--button-bg:#f5efe2;--button-hover:#e8ddc6;--button-ink:#1c3529;--link:#365b44;--heading:#6b5026;--footer:#4c594f;--focus:#315c46;--gold:#6b5026;--paper:#17251f;--charcoal:#f7f3ea}
 body{background:var(--surface);color:var(--ink)}header{background:var(--header);border-bottom-color:var(--header-border)}button,.action{background:var(--button-bg);color:var(--button-ink);border-color:var(--card-border)}button:hover,.action:hover{background:var(--button-hover)}button:focus-visible,a:focus-visible,input:focus-visible{outline-color:var(--focus)}h1,h2{color:var(--heading)}.intro{color:var(--muted)}.card{background:var(--card-bg);border-color:var(--card-border)}.card p{color:var(--card-copy)}.action{color:var(--link)}.notice{background:var(--notice-bg)}footer{color:var(--footer);border-color:var(--card-border)}.panel{color:#1b2924}.panel h2{color:#315042}.panel button{background:#244235;color:#fff}.overlay{background:rgba(0,0,0,.83)}
 @media(max-width:560px){header{flex-wrap:wrap}.head-actions{flex-wrap:wrap;justify-content:flex-end}#themeToggle{min-width:115px}}
+
+/* Symmetrical ADMIN dashboard: uniform card geometry, aligned actions, centered content */
+.cards{grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;gap:14px}
+.cards>.card{min-width:0;min-height:245px;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;text-align:center;padding:20px 14px}
+.cards>.card h2{font-size:clamp(16px,1.4vw,19px);line-height:1.35;min-height:52px;display:flex;align-items:center;justify-content:center;margin:0 0 10px;overflow-wrap:anywhere}
+.cards>.card p{flex:1;min-height:0;margin:0 0 18px;display:flex;align-items:center;justify-content:center;overflow-wrap:anywhere}
+.cards>.card .action{display:flex;align-items:center;justify-content:center;text-align:center;width:100%;min-height:47px;padding:10px 8px;line-height:1.3;margin-top:auto}
+#workspace>.card{max-width:none;text-align:center}
+#workspace>.card h2{margin:0 0 12px}
+#workspace>.card p{min-height:0}
+#workspace>.card .action{min-height:47px;min-width:min(100%,250px);display:inline-flex;align-items:center;justify-content:center;text-align:center}
+@media(max-width:850px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:430px){.cards{grid-template-columns:1fr}.cards>.card{min-height:205px}.cards>.card h2{min-height:0}}
 </style></head><body>
 <header><div class="brand">V · Verve N Veda · ADMIN</div><div class="head-actions"><button id="themeToggle" type="button" aria-label="Switch to parchment theme" aria-pressed="false">☀ Parchment</button><button id="lock" type="button" hidden>Lock</button><button id="change" type="button" hidden>Change Code</button></div></header>
 <main id="workspace" hidden><h1>Private Administration</h1><p class="intro">Your administrative tools and the private Memory Project entrance, organized in one workspace.</p>
