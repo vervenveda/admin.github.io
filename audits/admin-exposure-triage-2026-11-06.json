@@ -1,0 +1,476 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-11-06",
+  "repository": "vervenveda/admin.github.io",
+  "repositoryVisibility": "public",
+  "pagesEnabled": true,
+  "classificationBasis": "Filename and intended application purpose only; not a completed code, access or data-flow audit.",
+  "status": "inventory-only-no-sensitive-activation",
+  "operatingRule": "No listed application is approved for protected data or privileged operations until server-enforced authentication, resource authorization, and per-app audit pass.",
+  "summary": {
+    "unreviewed-public-source": 31,
+    "protected-candidate": 10,
+    "data-handling-review": 10
+  },
+  "entries": [
+    {
+      "path": "Your_art_gallery_index.html",
+      "name": "Your art gallery",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Araneae_Admin_Brood_index.html",
+      "name": "Araneae Admin Brood",
+      "category": "Administration & Infrastructure",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Aurora_Inspire_index.html",
+      "name": "Aurora Inspire",
+      "category": "Writing & Communication",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/CAD_foundry_index.html",
+      "name": "CAD foundry",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Centered_Earth_index.html",
+      "name": "Centered Earth",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Civil_Support_index.html",
+      "name": "Civil Support",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Daily _spark_tasks_index.html",
+      "name": "Daily  spark tasks",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Elementary_art_index.html",
+      "name": "Elementary art",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Evening_Sanctum_index.html",
+      "name": "Evening Sanctum",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Family_photo_album_index.html",
+      "name": "Family photo album",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/FleaPit_aggregator_index.html",
+      "name": "FleaPit aggregator",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/FleaPit_index.html",
+      "name": "FleaPit",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/FleaPit_video_index.html",
+      "name": "FleaPit video",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/HOLLO™ — Sovereign Choice Chat_index.html",
+      "name": "HOLLO™ — Sovereign Choice Chat",
+      "category": "Writing & Communication",
+      "review": "Source present",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Hope_Story_index.html",
+      "name": "Hope Story",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Hope_continuum_index.html",
+      "name": "Hope continuum",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/KhaeZip_mini_index.html",
+      "name": "KhaeZip mini",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Khaemenes_Assessment_Review_Desk_index.html",
+      "name": "Khaemenes Assessment Review Desk",
+      "category": "Administration & Infrastructure",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Khaemenes_Beta_Brood_Inbox_index.html",
+      "name": "Khaemenes Beta Brood Inbox",
+      "category": "Administration & Infrastructure",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Memoir_index.html",
+      "name": "Memoir",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Memory_Archive_Admin_index.html",
+      "name": "Memory Archive Admin",
+      "category": "Administration & Infrastructure",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/My_Memoir_tobecontinued_index.htm",
+      "name": "My Memoir tobecontinued",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Nebula Cleaner_index.html",
+      "name": "Nebula Cleaner",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/PLERA Sovereign AI Communications Hub",
+      "name": "PLERA Sovereign AI Communications Hub",
+      "category": "Writing & Communication",
+      "review": "Review before use",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/PROSE™ — Sovereign Editorial Suite better_index.html",
+      "name": "PROSE™ — Sovereign Editorial Suite better",
+      "category": "Writing & Communication",
+      "review": "Review before use",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/PROSE™ — Sovereign Editorial Suite_index.html",
+      "name": "PROSE™ — Sovereign Editorial Suite",
+      "category": "Writing & Communication",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Poem_publisher_index.html",
+      "name": "Poem publisher",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Poemfolio_index.html",
+      "name": "Poemfolio",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Prose_about_index.html",
+      "name": "Prose about",
+      "category": "Writing & Communication",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Site_index.html",
+      "name": "Site",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Sovereign Workout Builder_index.html",
+      "name": "Sovereign Workout Builder",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/Task_handler_index.html",
+      "name": "Task handler",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/boundless_binds_index.html",
+      "name": "boundless binds",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/collaborate_index.html",
+      "name": "collaborate",
+      "category": "Writing & Communication",
+      "review": "Source present",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/creative_ritual_wheel_index.html",
+      "name": "creative ritual wheel",
+      "category": "Other Applications",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/donate_index.html",
+      "name": "donate",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/editor_index.html",
+      "name": "editor",
+      "category": "Writing & Communication",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/grammer_grove_index.html",
+      "name": "grammer grove",
+      "category": "Writing & Communication",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/harmony haven keyboard_index.html",
+      "name": "harmony haven keyboard",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/journaling_star_map_index.html",
+      "name": "journaling star map",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/photo_album_2_index.html",
+      "name": "photo album 2",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "data-handling-review",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/sci-fi_stories_index.html",
+      "name": "sci-fi stories",
+      "category": "Other Applications",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/six_bit_index.html",
+      "name": "six bit",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/test_Pearls_Constellation_index.html",
+      "name": "test Pearls Constellation",
+      "category": "Other Applications",
+      "review": "Review before use",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "apps/voice_to_verse_recorder_index.html",
+      "name": "voice to verse recorder",
+      "category": "Memory & Creative",
+      "review": "Source present",
+      "exposureClass": "unreviewed-public-source",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "library/One_Door_Private_Service/index.html",
+      "name": "index",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "library/One_Door_Private_Service/organizer_index.html",
+      "name": "organizer",
+      "category": "Utilities & Services",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "library/RouteKeeper™_Admin/index.html",
+      "name": "index",
+      "category": "Administration & Infrastructure",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "library/RouteKeeper™_Admin/sovereign-build-codex/index.html",
+      "name": "index",
+      "category": "Administration & Infrastructure",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "swarm/admin-brood/araneae-view/index.html",
+      "name": "index",
+      "category": "Administration & Infrastructure",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    },
+    {
+      "path": "swarm/index.html",
+      "name": "index",
+      "category": "Administration & Infrastructure",
+      "review": "Source present",
+      "exposureClass": "protected-candidate",
+      "publicationStatus": "public-repository-file",
+      "activation": "not-approved-for-sensitive-use"
+    }
+  ]
+}
