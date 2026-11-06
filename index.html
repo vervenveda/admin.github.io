@@ -21,6 +21,18 @@ body{background:var(--surface);color:var(--ink)}header{background:var(--header);
 #workspace>.card .action{min-height:47px;min-width:min(100%,250px);display:inline-flex;align-items:center;justify-content:center;text-align:center}
 @media(max-width:850px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:430px){.cards{grid-template-columns:1fr}.cards>.card{min-height:205px}.cards>.card h2{min-height:0}}
+.admin-integrated-directory{border-top:3px solid var(--gold);margin-top:33px;padding-top:30px}
+.admin-integrated-directory>p{font-size:16px;color:var(--muted);max-width:820px}
+.admin-tools-controls{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin:22px 0}
+.admin-tools-controls label{display:grid;gap:6px;font-size:16px}
+.admin-tools-controls input,.admin-tools-controls select{min-height:44px;width:100%;padding:10px;background:var(--card-bg);color:var(--ink);border:1px solid var(--card-border);border-radius:7px;font:inherit}
+.admin-tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:14px}
+.admin-tools-grid .card{display:flex;flex-direction:column;min-height:195px}
+.admin-tools-grid .card h2{font-size:18px}
+.admin-tools-grid .card p{font-size:16px;min-height:0;overflow-wrap:anywhere}
+.admin-tools-grid .card .tag{font-size:16px;color:var(--muted)}
+.admin-tools-grid .card a{margin-top:auto;min-height:44px;display:flex;align-items:center;justify-content:center;border:1px solid var(--card-border);border-radius:7px;padding:9px;color:var(--link)}
+@media(max-width:610px){.admin-tools-controls{grid-template-columns:1fr}}
 </style></head><body>
 <header><div class="brand">V · Verve N Veda · ADMIN</div><div class="head-actions"><button id="themeToggle" type="button" aria-label="Switch to parchment theme" aria-pressed="false">☀ Parchment</button><button id="lock" type="button" hidden>Lock</button><button id="change" type="button" hidden>Change Code</button></div></header>
 <main id="workspace" hidden><h1>Private Administration</h1><p class="intro">Your administrative tools and the private Memory Project entrance, organized in one workspace.</p>
@@ -38,9 +50,17 @@ body{background:var(--surface);color:var(--ink)}header{background:var(--header);
 <section class="card"><h2>Poemfolio</h2><p>Creative writing and poetry workspace in the private collection.</p><a class="action" href="apps/Poemfolio_index.html">Open Poemfolio</a></section>
 <section class="card"><h2>Task Handler</h2><p>Explore the retained Quantum Task Handler utility; verify workflow before production use.</p><a class="action" href="apps/Task_handler_index.html">Open Tasks</a></section>
 <section class="card"><h2>ADMIN Repository</h2><p>View the complete private administration code repository through GitHub.</p><a class="action" href="https://github.com/vervenveda/admin.github.io" rel="noopener noreferrer">Open Repository</a></section>
-</div><section class="card" style="margin-top:22px"><h2>All Administrative Tools</h2><p>Search and browse 51 existing applications, archives, and infrastructure entrances, organized by purpose.</p><a class="action" href="directory/index.html">Browse Complete Directory</a></section><footer>Verve N Veda · Private Administrative Workspace</footer></main>
+</div><section class="admin-integrated-directory" id="adminTools" aria-labelledby="adminToolsTitle">
+<h2 id="adminToolsTitle">All Administrative Tools</h2>
+<p>Search 51 retained applications and entrances here. Tools require their own appropriate authorization; the local gate is only a visual privacy layer.</p>
+<div class="admin-tools-controls">
+<label for="search">Search<input id="search" type="search" placeholder="Search tools or filenames…"></label>
+<label for="category">Category<select id="category"><option value="">All categories</option><option>Administration &amp; Infrastructure</option><option>Memory &amp; Creative</option><option>Writing &amp; Communication</option><option>Utilities &amp; Services</option><option>Other Applications</option></select></label>
+</div><p id="count" role="status" aria-live="polite"></p><div id="results" class="admin-tools-grid"></div>
+<p class="admin-tools-caution">Directory visibility does not grant access. Protected operations require independent authorization.</p>
+</section><footer>Verve N Veda · Private Administrative Workspace</footer></main>
 <div class="overlay" id="gate" role="presentation"><section class="panel" role="dialog" aria-modal="true" aria-labelledby="gateTitle"><div class="logo" aria-hidden="true">V</div><h2 id="gateTitle">Administrator Gate</h2><p>Enter your 10-digit local gate code. On first use in this browser, the code you enter establishes the local gate. This is not server authentication.</p>
 <form id="gateForm"><label for="code">10-digit gate code</label><div class="row"><input id="code" type="password" inputmode="numeric" pattern="[0-9]{10}" minlength="10" maxlength="10" autocomplete="off" required><button id="show" type="button" aria-pressed="false">Show</button></div><button class="primary" type="submit">Open Local Gate</button></form>
 <p class="status" id="status" role="status" aria-live="polite"></p><p class="hint">The local gate is per-browser. STOS and GitHub must independently enforce private access.</p></section></div>
 <div class="overlay" id="changePanel" hidden><section class="panel" role="dialog" aria-modal="true" aria-labelledby="changeTitle"><h2 id="changeTitle">Change Local Code</h2><form id="changeForm"><label for="current">Current 10-digit code</label><input id="current" type="password" inputmode="numeric" maxlength="10" required><label for="next">New 10-digit code</label><input id="next" type="password" inputmode="numeric" maxlength="10" required><label for="confirm">Confirm new code</label><input id="confirm" type="password" inputmode="numeric" maxlength="10" required><button class="primary" type="submit">Save New Code</button></form><button id="cancelChange" type="button">Cancel</button><p class="status" id="changeStatus" role="status" aria-live="polite"></p></section></div>
-<script src="assets/admin-theme.js" defer></script><script src="assets/admin-local-gate.js" defer></script></body></html>
+<script src="assets/admin-theme.js" defer></script><script src="assets/admin-local-gate.js" defer></script><script src="assets/admin-tools-directory.js" defer></script></body></html>
