@@ -1,8 +1,8 @@
-# Verve N Veda Private Administration
+# Verve N Veda Administration — Consolidation Candidate
 
-This repository is the canonical private administrative code surface for Verve N Veda and Khaemenes Academy. GitHub Pages remains disabled.
+**Security status (2026-11-06): Not commissioned as a protected administrative service.** GitHub currently reports this repository as **public** with **Pages enabled**. The existing 10-digit browser-local gate is a presentation convenience, not authentication or authorization. Do not store confidential information here or activate privileged functions through its public pages. See [SECURITY-BOUNDARY.md](SECURITY-BOUNDARY.md) for mandatory commissioning gates.
 
-It is used for operator tooling, Academy aggregate reporting, Beta Program coverage, review workflows, and future protected administrative integrations. It is **not** a credential database and must not become one.
+This repository contains the existing one-door administration interface, a 51-entry navigation inventory, public-safe operator prototypes, Academy aggregate-reporting prototypes, Beta Program coverage resources, review workflows, and prospective protected administrative integrations. It is **not** a credential database and must not become one.
 
 ## Canonical Academy/Admin sync
 
