@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Visitor Reports · ADMIN Preview</title>
+<style>
+:root{color-scheme:dark;--charcoal:#17231f;--panel:#24302b;--cream:#f4f0e7;--gold:#dcbf86;--line:#677268}
+*{box-sizing:border-box}body{margin:0;background:var(--charcoal);color:var(--cream);font:400 16px/1.6 Nunito,"Avenir Next",system-ui,sans-serif}
+header,main,footer{max-width:1040px;margin:auto;padding:24px 20px}
+header{border-bottom:1px solid var(--line)}header a{color:var(--gold)}
+h1,h2{font-family:Cinzel,Georgia,serif;font-weight:400}h1{font-size:clamp(30px,5vw,49px);color:var(--gold);margin:6px 0}h2{font-size:23px;color:var(--gold);margin:0 0 12px}
+.eyebrow{font-size:16px;color:var(--gold)}.notice{border:3px solid var(--gold);padding:16px;background:#29342e;border-radius:7px}
+.panel{margin:23px 0;border:1px solid var(--line);padding:22px;border-radius:7px;background:var(--panel)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+dl{display:grid;grid-template-columns:165px 1fr;gap:10px;margin:0}dt{color:var(--gold)}dd{margin:0;overflow-wrap:anywhere}
+label{display:grid;gap:8px}select{min-height:44px;background:#17231f;color:var(--cream);border:1px solid var(--line);border-radius:7px;font:inherit;padding:9px}
+button,a.action{padding:10px 15px;border-radius:7px;border:1px solid var(--gold);background:#17231f;color:var(--cream);font:inherit;cursor:pointer}
+.buttons{display:flex;gap:12px;flex-wrap:wrap;margin-top:16px}.pill{display:inline-block;padding:3px 12px;border:1px solid var(--gold);border-radius:7px;color:var(--gold)}
+small,footer{color:#c5cdc5}a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(max-width:650px){.grid{grid-template-columns:1fr}dl{grid-template-columns:1fr}dt{margin-top:8px}}
+</style>
+</head>
+<body>
+<header><a href="../index.html">ADMIN home</a> · <a href="Khaemenes_Beta_Brood_Inbox_index.html">Beta Brood monitoring</a><p class="eyebrow">Verve N Veda · ADMIN</p><h1>Visitor Reports</h1>
+<p>Review layout and notification fields, distinct from automated Araneae monitoring.</p></header>
+<main>
+<div class="notice" role="status"><strong>Preview only — no live notifications.</strong> This repository is public and its browser PIN is not authorization. The preview uses fabricated example data only. Do not enter or import real Beta reports, student information, screenshots, or private records here. It does not fetch, transmit, store, or acknowledge reports.</div>
+<div class="panel"><h2>Notification Preview</h2><p>Illustrative format for the future protected ADMIN inbox.</p><div class="grid">
+<label>Issue category<select id="category"><option value="all">All categories</option><option value="button-action">Button / Action</option><option value="visual">Visual / Layout</option><option value="broken-link">Broken Link</option><option value="suggestion">Improvement Idea</option></select></label>
+<label>Review state<select id="status"><option value="all">All states</option><option value="New">New</option><option value="Investigating">Investigating</option><option value="Resolved">Resolved</option></select></label>
+</div><p id="count" aria-live="polite"></p><div id="cards"></div></div>
+<div class="panel"><h2>Activation Requirements</h2><p>To receive actual Beta feedback, this interface must be deployed behind real server-side authentication and must obtain reports from a first-party, protected API. Each report requires a durable receipt, authorization checks, a non-public audit trail, and a server-owned resolution state. This preview never grants those capabilities.</p>
+<div class="buttons"><a class="action" href="../index.html">Return to ADMIN</a><a class="action" href="Khaemenes_Beta_Brood_Inbox_index.html">Beta Brood Monitoring</a></div></div>
+</main><footer>ADMIN · Display-only prototype · No sensitive data or network calls</footer>
+<script>
+(() => {"use strict";
+const sample=Object.freeze([
+{id:"DEMO-001",type:"button-action",status:"New",page:"Grade 09 · Example Lesson",section:"Start Quiz",steps:"Pressed Start Quiz",expected:"Quiz opens",observed:"No action occurred",suggestion:"Show a clear loading or error state"},
+{id:"DEMO-002",type:"visual",status:"Investigating",page:"Example Student Dashboard",section:"Progress Card",steps:"Viewed on a narrow screen",expected:"Text remains readable",observed:"Button label overlaps",suggestion:"Increase wrapping and contrast"},
+{id:"DEMO-003",type:"broken-link",status:"Resolved",page:"Example Resource Directory",section:"Learning Resources",steps:"Selected a resource link",expected:"Correct resource opens",observed:"Destination was missing",suggestion:"Add destination checks"},
+{id:"DEMO-004",type:"suggestion",status:"New",page:"Example Study Tools",section:"Flashcards",steps:"Reviewed study cards",expected:"Simple review controls",observed:"No way to sort difficult cards",suggestion:"Add a difficulty filter"}
+]);
+const c=document.getElementById("category"),s=document.getElementById("status"),target=document.getElementById("cards"),count=document.getElementById("count");
+function render(){
+const rows=sample.filter(x=>(c.value==="all"||x.type===c.value)&&(s.value==="all"||x.status===s.value));
+target.replaceChildren();count.textContent=rows.length+" demonstration notifications";
+for(const item of rows){
+ const card=document.createElement("section");card.className="panel";const h=document.createElement("h2");h.textContent=item.id+" · "+item.type.replace(/-/g," ");const label=document.createElement("span");label.className="pill";label.textContent=item.status;
+ const dl=document.createElement("dl");for(const [k,v] of [["Page",item.page],["Section",item.section],["Action",item.steps],["Expected",item.expected],["Observed",item.observed],["Suggestion",item.suggestion]]){let dt=document.createElement("dt"),dd=document.createElement("dd");dt.textContent=k;dd.textContent=v;dl.append(dt,dd)}
+ card.append(h,label,dl);target.append(card)
+}
+}
+c.addEventListener("change",render);s.addEventListener("change",render);render();
+})();
+</script>
+</body></html>
